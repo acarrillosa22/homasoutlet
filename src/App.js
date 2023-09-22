@@ -6,7 +6,9 @@ import "./App.css";
 import TopNavBar from "./components/navbarC/navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
+
 import Administrador from './pages/Administradores/administradores';
+
 
 import { ProtectedRoutes } from './components/ProtectRoutes';
 import { useState } from 'react';
@@ -27,7 +29,9 @@ function App() {
       <Route path='/config' element={<h1>Configuración</h1>} />
  {/*     </Route> */ }
       {/*   <Route element={<ProtectedRoutes isAllowed={!!user && user.rol ==true}/>} redirecTo="/" > */ }
+
       <Route path='/Administradores' element={<Administrador />} /> 
+      <Route path='/Administradores' element={<h1>Administradores </h1>} /> 
  {/*     </Route> */ }
       
     </Routes>
