@@ -39,6 +39,10 @@ function TopNavBar() {
           <Nav.Link className="navo" as={Link} to="/config">
             Configuración
           </Nav.Link>
+
+          <Nav.Link className="navo" as={Link} to="/administradores">
+            administradores
+          </Nav.Link>
         </Nav>
         <Nav.Link className="navo" as={Link} to="/config">
           <FontAwesomeIcon
