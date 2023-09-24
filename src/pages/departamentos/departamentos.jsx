@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useModal } from "../../hooks/useModal";
-import "./administradores.css";
-import ModalA from "../../components/modal/modal";
+
+import ModalED from "../../components/modal-editar-departamentos/modal-editar-departamentos";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Table,
@@ -15,13 +15,13 @@ import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 library.add(faPenToSquare,faSquareXmark);
 
 const data = [
-  { cedula: 1, nombre: "Naruto", telefono: "5634565", correo: "kiuby@gmail.com", rol: "Admin" },
-  { cedula: 2, nombre: "Goku", telefono: "563456523432", correo: "goku@gmail.com", rol: "Admin" },
-  { cedula: 3, nombre: "Kenshin Himura", telefono: "75674" , correo: "x@gmail.com", rol: "Admin"},
-  { cedula: 4, nombre: "Monkey D. Luffy", telefono: "3432", correo: "ReydelosPiratas@gmail.com", rol: "SuperAdmin" }
+  { nombre: "Economia", estado: 1, descripcion: "Quieres volverte rico?"},
+  { nombre: "Informatica", estado: 1, descripcion: "Otakus que no se bañanan"},
+  { nombre: "Recursos humanos", estado: 1, descripcion: "Quejese aquí"},
+  { nombre: "Sabeunacosa", estado: 1, descripcion: "Muy pronto va a venir CrIsTo y va a pegar la tierra"}
 ];
 
-function Administradores() {
+function Departamentos() {
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
   const [dataState, setData] = useState(data);
 
@@ -36,23 +36,18 @@ function Administradores() {
       <Table>
         <thead>
           <tr>
-            <th>Cedula</th>
             <th>Nombre</th>
-            <th>Telefono</th>
-            <th>Coreo Electronico</th>
-            <th>Rol</th>
-            <th>Acciones</th>
+            <th>Estado</th>
+            <th>Descripción</th>
           </tr>
         </thead>
 
         <tbody>
           {dataState.map((dato) => (
             <tr key={dato.cedula}>
-              <td>{dato.cedula}</td>
               <td>{dato.nombre}</td>
-              <td>{dato.telefono}</td>
-              <td>{dato.correo}</td>
-              <td>{dato.rol}</td>
+              <td>{dato.estado}</td>
+              <td>{dato.descripcion}</td>
               <td>
                 <Button onClick={openModalActualizar} color="primary">
                 <FontAwesomeIcon icon={faPenToSquare} size="lg" />
@@ -67,9 +62,9 @@ function Administradores() {
         </tbody>
       </Table>
 
-      <ModalA isOpenA={isOpenActualizar} closeModal={closeModalActualizar} />
+      <ModalED isOpenED={isOpenActualizar} closeModal={closeModalActualizar} />
     </Container>
   );
 }
 
-export default Administradores;
+export default Departamentos;

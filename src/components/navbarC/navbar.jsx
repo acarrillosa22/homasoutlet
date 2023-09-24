@@ -1,7 +1,7 @@
 import Container from "react-bootstrap/Container";
 import "./navbar.css";
 import { Link } from "react-router-dom";
-import HomasLogo from "C:/Users/emmas/Documents/web/selfLearning/pruebas react/probandoreact/src/img/HomasLogo.png";
+import HomasLogo from "../../img/HomasLogo.png";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import React from "react";
@@ -42,6 +42,10 @@ function TopNavBar() {
 
           <Nav.Link className="navo" as={Link} to="/administradores">
             administradores
+          </Nav.Link>
+
+          <Nav.Link className="navo" as={Link} to="/departamentos">
+            departamentos
           </Nav.Link>
         </Nav>
         <Nav.Link className="navo" as={Link} to="/config">
