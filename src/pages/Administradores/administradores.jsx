@@ -74,7 +74,3 @@ function Administradores() {
 
 export default Administradores;
 
-}
-
-export default Administradores;
-
