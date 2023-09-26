@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { doc, setDoc } from "firebase/firestore";
 import appFirebase from "../../firebase/firebase.js";
 import { getFirestore } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPasswordcre, getAuth } from "firebase/auth";
 import "../modal/modal.css";
 import {
   Modal,
@@ -85,18 +85,18 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
   const crearUsuario = async () => {
     try {
       // Crear usuario en Firebase Authentication
-      const userCredential = await createUserWithEmailAndPassword(
+      const userCredential = await (
         auth,
         form.correo,
         form.contrasena
       );
       // Obtener el ID de usuario del usuario creado
-      const idUser = userCredential.user.uid;
-      console.log(idUser)
+      const idDepartamento = userCredential.user.uid;
+      console.log(idDepartamento)
       // Agregar información del usuario a Firestore
-      await setDoc(doc(db, "Usuarios", idUser), {
+      await setDoc(doc(db, "Departamento", idDepartamento), {
 
-        idUser: idUser,
+        idDepartamento: idDepartamento,
         nombre: form.nombre,
         correoElectronico: form.correo,
         contraseña: form.contrasena,
@@ -129,24 +129,11 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
     <Modal isOpen={isOpenA} toggle={cerrarModalCrear}>
       <ModalHeader>
         <div>
-          <h3>Crear administrador</h3>
+          <h3>Crear Departamentos</h3>
         </div>
       </ModalHeader>
 
       <ModalBody>
-      <FormGroup className={errors.cedula ? "error" : ""  }>
-          <label>Cedula:</label>
-          <input
-            required
-            className="form-control"
-            type="text"
-            name="cedula"
-            placeholder="101110111"
-            value={form.cedula}
-            onChange={handleChange}
-          />
-          {errors.cedula && <div className="error">{errors.cedula}</div>}
-        </FormGroup>
         <FormGroup>
           <label>Nombre:</label>
           <input
@@ -159,48 +146,24 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
           />
         </FormGroup>
         <FormGroup className={errors.contrasena ? "error" : ""}>
-          <label>Contraseña:</label>
+          <label>Estado:</label>
           <input
           required 
             className="form-control"
-            type="password"
-            name="contrasena"
-            placeholder="debe tener al menos 6 caracteres"
+            type="int"
+            name="estado"
+            placeholder="solo pueden ser numeros"
             value={form.contrasena}
             onChange={handleChange}
           />
           {errors.contrasena && <div className="error">{errors.contrasena}</div>}
         </FormGroup>
-        <FormGroup className={errors.contrasena ? "error" : ""}>
-          <label>Teléfono:</label>
-          <input
-          required 
-            className="form-control"
-            name="telefono"
-            type="tel"
-            onChange={handleChange}
-            value={form.telefono}
-          />
-          {errors.telefono && <div className="error">{errors.telefono}</div>}
-        </FormGroup>
-        <FormGroup className={errors.correo ? "error" : ""}>
-          <label>Correo:</label>
-          <input
-          required 
-            className="form-control"
-            name="correo"
-            type="email"
-            onChange={handleChange}
-            value={form.correo}
-          />
-          {errors.correo && <div className="error">{errors.correo}</div>}
-        </FormGroup>
         <FormGroup className={errors.rol ? "error" : ""}>
-          <label>Rol:</label>
+          <label>Descripción:</label>
           <input
           required 
             className="form-control"
-            name="rol"
+            name="descripcion"
             type="text"
             onChange={handleChange}
             value={form.rol}
