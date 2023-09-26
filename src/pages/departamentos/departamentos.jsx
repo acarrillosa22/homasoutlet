@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useModal } from "../../hooks/useModal";
-
-import ModalED from "../../components/modal-editar-departamentos/modal-editar-departamentos";
+import appFirebase from "../../firebase/firebase.js"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
+import { collection, getDocs } from "firebase/firestore";
+import ModalED from "../../components/modal-editar/modal-editar-departamentos";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Table,
@@ -12,26 +14,89 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
+import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 library.add(faPenToSquare,faSquareXmark);
 
-const data = [
-  { nombre: "Economia", estado: 1, descripcion: "Quieres volverte rico?"},
-  { nombre: "Informatica", estado: 1, descripcion: "Otakus que no se bañanan"},
-  { nombre: "Recursos humanos", estado: 1, descripcion: "Quejese aquí"},
-  { nombre: "Sabeunacosa", estado: 1, descripcion: "Muy pronto va a venir CrIsTo y va a pegar la tierra"}
-];
-
 function Departamentos() {
-  const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
-  const [dataState, setData] = useState(data);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    obtenerDepartamentos(1); // Fetch the first page of users
+  }, []);
+  const [IdDepartamento, setIddepartamento] = useState(0);
+  const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
+  const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
+    useModal(false);
+  const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
+  const [isOpenEliminar, openModalEliminar, closeModalEliminar] =
+    useModal(false);
+  const [dataState, setData] = useState([]);
+  
+  const abrirModalActualizar = (cedula) => {
+    console.log(cedula);
+    setIddepartamento(cedula);
+    console.log(cedula);
+    openModalActualizar();
+  };
+  const abrirModalEliminar = (cedula) => {
+    setIddepartamento(cedula);
+    console.log(cedula);
+    openModalEliminar();
+  };
+  const handleNextPage = () => {
+    // Increment the page and fetch the next page of users
+    obtenerDepartamentos(currentPage + 1);
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      // Decrement the page and fetch the previous page of users
+      obtenerDepartamentos(currentPage - 1);
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+  const obtenerDepartamentos = async (page) => {
+    try {
+      const departmentsPerPage = 10; // Number of users to fetch per page
+      const startIndex = (page - 1) * departmentsPerPage;
+
+      const departmentRef = collection(db, "Departamento");
+      const departmentsSnapshot = await getDocs(departmentRef);
+      const allDepartments = departmentsSnapshot.docs
+        .map((user) => user.data())
+
+      // Calculate the slice of users for the current page
+      const slicedDepartments = allDepartments.slice(startIndex, startIndex + departmentsPerPage);
+
+      setData(slicedDepartments); // Update the data state with the fetched users
+    } catch (error) {
+      console.error("Error al obtener departamentos: ", error);
+    }
+  };
+  const onCreateDepartamento = () => {
+    // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
+    obtenerDepartamentos();
+  };
 
   return (
     <Container>
       <br />
-      <Button color="success">
+      <Button onClick={openModalCrear} color="success">
         Crear
       </Button>
-      <br />
+
+      <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search by name"
+      />
+          <br />
       <br />
       <Table>
         <thead>
@@ -44,15 +109,15 @@ function Departamentos() {
 
         <tbody>
           {dataState.map((dato) => (
-            <tr key={dato.cedula}>
-              <td>{dato.nombre}</td>
-              <td>{dato.estado}</td>
-              <td>{dato.descripcion}</td>
+            <tr key={dato.IdDepartamento}>
+              <td>{dato.Nombre}</td>
+              <td>{dato.Estado}</td>
+              <td>{dato.Descripcion}</td>
               <td>
-                <Button onClick={openModalActualizar} color="primary">
+                <Button onClick={() => abrirModalActualizar(dato.IdDepartamento)} color="primary">
                 <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                 </Button>
-                <Button color="danger">
+                <Button onClick={() => abrirModalEliminar(dato.IdDepartamento)} color="danger">
                 <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
                 
@@ -62,7 +127,27 @@ function Departamentos() {
         </tbody>
       </Table>
 
-      <ModalED isOpenED={isOpenActualizar} closeModal={closeModalActualizar} />
+      <div className="pagination">
+          <Button
+            onClick={handlePrevPage}
+            disabled={currentPage === 1}
+            color="primary"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+          </Button>
+          <span> Pagina: {currentPage}</span>
+          <Button
+            onClick={handleNextPage}
+            disabled={dataState.length < 10}
+            color="primary"
+          >
+            <FontAwesomeIcon icon={faArrowRight} size="lg" />
+          </Button>
+        </div>
+
+      <ModalED isOpenED={isOpenActualizar} closeModal={closeModalActualizar} cedula={IdDepartamento} onCreateDepartamento={onCreateDepartamento}/>
+      <ModalCrear isOpenA={isOpenCrear} closeModal={closeModalCrear} cedula={IdDepartamento} onCreateDepartamento={onCreateDepartamento}/>
+      <ModalEliminar isOpenA={isOpenEliminar} closeModal={closeModalEliminar} cedelu={IdDepartamento} onDeleteDepartamento={onCreateDepartamento}/>
     </Container>
   );
 }
