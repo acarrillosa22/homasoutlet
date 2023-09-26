@@ -32,9 +32,26 @@ export async function buscarProductoNombre(uid){
     });
     return producto.length>0? producto : null;
 }
-export async function t(uid){
-    /*Funcion de coneccion*/
-}
+
 export async function u(uid){
     /*Funcion de coneccion*/
+
+
+export async function crearProducto(prod){
+    try {
+        const coleref = collection(db,'Producto');
+        const docref = doc(coleref, prod.uid);
+        await setDoc(docref,prod);
+    } catch (error) {
+        
+    }
+}
+export async function actualizarProducto(prod){
+    try {
+        const coleref = collection(db,'Producto');
+        const docref = doc(coleref, prod.uid);
+        await setDoc(docref,prod);
+    } catch (error) {
+        
+    }
 }

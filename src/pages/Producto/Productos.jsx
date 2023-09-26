@@ -1,0 +1,14 @@
+import React, { useEffect, useState } from "react";
+import ModalCrear from "../../components/modalCrear/modalcrear";
+import ModalA from "../../components/modal/modal";
+import ModalEliminar from "../../components/modalEliminar/modalElimicar";
+import { useModal } from "../../hooks/useModal";
+import "./administradores.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Table, Button, Container } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
