@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
 import Salidas from './components/Movimientos/Salidas';
 import Api from './pages/Producto/Target-api';
+import Producto from './pages/Producto/Productos';
 import Departamentos from './pages/departamentos/departamentos';
 import { ProtectedRoutes } from './components/ProtectRoutes';
 import { useState } from 'react';
@@ -23,7 +24,7 @@ function App() {
       <Route path='/Cierre' element={<ResponsiveBreakpointsExample dinero={numbers} />} />
       <Route path='/ventas' element={<h1>ventas</h1>} />
       <Route path='/clientes' element={<h1>Clientes</h1>} />
-      <Route path='/productos' element={<h1>Productos</h1>} />
+      <Route path='/productos' element={<Producto/>} />
       <Route path='/inventario' element={<h1>Inventario</h1>} />
       <Route path='/config' element={<h1>Configuración</h1>} />
       <Route path='/productos/Api' element={<Api />} />
