@@ -6,7 +6,7 @@ import "./App.css";
 import TopNavBar from "./components/navbarC/navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
-
+import Salidas from './components/Movimientos/Salidas';
 import Api from './pages/Producto/Target-api';
 import Departamentos from './pages/departamentos/departamentos';
 import { ProtectedRoutes } from './components/ProtectRoutes';
@@ -33,6 +33,7 @@ function App() {
 
       <Route path='/departamentos' element={<Departamentos />} />
       <Route path='/Administradores' element={<h1>Administradores </h1>} /> 
+      <Route path='/Salidas' element={<Salidas />} />
  {/*     </Route> */ }
       
     </Routes>
