@@ -4,6 +4,7 @@ import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 import db from "../../firebase/firebase"; // Ajusta la ruta de importación según tu estructura de carpetas
 import "./Salidas.css";
 import HistorialSalida from "./HistorialSalida";
+import HomasLogo from "../../img/HomasLogo.png";
 
 const Salidas = () => {
   const [monto, setMonto] = useState("");
@@ -89,43 +90,43 @@ const Salidas = () => {
     <div className="container">
       <h1>Movimientos de Dinero</h1>
       <div className="image-container">
-        <img src="logo.png" alt="Logo" />
+        <img src={HomasLogo} alt="Logo" />
       </div>
-      <div className="container-correo">
+      <div className="container-labeles">
         <label className="objeto">Tipo de Movimiento</label>
         <input
-          placeholder="Ingrese si es entrada o salida ..."
+          placeholder="Ingrese si es entrada o salida "
           value={tipo}
           onChange={(event) => setTipo(event.target.value)}
         />
       </div>
-      <div className="container-correo">
+      <div className="container-labeles">
         <label className="objeto">Fecha</label>
         <input
-          placeholder="Ingrese la fecha ej: 23/08/2022 ..."
+          placeholder="Ingrese la fecha ej: 23/08/2022 "
           value={fecha}
           onChange={(event) => setFecha(event.target.value)}
         />
       </div>
-      <div className="container-contraseña">
+      <div className="container-labeles">
         <label>Monto</label>
         <input
-          placeholder="Ingrese el monto ..."
+          placeholder="Ingrese el monto "
           value={monto}
           onChange={handleMontoChange}
         />
       </div>
-      <div className="container-contraseña">
+      <div className="container-labeles">
         <label>Motivo</label>
         <input
-          placeholder="Todos los detalles importantes..."
+          placeholder="Todos los detalles importantes"
           value={motivo}
           onChange={handleMotivoChange}
           className="objeto"
         />
         <p style={{ color: "red" }}>{errorMessage}</p>
       </div>
-      <div>
+      <div className="botones">
         <button id="btn-Guardar" onClick={saveRegistro}>
           Guardar
         </button>

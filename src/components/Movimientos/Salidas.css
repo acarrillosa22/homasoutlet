@@ -1,11 +1,33 @@
-.container-correo,
-  .container-contraseña {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px 0;
-    
-  }
+.container-labeles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.container-labeles input {
+  width: 250px;
+  text-align: center;
+  border-radius: 5px;
+}
+
+.objeto {
+  width: 10rem;
+}
+
+#btn-Guardar {
+  margin-left: 10px;
+}
+
+#btn-Historial{
+  margin-left: 10px;
+}
+
 img{
     width: 7em;
 }
+
+html {
+  text-align: center;
+}
+

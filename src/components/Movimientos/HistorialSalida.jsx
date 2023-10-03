@@ -30,7 +30,7 @@ const HistorialSalida = ({
   });
 
   return (
-    <div>
+    <div id="todo">
       <div className="filtros">
         <div>
           <label>Filtrar por Tipo:</label>
