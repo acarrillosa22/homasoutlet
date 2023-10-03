@@ -12,6 +12,7 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
+      window.alert("Buscando producto...");
       try {
         const response = await axios.get('https://api.redcircleapi.com/request', {
           params: {
@@ -21,15 +22,23 @@ function App() {
             type: "search"
           }
         });
+        
         const resultados = response.data.search_results;
-
-        if (resultados.length > 0) {
-          setResponseData(resultados.slice(0, 5)); // Mostrar hasta  resultados
-          setSearchCompleted(true);
-        } else {
-          setSearchCompleted(false);
+        if (resultados !== undefined) {
+          if (resultados.length > 0) {
+            setResponseData(resultados.slice(0, 5)); // Mostrar hasta 5 resultados
+            setSearchCompleted(true);
+          } else {
+            setSearchCompleted(false);
+            window.alert("No se encontraron resultados");
+          }
         }
+        else{
+          window.alert("No se encontraron resultados")
+        }
+
       } catch (error) {
+        window.alert("Error con la búsqueda");
         console.error('Error en la solicitud:', error)
         setSearchCompleted(false);
       }

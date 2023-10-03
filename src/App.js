@@ -7,10 +7,8 @@ import TopNavBar from "./components/navbarC/navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
 
-
+import Api from './pages/Producto/Target-api';
 import Departamentos from './pages/departamentos/departamentos';
-
-
 import { ProtectedRoutes } from './components/ProtectRoutes';
 import { useState } from 'react';
 const numbers = [3454, 3455, 34545];
@@ -28,6 +26,7 @@ function App() {
       <Route path='/productos' element={<h1>Productos</h1>} />
       <Route path='/inventario' element={<h1>Inventario</h1>} />
       <Route path='/config' element={<h1>Configuración</h1>} />
+      <Route path='/productos/Api' element={<Api />} />
  {/*     </Route> */ }
       {/*   <Route element={<ProtectedRoutes isAllowed={!!user && user.rol ==true}/>} redirecTo="/" > */ }
 
