@@ -18,6 +18,7 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
+import './departamentos.css';
 library.add(faPenToSquare,faSquareXmark);
 
 function Departamentos() {
@@ -29,22 +30,20 @@ function Departamentos() {
   }, []);
   const [IdDepartamento, setIddepartamento] = useState(0);
   const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
-  const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
-    useModal(false);
+  const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
-  const [isOpenEliminar, openModalEliminar, closeModalEliminar] =
-    useModal(false);
+  const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
   
-  const abrirModalActualizar = (cedula) => {
-    console.log(cedula);
-    setIddepartamento(cedula);
-    console.log(cedula);
+  const abrirModalActualizar = (id) => {
+    console.log(IdDepartamento);
+    setIddepartamento(id);
+    console.log(id);
     openModalActualizar();
   };
-  const abrirModalEliminar = (cedula) => {
-    setIddepartamento(cedula);
-    console.log(cedula);
+  const abrirModalEliminar = (id) => {
+    setIddepartamento(id);
+    console.log(id);
     openModalEliminar();
   };
   const handleNextPage = () => {
@@ -68,7 +67,7 @@ function Departamentos() {
       const departmentRef = collection(db, "Departamento");
       const departmentsSnapshot = await getDocs(departmentRef);
       const allDepartments = departmentsSnapshot.docs
-        .map((user) => user.data())
+        .map((user) => user.data());
 
       // Calculate the slice of users for the current page
       const slicedDepartments = allDepartments.slice(startIndex, startIndex + departmentsPerPage);
@@ -79,8 +78,7 @@ function Departamentos() {
     }
   };
   const onCreateDepartamento = () => {
-    // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
-    obtenerDepartamentos();
+    obtenerDepartamentos(1);
   };
 
   return (
@@ -94,7 +92,7 @@ function Departamentos() {
       type="text"
       value={searchQuery}
       onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Search by name"
+      placeholder="Buscar por nombre"
       />
           <br />
       <br />
@@ -109,15 +107,15 @@ function Departamentos() {
 
         <tbody>
           {dataState.map((dato) => (
-            <tr key={dato.IdDepartamento}>
+            <tr key={dato.ID}>
               <td>{dato.Nombre}</td>
               <td>{dato.Estado}</td>
               <td>{dato.Descripcion}</td>
               <td>
-                <Button onClick={() => abrirModalActualizar(dato.IdDepartamento)} color="primary">
+                <Button onClick={() => abrirModalActualizar(dato.ID)} color="primary">
                 <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                 </Button>
-                <Button onClick={() => abrirModalEliminar(dato.IdDepartamento)} color="danger">
+                <Button onClick={() => abrirModalEliminar(dato.ID)} color="danger">
                 <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
                 
@@ -145,9 +143,9 @@ function Departamentos() {
           </Button>
         </div>
 
-      <ModalED isOpenED={isOpenActualizar} closeModal={closeModalActualizar} cedula={IdDepartamento} onCreateDepartamento={onCreateDepartamento}/>
-      <ModalCrear isOpenA={isOpenCrear} closeModal={closeModalCrear} cedula={IdDepartamento} onCreateDepartamento={onCreateDepartamento}/>
-      <ModalEliminar isOpenA={isOpenEliminar} closeModal={closeModalEliminar} cedelu={IdDepartamento} onDeleteDepartamento={onCreateDepartamento}/>
+      <ModalED isOpenED={isOpenActualizar} closeModal={closeModalActualizar} IDdepartamento={IdDepartamento} onCreateDepartamento={onCreateDepartamento}/>
+      <ModalCrear isOpenA={isOpenCrear} closeModal={closeModalCrear} onCreateDepartamento={onCreateDepartamento}/>
+      <ModalEliminar isOpenD={isOpenEliminar} closeModal={closeModalEliminar} IDdepartamento={IdDepartamento} onDeleteDepartamento={onCreateDepartamento}/>
     </Container>
   );
 }

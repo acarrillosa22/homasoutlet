@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, addDoc } from "firebase/firestore";
 import appFirebase from "../../firebase/firebase.js";
 import { getFirestore } from "firebase/firestore";
 import { createUserWithEmailAndPasswordcre, getAuth } from "firebase/auth";
@@ -49,27 +49,11 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
     let fieldErrors = { ...errors };
 
     switch (fieldName) {
-      case "cedula":
-        fieldErrors.cedula =
-          value.length !== 9 || isNaN(Number(value))
-            ? "La cédula debe tener 9 caracteres y ser solo números"
-            : "";
-        break;
-      case "contrasena":
-        fieldErrors.contrasena =
-          value.length < 6 ? "La contraseña debe tener al menos 6 caracteres" : "";
-        break;
-      case "telefono":
-        fieldErrors.telefono =
-          value.length !== 8 || isNaN(Number(value))
-            ? "El teléfono debe tener 8 números y ser solo números"
-            : "";
-        break;
-      case "rol":
-        fieldErrors.rol =
-          value !== "Admin" && value !== "Super Admin"
-            ? "El rol debe ser 'Admin' o 'Super Admin'"
-            : "";
+      case "estado":
+        fieldErrors.estado =
+          isNaN(Number(value))
+          ? "el estado debe ser un numero" 
+          : "";
         break;
       default:
         break;
@@ -84,49 +68,25 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
 
   const crearUsuario = async () => {
     try {
-      // Crear usuario en Firebase Authentication
-      const userCredential = await (
-        auth,
-        form.correo,
-        form.contrasena
-      );
-      // Obtener el ID de usuario del usuario creado
-      const idDepartamento = userCredential.user.uid;
-      console.log(idDepartamento)
       // Agregar información del usuario a Firestore
-      await setDoc(doc(db, "Departamento", idDepartamento), {
-
-        idDepartamento: idDepartamento,
-        nombre: form.nombre,
-        correoElectronico: form.correo,
-        contraseña: form.contrasena,
-        estado: true,
-        morosidad: false,
-        cedula: form.cedula,
-        rol: form.rol,
-        telefono: form.telefono,
-        limiteDeCredito: 0,
-        ultimaConexion: "",
-        direccionExacta: {
-          provincia: "",
-          canton: "",
-          distrito: "",
-          direccionCompleta: "",
-        },
-        historialPedidos: {},
-      });
+      const docRef = await addDoc(collection(db, "Departamento"), {
+        Nombre: form.nombre,
+        Estado: form.estado,
+        ID: 1,
+        Descripcion: form.descripcion
+      })
   
       console.log("Usuario creado y documentado en Firestore");
-      onCreateUsuario();
       closeModal();
       window.alert("Se creo el Administrador con exito");
+      onCreateUsuario();
     } catch (error) {
       console.error("Error al crear usuario y documentar en Firestore: ", error);
     }
   };
 
   return (
-    <Modal isOpen={isOpenA} toggle={cerrarModalCrear}>
+    <Modal isOpen={isOpenA} toggle={cerrarModalCrear} backdrop="static">
       <ModalHeader>
         <div>
           <h3>Crear Departamentos</h3>
