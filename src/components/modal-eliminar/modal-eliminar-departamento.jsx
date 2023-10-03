@@ -37,7 +37,7 @@ function ModalEliminar({ isOpenD, closeModal, IDdepartamento, onDeleteDepartamen
   };
 
   return (
-    <Modal isOpen={isOpenD} toggle={cerrarModalEliminar}>
+    <Modal isOpen={isOpenD} toggle={cerrarModalEliminar} backdrop="static">
       <ModalHeader>
         <div>
           <h3>¿Realmente desea eliminar el Departamento?</h3>
