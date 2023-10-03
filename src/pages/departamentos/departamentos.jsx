@@ -83,6 +83,7 @@ function Departamentos() {
 
   return (
     <Container>
+      <h1>Departamentos</h1>
       <br />
       <Button onClick={openModalCrear} color="success">
         Crear

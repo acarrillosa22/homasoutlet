@@ -40,10 +40,6 @@ function TopNavBar() {
             Configuración
           </Nav.Link>
 
-          <Nav.Link className="navo" as={Link} to="/administradores">
-            administradores
-          </Nav.Link>
-
           <Nav.Link className="navo" as={Link} to="/departamentos">
             departamentos
           </Nav.Link>
