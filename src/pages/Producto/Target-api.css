@@ -1,0 +1,114 @@
+/* Estilos para el contenedor principal */
+.app-container {
+  width: max-content;
+  height: max-content;
+  padding: 20px;
+}
+
+/* Estilos para el cuadro de búsqueda */
+.search-input {
+  width: 500px;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.search-container{
+  display: flex;
+  margin-left: 650px;
+}
+
+.search-button{
+  text-align: center;
+  height: 42px;
+  width: 75px;
+}
+
+.save-button{
+  text-align: center;
+  height: 42px;
+  width: 150px;
+  margin-left: 5px;
+}
+/* Estilos para la tabla de resultados */
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+/* Estilos para el contenedor de la tabla */
+.table-container {
+  text-align: center; /* Centra horizontalmente el contenido de la tabla */
+  margin-left: 4%; /* Centra horizontalmente el contenedor de la tabla */
+  flex-direction: column;
+}
+
+.result-table th,
+.result-table td {
+  padding: 10px;
+  vertical-align: middle; /* Alinea verticalmente todos los elementos de la celda */
+  border-right: 1px solid #ccc; /* Línea divisora vertical */
+  border-left: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  width: 200px;
+}
+
+/* Estilos para las imágenes */
+.product-image {
+  max-width: 50px;
+  max-height: 50px;
+  margin-bottom: 5px; /* Espacio entre imágenes */
+  display: block; /* Evita espacio adicional debajo de las imágenes */
+  margin-left: 10%;
+  transition: transform 0.2s; /* Agregar una transición suave */
+  cursor: pointer; /* Cambiar el cursor al pasar sobre la imagen */
+}
+
+/* Estilo para la imagen cuando el mouse está sobre ella */
+.product-image:hover {
+  transform: scale(5.0); /* Escala la imagen al 150% del tamaño original */
+}
+
+.image-container {
+  flex-direction: column; /* Muestra las imágenes en una columna vertical */
+  align-items: center; /* Centra las imágenes verticalmente */
+}
+
+/* Estilos para la clase .image-item */
+.image-item {
+  display: flex; /* Utiliza un diseño flexible */
+  align-items: center; /* Centra verticalmente los elementos */
+}
+
+/* Estilos para el checkbox */
+.image-item input[type="checkbox"] {
+  margin-right: 10px; /* Espacio entre el checkbox y la imagen */
+}
+
+
+.precio {
+  display: flex;
+  align-items: center; /* Centra verticalmente los elementos */
+}
+
+.precio-pensado {
+  margin-right: 2px; /* Añade un pequeño margen entre el input y el símbolo */
+}
+
+.currency-symbol {
+  font-size: 20px;
+}
+
+/* Estilos para los enlaces */
+.product-link {
+  color: #007BFF;
+  text-decoration: none;
+}
+
+.product-link:hover {
+  text-decoration: underline;
+}
