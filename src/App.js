@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
 
 import Administrador from './pages/Administradores/administradores';
+import Departamentos from './pages/departamentos/departamentos';
 
 
 import { ProtectedRoutes } from './components/ProtectRoutes';
@@ -31,6 +32,7 @@ function App() {
       {/*   <Route element={<ProtectedRoutes isAllowed={!!user && user.rol ==true}/>} redirecTo="/" > */ }
 
       <Route path='/Administradores' element={<Administrador />} /> 
+      <Route path='/departamentos' element={<Departamentos />} />
       <Route path='/Administradores' element={<h1>Administradores </h1>} /> 
  {/*     </Route> */ }
       
