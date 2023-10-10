@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './Target-api.css';
+import './App.css';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,40 +9,56 @@ function App() {
   const [buttonTriggered, setButtonTriggered] = useState();
   const [selectedImages, setSelectedImages] = useState({});
 
-
   useEffect(() => {
+    const numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
     const fetchData = async () => {
-      window.alert("Buscando producto...");
+      window.alert("Buscando...");
+      var texto = searchTerm.toString();
+      for (var indice = 0; indice < numeros.length; indice++) {//Compureba si lo enviado en un codigo de barras
+        if (texto.startsWith(numeros[indice])) {
+          getAPIdata()
+          break;
+        }
+      }
+
       try {
         const response = await axios.get('https://api.redcircleapi.com/request', {
           params: {
             api_key: "D5BE2EF568A54782938EEA35546E0B27",
             search_term: searchTerm,
-            category_id: "5zja3",
-            type: "search"
+            type: "search",
+            include_out_of_stock: "true"
           }
         });
-        
         const resultados = response.data.search_results;
-        if (resultados !== undefined) {
-          if (resultados.length > 0) {
-            setResponseData(resultados.slice(0, 5)); // Mostrar hasta 5 resultados
-            setSearchCompleted(true);
-          } else {
-            setSearchCompleted(false);
-            window.alert("No se encontraron resultados");
-          }
-        }
-        else{
-          window.alert("No se encontraron resultados")
-        }
 
+        if (resultados.length > 0) {
+          setResponseData(resultados.slice(0, 4)); // Mostrar hasta 4 resultados
+          setSearchCompleted(true);
+        } else {
+          setSearchCompleted(false);
+          window.alert("No se encontraron resultados...");
+        }
       } catch (error) {
-        window.alert("Error con la búsqueda");
         console.error('Error en la solicitud:', error)
         setSearchCompleted(false);
+        window.alert("No se encontraron resultados...");
       }
     };
+
+    function getAPIdata() {
+      const proxyurl = "https://cors-anywhere.herokuapp.com/"; // Use a proxy to avoid CORS error
+      const api_key = "fhhwxck70w1k5i1rfai349jz3e02u4";
+      const url = proxyurl + "https://api.barcodelookup.com/v3/products?barcode=" + searchTerm + "&formatted=y&key=" + api_key;
+      fetch(url)
+        .then(response => response.json())
+        .then((data) => {
+          setSearchTerm(data.products[0].title);//Asigna el termino encontrado el nombre del producto
+        })
+        .catch(err => {
+          throw err
+        });
+    }
 
     function handleKeyPress(e) {
       if (e.key === 'Enter') {
@@ -122,7 +138,7 @@ function App() {
         <input
           type="text"
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Buscar..."
+          placeholder="Ingresa código de barras o nombre del producto"
           className="search-input"
         />
         <button onClick={handleSearchClick} className="search-button">
