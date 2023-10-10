@@ -6,19 +6,19 @@
     height: 100vh; /* Usar el 100% de la altura de la ventana */
     background-color: rgb(177, 175, 175);
     padding: 20px; /* Añadir un espacio interior al contenedor */
-}
-
-.filtros {
+  }
+  
+  .filtros {
     display: flex;
     align-items: center;
     margin-bottom: 20px; /* Añadir margen inferior para separar los filtros de la tabla */
-}
-
-.filtros div {
+  }
+  
+  .filtros div {
     margin-right: 20px; /* Espacio entre los filtros */
-}
-
-.tabla-historial {
+  }
+  
+  .tabla-historial {
     margin-top: 60px;
     display: flex;
     flex-direction: column;
@@ -29,32 +29,28 @@
     width: 80%; /* Ancho de la tabla */
     padding: 20px; /* Añadir espacio interno para separar las celdas */
     margin: 0 auto; /* Centrar horizontalmente la tabla */
-}
-
-.tabla-historial table {
+  }
+  
+  .tabla-historial table {
     width: 100%;
     border-collapse: collapse;
-}
-
-.tabla-historial th,
-.tabla-historial td {
+  }
+  
+  .tabla-historial th,
+  .tabla-historial td {
     padding: 10px;
     text-align: center;
     border: 1px solid #ccc;
-}
-
-.tabla-historial th {
+  }
+  
+  .tabla-historial th {
     background-color: #f2f2f2;
-}
-
-.tabla-historial tbody tr:nth-child(even) {
+  }
+  
+  .tabla-historial tbody tr:nth-child(even) {
     background-color: #f2f2f2;
-}
-
-.tabla-historial tbody tr:nth-child(odd) {
+  }
+  
+  .tabla-historial tbody tr:nth-child(odd) {
     background-color: #ddd;
-}
-
-.modal-content {
-    width: fit-content;
-}
+  }

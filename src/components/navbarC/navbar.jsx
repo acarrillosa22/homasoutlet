@@ -49,7 +49,10 @@ function TopNavBar() {
           </Nav.Link>
 
           <Nav.Link className="navo" as={Link} to="/Salidas">
-            Salidas
+            Movimientos
+          </Nav.Link>
+          <Nav.Link className="navo" as={Link} to="/obtenerFB">
+            Factura Provisional
           </Nav.Link>
         </Nav>
         <Nav.Link className="navo" as={Link} to="/config">
