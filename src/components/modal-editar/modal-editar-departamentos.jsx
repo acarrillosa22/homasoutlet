@@ -1,136 +1,134 @@
-import  appFirebase  from "../../firebase/firebase.js"
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  FormGroup,
+  ModalFooter,
+  Button,
+} from "reactstrap";
 import React, { useEffect, useState } from "react";
-import { Modal, ModalHeader, ModalBody, FormGroup, ModalFooter, Button } from "reactstrap";
-import { updateDoc, doc, getFirestore, where, query, collection, getDocs } from "firebase/firestore";
 
-function ModalED({ isOpenED, closeModal, IDdepartamento, onCreateDepartamento}) {
+function ModalA({
+  isOpenA,
+  closeModal,
+  elemento,
+  validateField,
+  FuntionEdit,
+  fieldOrder,
+  nombreCrud,
+}) {
+  const [form, setForm] = useState({});
+  const [errors, setErrors] = useState({});
 
-    const db = getFirestore(appFirebase);
-
-    const initialFormState = {
-        nombre: '',
-        estado: '',
-        descripcion: ''
-    };
-
-    const [form, setForm] = useState(initialFormState);
-
-    useEffect(() => {
+  useEffect(() => {
     // Reset the form whenever isOpenA changes (modal is opened/closed)
-        if (!isOpenED) {
-            resetForm();
-        }
-    }, [isOpenED]);
-    const resetForm = () => {
-        setForm(initialFormState);
-    };
-    const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
-    };
+    if (isOpenA) {
+      // If modal is opened, populate the form with user data
+      setForm(elemento);
+    }
+  }, [isOpenA, elemento]);
 
-    const cerrarModalActualizar = () => {
-        closeModal();
-    };
+  const resetForm = () => {
+    setForm({});
+  };
 
-    const [departamentoEncontrado, setDepartamentoEncontrado] = useState(null);
-    
-    const editar = async () => {
-      try {
+  const handleChange = (e) => {
+    const { name, type, checked, value } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+    setForm({
+      ...form,
+      [name]: newValue,
+    });
+  
+    // Realizar validaciones en tiempo real
+    setErrors(validateField(name, newValue));
+  };
 
-        let encontrado = '';
+  const cerrarModalActualizar = () => {
+    resetForm();
+    closeModal();
+  };
 
-        const q = query(collection(db, "Departamento"), where("ID", "==", Number(IDdepartamento)));
+  const editar = async () => {
+    FuntionEdit(form);
+    resetForm();
+    closeModal();
+  };
 
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          console.log(doc.id, " => ", doc.data());
-          encontrado =  doc.id;
-        });
-
-        const docrefence = doc(db, "Departamento", encontrado);
-        console.log(docrefence);
-
-        console.log(IDdepartamento);
-        console.log(encontrado);
-        console.log('Formulario:', form);
-
-    
-        if (encontrado) {
-          await updateDoc(docrefence ,{
-            Nombre: form.nombre,
-            Estado: form.estado,
-            Descripcion: form.descripcion
-          });
-    
-          console.log("Document successfully updated!");
-          closeModal();
-          window.alert("Se actualizó el departamento con éxito");
-          onCreateDepartamento();
-        } else {
-          console.log("No se encontró el departamento con el ID especificado.");
-        }
-      } catch (error) {
-        console.error("Error updating document: ", error);
+  const generateFormGroups = () => {
+    return Object.entries(fieldOrder).map(([order, key]) => {
+      if (key === "rol") {
+        // Si es el atributo "rol", generar un combobox
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un rol</option>
+              <option value="Admin">Admin</option>
+              <option value="Super Admin">Super Admin</option>
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      } else if (key === "morosidad") {
+        // Si es el atributo "morosidad", generar un checkbox
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <input
+              type="checkbox"
+              name={key}
+              checked={form[key] || false}
+              onChange={handleChange}
+            />
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      } else {
+        // Generar un input para los otros atributos
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <input
+              required
+              className="form-control"
+              type="text"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            />
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
       }
-    };
+    });
+  };
 
-    return (
-        <Modal isOpen={isOpenED} toggle={cerrarModalActualizar} backdrop="static">
-          <ModalHeader>
-            <div>
-              <h3>Editar departamentos</h3>
-            </div>
-          </ModalHeader>
-    
-          <ModalBody>
-            <FormGroup>
-              <label>nombre:</label>
-              <input
-                className="form-control"
-                type="text"
-                name="nombre"
-                value={form.nombre}
-                onChange={handleChange}
-              />
-            </FormGroup>
-    
-            <FormGroup>
-                <label>estado:</label>
-                <input
-                className="form-control"
-                type="int"
-                name="estado"
-                value={form.estado}
-                onChange={handleChange} 
-                />
-            </FormGroup>
-    
-            <FormGroup>
-                <label>descripción:</label>
-                <input
-                className="form-control"
-                type="text"
-                name="descripcion"
-                value={form.descripcion}
-                onChange={handleChange}
-                />
-            </FormGroup>
-          </ModalBody>
-    
-          <ModalFooter>
-            <Button color="primary" onClick={() => editar(form)}>
-              Editar
-            </Button>
-            <Button color="danger" onClick={cerrarModalActualizar}>
-              Cancelar
-            </Button>
-          </ModalFooter>
-        </Modal>
-    );
+  return (
+    <Modal isOpen={isOpenA} toggle={cerrarModalActualizar} backdrop="static">
+      <ModalHeader>
+        <div>
+          <h3>Editar {nombreCrud}</h3>
+        </div>
+      </ModalHeader>
+
+      <ModalBody>{generateFormGroups()}</ModalBody>
+
+      <ModalFooter>
+        <Button color="primary" onClick={() => editar()}>
+          Editar
+        </Button>
+        <Button color="danger" onClick={cerrarModalActualizar}>
+          Cancelar
+        </Button>
+      </ModalFooter>
+    </Modal>
+  );
 }
 
-export default ModalED;
+export default ModalA;

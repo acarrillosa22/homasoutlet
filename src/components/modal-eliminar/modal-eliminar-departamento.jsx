@@ -1,51 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { doc, deleteDoc, where, collection, getDocs, query } from "firebase/firestore";
-import appFirebase from "../../firebase/firebase.js";
-import { getFirestore, updateDoc } from "firebase/firestore";
-import { Modal, ModalHeader, ModalFooter, Button } from "reactstrap";
+import { doc, deleteDoc } from "firebase/firestore";
+import appFirebase from "../../firebase/firebase";
+import { getFirestore } from "firebase/firestore";
+import { Modal, ModalHeader, ModalFooter, Button,ModalBody } from "reactstrap";
 import "../modal/modal.css";
-
-function ModalEliminar({ isOpenD, closeModal, IDdepartamento, onDeleteDepartamento }) {
+function ModalEliminar({ isOpen, closeModal, nombre,funtionDelete,nombreCrud }) {
+  
   const db = getFirestore(appFirebase);
 
   const cerrarModalEliminar = () => {
     closeModal();
   };
-
-  const eliminarUsuario = async () => {
-    try {
-      
-      let encontrado = '';
-
-      const q = query(collection(db, "Departamento"), where("ID", "==", Number(IDdepartamento)));
-
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
-        encontrado =  doc.id;
-      });
-
-      await deleteDoc(doc(db, "Departamento", encontrado));
-      console.log("Departamento eliminado correctamente");
-      onDeleteDepartamento();
-      closeModal();
-      window.alert("Se elimino el Departamento");
-    } catch (error) {
-      console.error("Error al eliminar departamento: ", error);
-    }
+  const eliminarDepartamento = async () => {
+    funtionDelete();
+    closeModal();
   };
-
   return (
-    <Modal isOpen={isOpenD} toggle={cerrarModalEliminar} backdrop="static">
+    <Modal isOpen={isOpen} toggle={cerrarModalEliminar} backdrop="static">
       <ModalHeader>
         <div>
-          <h3>¿Realmente desea eliminar el Departamento?</h3>
+          <h3>Eliminar {nombreCrud}</h3>
         </div>
       </ModalHeader>
-
+      <ModalBody>
+    <h4>Realmente desea eliminar el siguiente elemento: {nombre}?</h4>
+      </ModalBody>
       <ModalFooter>
-        <Button color="primary" onClick={eliminarUsuario}>
+        <Button color="primary" onClick={eliminarDepartamento}>
           Eliminar
         </Button>
         <Button color="danger" onClick={cerrarModalEliminar}>
@@ -55,5 +35,4 @@ function ModalEliminar({ isOpenD, closeModal, IDdepartamento, onDeleteDepartamen
     </Modal>
   );
 }
-
 export default ModalEliminar;

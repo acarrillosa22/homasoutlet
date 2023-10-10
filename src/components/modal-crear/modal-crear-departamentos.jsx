@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { doc, setDoc, collection, addDoc } from "firebase/firestore";
-import appFirebase from "../../firebase/firebase.js";
-import { getFirestore } from "firebase/firestore";
-import { createUserWithEmailAndPasswordcre, getAuth } from "firebase/auth";
-import "../modal/modal.css";
+import "../modal/modal.css"
 import {
   Modal,
   ModalHeader,
@@ -13,16 +9,19 @@ import {
   Button,
 } from "reactstrap";
 
-function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
+function ModalCrear({
+  isOpenA,
+  closeModal,
+  validateField,
+  FuntionCreate,
+  initialForm,
+  fieldOrder,
+  Combobox,
+  nombreCrud
+}) {
   const [errors, setErrors] = useState({});
-  const db = getFirestore(appFirebase);
-  const auth = getAuth();
-  const initialFormState = {
-    nombre: "",
-    estado: "",
-    descripcion: "",
-  };
-  const [form, setForm] = useState(initialFormState);
+
+  const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
     if (!isOpenA) {
@@ -31,7 +30,7 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
   }, [isOpenA]);
 
   const resetForm = () => {
-    setForm(initialFormState);
+    setForm(initialForm);
   };
 
   const handleChange = (e) => {
@@ -42,98 +41,74 @@ function ModalCrear({ isOpenA, closeModal, onCreateUsuario }) {
     });
 
     // Realizar validaciones en tiempo real
-    validateField(name, value);
-  };
-
-  const validateField = (fieldName, value) => {
-    let fieldErrors = { ...errors };
-
-    switch (fieldName) {
-      case "estado":
-        fieldErrors.estado =
-          isNaN(Number(value))
-          ? "el estado debe ser un numero" 
-          : "";
-        break;
-      default:
-        break;
-    }
-
-    setErrors(fieldErrors);
+    setErrors(validateField(name, value));
   };
 
   const cerrarModalCrear = () => {
     closeModal();
   };
 
-  const crearUsuario = async () => {
-    try {
-      // Agregar información del usuario a Firestore
-      const docRef = await addDoc(collection(db, "Departamento"), {
-        Nombre: form.nombre,
-        Estado: form.estado,
-        ID: 1,
-        Descripcion: form.descripcion
-      })
-  
-      console.log("Usuario creado y documentado en Firestore");
-      closeModal();
-      window.alert("Se creo el Administrador con exito");
-      onCreateUsuario();
-    } catch (error) {
-      console.error("Error al crear usuario y documentar en Firestore: ", error);
-    }
+  const crear = async () => {
+    FuntionCreate(form);
+    closeModal();
+  };
+  const generateFormGroups = () => {
+    return Object.entries(fieldOrder).map(([order, key]) => {
+      if (key === "rol") {
+        // Si es el atributo "rol", generar un combobox
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+            <option value="">Seleccione un rol</option>
+            {Object.entries(Combobox).map(([roleKey, roleName]) => (
+              <option key={roleKey} value={roleKey}>
+                {roleName}
+              </option>
+            ))}
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      } else {
+        // Generar un input para los otros atributos
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <input
+              required
+              className="form-control"
+              type="text"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            />
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      }
+    });
   };
 
   return (
     <Modal isOpen={isOpenA} toggle={cerrarModalCrear} backdrop="static">
       <ModalHeader>
         <div>
-          <h3>Crear Departamentos</h3>
+          <h3>Crear {nombreCrud}</h3>
         </div>
       </ModalHeader>
 
       <ModalBody>
-        <FormGroup>
-          <label>Nombre:</label>
-          <input
-          required 
-            className="form-control"
-            type="text"
-            name="nombre"
-            value={form.nombre}
-            onChange={handleChange}
-          />
-        </FormGroup>
-        <FormGroup className={errors.contrasena ? "error" : ""}>
-          <label>Estado:</label>
-          <input
-          required 
-            className="form-control"
-            type="int"
-            name="estado"
-            placeholder="solo pueden ser numeros"
-            value={form.contrasena}
-            onChange={handleChange}
-          />
-          {errors.contrasena && <div className="error">{errors.contrasena}</div>}
-        </FormGroup>
-        <FormGroup className={errors.rol ? "error" : ""}>
-          <label>Descripción:</label>
-          <input
-          required 
-            className="form-control"
-            name="descripcion"
-            type="text"
-            onChange={handleChange}
-            value={form.rol}
-          />
-          {errors.rol && <div className="error">{errors.rol}</div>}
-        </FormGroup>
+      {generateFormGroups()}
       </ModalBody>
 
       <ModalFooter>
-        <Button color="primary" onClick={crearUsuario}>
+        <Button color="primary" onClick={crear}>
           Crear
         </Button>
         <Button color="danger" onClick={cerrarModalCrear}>

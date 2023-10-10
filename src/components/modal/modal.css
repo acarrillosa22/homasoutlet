@@ -1,0 +1,24 @@
+input:invalid {
+  box-shadow: 0 0 5px 1px red;
+}
+.error input {
+  box-shadow: 0 0 5px 1px red;
+}
+.modal {
+  position: fixed;
+  top: 50%; /* Coloca la parte superior del modal en el 50% de la altura de la ventana */
+  left: 50%; /* Coloca el margen izquierdo del modal en el 50% del ancho de la ventana */
+  transform: translate(-50%, -50%); /* Centra el modal tanto horizontal como verticalmente */
+}
+
+.modal-dialog {
+  width: fit-content;
+}
+
+.modal-content {
+  align-items: center;
+}
+
+.modal-footer {
+  align-items: center;
+}
