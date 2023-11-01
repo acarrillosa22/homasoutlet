@@ -45,7 +45,7 @@ function Producto() {
       const usersPerPage = 10; // Number of users to fetch per page
       const startIndex = (page - 1) * usersPerPage;
 
-      const userRef = collection(db, "Producto");
+      const userRef = collection(db, "Departamento");
       const userSnapshot = await getDocs(userRef);
       const allDepartmentos = userSnapshot.docs
         .map((departament) => departament.data())

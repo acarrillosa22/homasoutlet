@@ -1,8 +1,37 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "start_url": ".",
+  "background_color": "#ffffff",
+  "categories": [
+    "finance",
+    "productivity"
+  ],
+  "description": "Esta es una PWA de la aplicación Punto de Venta",
+  "dir": "ltr",
+  "display_override": [
+    "standalone",
+    "fullscreen"
+  ],
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "icons": [
+    {
+      "src": "/src/img/ms-icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },{
+      "src": "/src/img/apple-icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },{
+      "src": "/src/img/android-icon-144x144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    }
+  ],
+  "lang": "es-MX",
+  "name": "PWA Punto de Venta Homas",
+  "orientation": "portrait",
+  "prefer_related_application": false,
+  "scope": "/",
+  "short_name": "PWA PVH",
+  "start_url": "/",
+  "theme_color": "orange"
 }
