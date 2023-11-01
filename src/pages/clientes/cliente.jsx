@@ -7,7 +7,7 @@ import ModalA from "../../components/modal-editar/modal-editar-departamentos";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
-import appFirebase from "../../firebase/firebase"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import appHOT from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
 import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
   collection,
@@ -33,7 +33,7 @@ function Clientes() {
     Admin: "Admin",
     SuperAdmin: "Super Admin",
   };
-  const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
+  const db = getFirestore(appHOT); // Inicializo la base de datos en la aplicacion web
   const auth = getAuth();
   //hooks
   const [showMorosidadTrue, setShowMorosidadTrue] = useState(false);
@@ -299,7 +299,7 @@ function Clientes() {
         <option value="nombre">Nombre</option>
         <option value="cedula">Cédula</option>
       </select>
-      
+
       <label htmlFor="showMorosidadTrue">Solo Morosos</label>
       <input
         type="checkbox"
@@ -323,11 +323,11 @@ function Clientes() {
                 (!showMorosidadTrue || user.morosidad) &&
                 (searchOption === "nombre"
                   ? user.nombre
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase())
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
                   : user.cedula
-                      .toLowerCase()
-                      .includes(searchQuery.toLowerCase()))
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()))
             )
             .map((dato) => (
               <tr

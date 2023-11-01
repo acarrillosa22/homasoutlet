@@ -41,7 +41,7 @@ function TopNavBar() {
           </Nav.Link>
 
           <Nav.Link className="navo" as={Link} to="/departamentos">
-            departamentos
+            Departamentos
           </Nav.Link>
 
           <Nav.Link className="navo" as={Link} to="/productos/Api">
