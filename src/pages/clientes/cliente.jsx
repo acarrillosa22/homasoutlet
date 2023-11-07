@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "./clientes.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
-import ModalA from "../../components/modal-editar/modal-editar-departamentos";
-import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
+import ModalCrear from "../../components/modalCrear/modalcrear";
+import ModalA from "../../components/modal/modal";
+import ModalEliminar from "../../components/modalEliminar/modalElimicar";
+import CustomAlert from "../../components/alert/alert";
+import ModalDetalles from "../../components/datallesModal/modalDetalles";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
-import appHOT from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import appFirebase from "../../firebase/firebase.config"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
 import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
   collection,
@@ -20,22 +22,22 @@ import {
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function Clientes() {
   const nombre = "Cliente";
-  const combobox = {
-    Admin: "Admin",
-    SuperAdmin: "Super Admin",
-  };
-  const db = getFirestore(appHOT); // Inicializo la base de datos en la aplicacion web
+  const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
   const auth = getAuth();
   //hooks
+  const [showAlert, setShowAlert] = useState(false);
+  const [textoAlert, setTextoAlert] = useState("");
+  const [tipoAlert, setTipoAlert] = useState("");
   const [showMorosidadTrue, setShowMorosidadTrue] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,6 +46,8 @@ function Clientes() {
     useModal(false);
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] =
+    useModal(false);
+  const [isOpenDetalles, openModalDetalles, closeModalDetalles] =
     useModal(false);
   const [dataState, setData] = useState([]);
   useEffect(() => {
@@ -54,9 +58,19 @@ function Clientes() {
     1: "nombre", // Primer campo en aparecer
     2: "telefono",
     3: "correoElectronico",
-    4: "morosidad",
+    4: "limiteDeCredito",
+    5: "morosidad",
+  };
+  const EtiquetasEditar = {
+    correoElectronico: "Correo Electrónico",
+    telefono: " Teléfono",
+    limiteDeCredito: "Límite de Crédito",
+
+    // Agrega otras claves y sus etiquetas aquí
   };
   const abrirModalActualizar = (cedula) => {
+    setTextoAlert("Cliente modificado con éxito");
+    setTipoAlert("success");
     setUsuario(cedula);
     openModalActualizar();
   };
@@ -96,11 +110,15 @@ function Clientes() {
         nombre: form.nombre,
         telefono: form.telefono,
         correoElectronico: form.correoElectronico,
+        limiteDeCredito: form.limiteDeCredito,
         morosidad: form.morosidad,
       });
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       console.log("Document successfully updated!");
       onCreateUsuario();
-      window.alert("Se creo el Administrador con exito");
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -149,7 +167,6 @@ function Clientes() {
       const userSnapshot = await getDocs(userRef);
       const allUsers = userSnapshot.docs
         .map((user) => user.data())
-
         .filter((user) => user.rol === "Cliente");
       console.log(allUsers);
       const slicedUsers = allUsers.slice(startIndex, startIndex + usersPerPage);
@@ -172,6 +189,21 @@ function Clientes() {
     3: "contrasena",
     4: "telefono",
     5: "correoElectronico",
+    6: "limiteDeCredito",
+  };
+  const etiquetasCrear = {
+    correoElectronico: "Correo Electrónico",
+    cedula: "Cédula",
+    contrasena: "Contraseña",
+    telefono: " Teléfono",
+    limiteDeCredito: "Límite de Crédito",
+
+    // Agrega otras claves y sus etiquetas aquí
+  };
+  const abrirModalCrear = () => {
+    setTextoAlert("Usuario creado con éxito");
+    setTipoAlert("success");
+    openModalCrear();
   };
   const validateFieldCrear = (fieldName, value) => {
     const errors = {};
@@ -195,6 +227,10 @@ function Clientes() {
           value.length !== 8 || isNaN(Number(value))
             ? "El teléfono debe tener 8 números y ser solo números"
             : "";
+      case "limiteDeCredito":
+        fieldErrors.limiteDeCredito = isNaN(Number(value))
+          ? "El límite de crédito deben ser solo números"
+          : "";
         break;
       default:
         break;
@@ -225,7 +261,7 @@ function Clientes() {
         cedula: form.cedula,
         rol: "Cliente",
         telefono: form.telefono,
-        limiteDeCredito: 0,
+        limiteDeCredito: form.limiteDeCredito,
         ultimaConexion: "",
         direccionExacta: {
           provincia: "",
@@ -235,10 +271,12 @@ function Clientes() {
         },
         historialPedidos: {},
       });
-
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       console.log("Usuario creado y documentado en Firestore");
       onCreateUsuario();
-      window.alert("Se creo el Administrador con exito");
     } catch (error) {
       console.error(
         "Error al crear usuario y documentar en Firestore: ",
@@ -252,14 +290,17 @@ function Clientes() {
     nombre: "",
     contrasena: "",
     telefono: "",
-    correo: "",
+    correoElectronico: "",
     rol: "",
+    limiteDeCredito: 0,
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------
   //-------------------------------------------------------Eliminar---------------------------------------------------------------------
 
   const abrirModalEliminar = (cedula) => {
+    setTipoAlert("danger");
+    setTextoAlert("Usuario eliminado con éxito");
     setUsuario(cedula);
     openModalEliminar();
   };
@@ -268,19 +309,31 @@ function Clientes() {
       // Eliminar el usuario de Firebase y Firestore
       await deleteDoc(doc(db, "Usuarios", usuario.idUser));
       console.log("Usuario eliminado correctamente");
+
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       onCreateUsuario();
-      window.alert("Se elimino el Administrador");
     } catch (error) {
       console.error("Error al eliminar usuario: ", error);
     }
   };
 
   //------------------------------------------------------------------------------------------------------------------------------------
+
+  //-------------------------------------------------------Detalles--------------------------------------------------------------------------
+  const abrirModalDetalles = (cedula) => {
+    setUsuario(cedula);
+    openModalDetalles();
+  };
+
+  //------------------------------------------------------------------------------------------------------------------------------------------
   return (
     <Container>
       <h1>Clientes</h1>
       <br />
-      <Button onClick={openModalCrear} color="success">
+      <Button onClick={abrirModalCrear} color="success">
         Crear
       </Button>
       <br />
@@ -323,11 +376,11 @@ function Clientes() {
                 (!showMorosidadTrue || user.morosidad) &&
                 (searchOption === "nombre"
                   ? user.nombre
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase())
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                   : user.cedula
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()))
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()))
             )
             .map((dato) => (
               <tr
@@ -350,6 +403,12 @@ function Clientes() {
                     color="danger"
                   >
                     <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                  </Button>
+                  <Button
+                    onClick={() => abrirModalDetalles(dato)}
+                    color="warning"
+                  >
+                    <FontAwesomeIcon icon={faEye} size="lg" />
                   </Button>
                 </td>
               </tr>
@@ -382,6 +441,7 @@ function Clientes() {
         FuntionEdit={editar}
         fieldOrder={fieldOrderEditar}
         nombreCrud={nombre}
+        Etiquetas={EtiquetasEditar}
       />
       <ModalCrear
         isOpenA={isOpenCrear}
@@ -391,8 +451,8 @@ function Clientes() {
         FuntionCreate={crearUsuario}
         initialForm={initialFormState}
         fieldOrder={fieldOrderCrear}
-        Combobox={combobox}
         nombreCrud={nombre}
+        Etiquetas={etiquetasCrear}
       />
       <ModalEliminar
         isOpen={isOpenEliminar}
@@ -401,6 +461,19 @@ function Clientes() {
         funtionDelete={eliminarUsuario}
         nombreCrud={nombre}
       />
+      {isOpenDetalles && ( 
+        <ModalDetalles
+          isOpenA={isOpenDetalles}
+          closeModal={closeModalDetalles}
+          elemento={usuario}
+          nombreCrud={nombre}
+        />
+      )}
+
+
+      {showAlert && (
+        <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
+      )}
     </Container>
   );
 }
