@@ -3,9 +3,9 @@ import { useModal } from "../../hooks/useModal";
 import "./estilos.css"
 import "bootstrap/dist/css/bootstrap.min.css";
 //-------------------------------------------------Imports Modals------------------------------------------------------------------------
-import ModalCrearP from "../../components/Crear producto/ModaloCrearP";
-import ModalEP from "../../components/EditarProducto/ModalEditarP";
-import ModalEliminarP from "../../components/Eliminar/ModalEliminar";
+import ModalCrearP from "../../components/modal-crear/ModaloCrearP";
+import ModalEP from "../../components/modal-editar/ModalEditarP";
+import ModalEliminarP from "../../components/modal-eliminar/ModalEliminar";
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";

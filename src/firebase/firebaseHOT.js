@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics, } from "firebase/analytics";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
+import { getDatabase, ref, onDisconnect } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 const configHOT = {
     apiKey : process.env.REACT_APP_APIKEYHOT,
@@ -11,4 +13,5 @@ const configHOT = {
     measurementId: process.env.REACT_APP_MESUREIDHOT
   };
 const appHOT = initializeApp(configHOT,'homasoutlet-e9ecc');
+
 export default appHOT;
