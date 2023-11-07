@@ -1,6 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { getAnalytics} from "firebase/analytics";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
+import { getDatabase, ref, onDisconnect } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -18,5 +20,4 @@ const configPVH = {
 // Initialize Firebase
 const appPVH = initializeApp(configPVH);
 const analyticsPVH = getAnalytics(appPVH);
-
 export default appPVH;
