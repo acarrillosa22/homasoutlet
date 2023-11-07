@@ -1,44 +1,81 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
-import appFirebase from "../../firebase/firebase.js"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
-import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
-import { collection, getDocs } from "firebase/firestore";
-import ModalEliminarP from "../../components/Eliminar/ModalEliminar";
+import "./estilos.css"
 import "bootstrap/dist/css/bootstrap.min.css";
-import {Table,Button,Container} from "reactstrap";
+//-------------------------------------------------Imports Modals------------------------------------------------------------------------
+import ModalCrearP from "../../components/Crear producto/ModaloCrearP";
+import ModalEP from "../../components/EditarProducto/ModalEditarP";
+import ModalEliminarP from "../../components/Eliminar/ModalEliminar";
+//-------------------------------------------------Imports Firebase----------------------------------------------------------------------
+import { Table, Button, Container } from "reactstrap";
+import appPVH from "../../firebase/firebase";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
+//-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import ModalCrearP from "../../components/Crear producto/ModaloCrearP";
-import ModalEP from "../../components/EditarProducto/ModalEditarP";
-import './estilos.css';
-library.add(faPenToSquare,faSquareXmark);
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import de from "date-fns/esm/locale/de/index.js";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
+const nombre = "Departamento";
+library.add(faPenToSquare, faSquareXmark);
 
 function Producto() {
+  const db = getFirestore(appPVH);
+
+  //----------------------------------------------Hooks varios--------------------------------------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => {
-    obtenerProductos(1); // Fetch the first page of users
-  }, []);
-  const [IdProducto, setIdProducto] = useState(0);
-  const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
+  const [producto, setProducto] = useState([]);
+  const [departa, setDeparta] = useState([]);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
-  
+  let encontrado = '';
+  useEffect(() => {
+    obtenerProductos(1); // Fetch the first page of products
+  }, []);
+  //-------------------------------------------Datos------------------------------
+  const obtenerDepartamentos = async (page) => {
+    try {
+      console.log(departa);
+      const usersPerPage = 10; // Number of users to fetch per page
+      const startIndex = (page - 1) * usersPerPage;
+
+      const userRef = collection(db, "Departamento");
+      const userSnapshot = await getDocs(userRef);
+      const allDepartmentos = userSnapshot.docs
+        .map((departament) => departament.data())
+
+      // Calculate the slice of users for the current page
+      const slicedDeparmetns = allDepartmentos.slice(startIndex, startIndex + usersPerPage);
+
+      setData(slicedDeparmetns); // Update the data state with the fetched users
+    } catch (error) {
+      console.error("Error al obtener Productos: ", error);
+    }
+  };
+  //----------------------------------------------Editar------------------------------------------------------------------------------------------------
+  const fieldOrderEditar = {
+    1: "Nombre", // Primer campo en aparecer
+    2: "Estado",
+    3: "Descripcion",
+    4: "Precio", 
+    5: "Foto",
+    6: "Descripcion",
+  };
+
   const abrirModalActualizar = (id) => {
-    console.log(IdProducto);
-    setIdProducto(id);
+    console.log(producto);
+    setProducto(id);
     console.log(id);
     openModalActualizar();
   };
   const abrirModalEliminar = (id) => {
-    setIdProducto(id);
+    setProducto(id);
     console.log(id);
     openModalEliminar();
   };
@@ -86,12 +123,12 @@ function Producto() {
       </Button>
 
       <input
-      type="text"
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Buscar por nombre"
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Buscar por nombre"
       />
-          <br />
+      <br />
       <br />
       <Table>
         <thead>
@@ -116,12 +153,12 @@ function Producto() {
               <td>{dato.Descripcion}</td>
               <td>
                 <Button onClick={() => abrirModalActualizar(dato.Id)} color="primary">
-                <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                  <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                 </Button>
                 <Button onClick={() => abrirModalEliminar(dato.Id)} color="danger">
-                <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                  <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
-                
+
               </td>
             </tr>
           ))}
@@ -129,26 +166,26 @@ function Producto() {
       </Table>
 
       <div className="pagination">
-          <Button
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            color="primary"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} size="lg" />
-          </Button>
-          <span> Pagina: {currentPage}</span>
-          <Button
-            onClick={handleNextPage}
-            disabled={dataState.length < 10}
-            color="primary"
-          >
-            <FontAwesomeIcon icon={faArrowRight} size="lg" />
-          </Button>
-        </div>
+        <Button
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+          color="primary"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+        </Button>
+        <span> Pagina: {currentPage}</span>
+        <Button
+          onClick={handleNextPage}
+          disabled={dataState.length < 10}
+          color="primary"
+        >
+          <FontAwesomeIcon icon={faArrowRight} size="lg" />
+        </Button>
+      </div>
 
-      <ModalEP isOpenED={isOpenActualizar} closeModal={closeModalActualizar} IDProducto={IdProducto} onCreateProducto={onCreateProducto}/>
-      <ModalCrearP isOpenA={isOpenCrear} closeModal={closeModalCrear} onCreateDepartamento={onCreateProducto}/>
-      <ModalEliminarP isOpenD={isOpenEliminar} closeModal={closeModalEliminar} IDProducto={IdProducto} onDeleteProducto={onCreateProducto}/>
+      <ModalEP isOpenED={isOpenActualizar} closeModal={closeModalActualizar} IDProducto={producto} onCreateProducto={onCreateProducto} />
+      <ModalCrearP isOpenA={isOpenCrear} closeModal={closeModalCrear} onCreateDepartamento={onCreateProducto} />
+      <ModalEliminarP isOpenD={isOpenEliminar} closeModal={closeModalEliminar} IDProducto={producto} onDeleteProducto={onCreateProducto} />
     </Container>
   );
 }

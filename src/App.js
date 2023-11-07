@@ -7,6 +7,7 @@ import TopNavBar from "./components/navbarC/navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
 import Salidas from './components/Movimientos/Salidas';
+import PerfilM from './pages/Perfil/perfil';
 import Api from './pages/Producto/Target-api';
 import Producto from './pages/Producto/Productos';
 import Departamentos from './pages/departamentos/departamentos';
@@ -24,17 +25,17 @@ function App() {
       {/*
       <Route element={<ProtectedRoutes isAllowed={!!user}/>}> */ }
       <Route path='/Cierre' element={<ResponsiveBreakpointsExample dinero={numbers} />} />
-      <Route path='/ventas' element={<h1>ventas</h1>} />
-      <Route path='/clientes' element={<Clientes />} />
-      <Route path='/productos' element={<Producto/>} />
-      <Route path='/inventario' element={<h1>Inventario</h1>} />
-      <Route path='/config' element={<h1>Configuración</h1>} />
-      <Route path='/productos/Api' element={<Api />} />
+      <Route path='/Ventas' element={<h1>Ventas</h1>} />
+      <Route path='/Clientes' element={<Clientes />} />
+      <Route path='/Productos' element={<Producto/>} />
+      <Route path='/Inventario' element={<h1>Inventario</h1>} />
+      <Route path='/Config' element={<PerfilM/>} />
+      <Route path='/Productos/Api' element={<Api />} />
  {/*     </Route> */ }
       {/*   <Route element={<ProtectedRoutes isAllowed={!!user && user.rol ==true}/>} redirecTo="/" > */ }
 
 
-      <Route path='/departamentos' element={<Departamentos />} />
+      <Route path='/Departamentos' element={<Departamentos />} />
       <Route path='/Administradores' element={<h1>Administradores </h1>} /> 
       <Route path='/Salidas' element={<Salidas />} />
       <Route path='/obtenerFB' element={<ObtenerFB />} />

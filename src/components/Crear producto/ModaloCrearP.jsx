@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {collection, addDoc } from "firebase/firestore";
-import appFirebase from "../../firebase/firebase.js";
+import appPVH from "../../firebase/firebase";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import "../modal/modal.css";
@@ -15,7 +15,7 @@ import {
 
 function ModalCrearP({ isOpenA, closeModal, onCreateUsuario }) {
   const [errors, setErrors] = useState({});
-  const db = getFirestore(appFirebase);
+  const db = getFirestore(appPVH);
   const auth = getAuth();
   const initialFormState = {
     nombre: "",

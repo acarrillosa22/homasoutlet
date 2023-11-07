@@ -1,11 +1,11 @@
-import  appFirebase  from "../../firebase/firebase.js"
+
 import React, { useEffect, useState } from "react";
 import { Modal, ModalHeader, ModalBody, FormGroup, ModalFooter, Button } from "reactstrap";
 import { updateDoc, doc, getFirestore, where, query, collection, getDocs } from "firebase/firestore";
-
+import appPVH from "../../firebase/firebase";
 function ModalEP({ isOpenED, closeModal, IDProducto, onCreateProducto}) {
 
-    const db = getFirestore(appFirebase);
+    const db = getFirestore(appPVH);
 
     const initialFormState = {
         nombre: '',
