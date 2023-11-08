@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "./clientes.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ModalCrear from "../../components/modalCrear/modalcrear";
-import ModalA from "../../components/modal/modal";
-import ModalEliminar from "../../components/modalEliminar/modalElimicar";
+import ModalCrear from "../../components/modal-crear/ModaloCrearP";
+import ModalA from "../../components/modal-editar/ModalEditarP";
+import ModalEliminar from "../../components/modal-eliminar/ModalEliminar";
 import CustomAlert from "../../components/alert/alert";
 import ModalDetalles from "../../components/datallesModal/modalDetalles";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
-import appFirebase from "../../firebase/firebase.config"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import appFirebase from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
 import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
   collection,
