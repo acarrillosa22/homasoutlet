@@ -15,3 +15,27 @@ Navbar{
     right: 0%;
 }
 
+#navo nav-link a:hover{
+    color: black;
+    background-color: aliceblue;
+}
+
+#checkbtn{
+    font-size: 30px;
+    color: aliceblue;
+    float: right;
+    line-height: 80px;
+    margin-right: 40px;
+    cursor: pointer;
+    display: none;
+
+}
+
+@media (max-width: 825px) {
+    #checkbtn{
+        display: block;
+    }
+    
+}
+
+
