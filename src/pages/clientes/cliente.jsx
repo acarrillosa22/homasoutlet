@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "./clientes.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ModalCrear from "../../components/modal-crear/ModaloCrearP";
-import ModalA from "../../components/modal-editar/ModalEditarP";
-import ModalEliminar from "../../components/modal-eliminar/ModalEliminar";
+import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
+import ModalA from "../../components/modal-editar/modal-editar-departamentos";
+import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 import CustomAlert from "../../components/alert/alert";
 import ModalDetalles from "../../components/datallesModal/modalDetalles";
 //Firebase

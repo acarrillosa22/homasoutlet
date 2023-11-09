@@ -3,7 +3,7 @@ import "./Facturacion.css"
 import EditarArt from './Modals/EditarArt';
 
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
-function App() {
+function Factura() {
     const [activeTab, setActiveTab] = useState(0);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [modalData, setModalData] = useState(null);
@@ -98,7 +98,7 @@ function App() {
             setAddAnimation(false);
         }, 500); // Duración de la animación en milisegundos
     };
-//Inhabilitar: Borrar factura después de 3 años de existencia
+    //Inhabilitar: Borrar factura después de 3 años de existencia
     //Elimina la pestaña
     const removeTab = (index) => {
         const updatedTabs = tabs.filter((tab, tabIndex) => tabIndex !== index);
@@ -146,8 +146,8 @@ function App() {
         // En caso de que se este añadiendo otro producto igual
         const activeTabData = updatedTabs[activeTab].content;
         activeTabData.productos.forEach((producto) => {
-            if(producto.codigoBarras === productoAInsertar.codigoBarras){
-                if(producto.existencia > producto.cantidad){
+            if (producto.codigoBarras === productoAInsertar.codigoBarras) {
+                if (producto.existencia > producto.cantidad) {
                     producto.cantidad++;
                 }
                 hay = true;
@@ -155,10 +155,10 @@ function App() {
         });
 
         // Encuentra la pestaña activa y agrega el producto a la lista de productos
-        if(!hay){
+        if (!hay) {
             updatedTabs[activeTabIndex].content.productos.push(productoAInsertar);
         }
-        
+
 
         // Actualiza el estado de las pestañas
         setTabs(updatedTabs);
@@ -296,7 +296,7 @@ function App() {
                                                 isOpen={modalIsOpen}
                                                 onClose={() => setModalIsOpen(false)}
                                                 datos={modalData}
-                                                onGuardar={(nuevosDatos) => {actualizarProducto(nuevosDatos, index, producto)}} />
+                                                onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, producto) }} />
                                         </td>
                                         <td className='eliminarProductoCont'>
                                             <button className='eliminarProd' onClick={() => eliminarFila(index, productoIndex)}>
@@ -327,4 +327,4 @@ function App() {
     );
 }
 
-export default App;
+export default Factura;
