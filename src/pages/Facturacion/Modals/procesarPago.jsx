@@ -101,6 +101,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                             value={modalData.abono}
                             onChange={(e) => setModalData({ ...modalData, abono: e.target.value })}
                         />
+                        <label>Fecha limite de apartado:</label>
                         <input
                         type="date"
                         placeholder="Fecha de duración del apartado"
