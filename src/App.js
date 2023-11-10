@@ -40,6 +40,7 @@ function App() {
         <Route path='/Salidas' element={<Salidas />} />
         <Route path='/Facturacion' element={<Factura />} />
         <Route path='/pedidos' element={<Pedidos />} />
+        <Route path='/obtenerFB' element={<ObtenerFB />} />
         {/*     </Route> */}
 
       </Routes>

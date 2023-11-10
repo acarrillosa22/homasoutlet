@@ -9,7 +9,7 @@ import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
-import appPVH from "../../firebase/firebase";
+import appFirebase from "../../firebase/firebase.js";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,13 +18,13 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
+library.add(faPenToSquare, faSquareXmark,faArrowRight,faArrowLeft);
 const nombre = "Departamento";
 
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Departamentos() {
 
-  const db = getFirestore(appPVH);
+  const db = getFirestore(appFirebase);
 
   //----------------------------------------------Hooks varios--------------------------------------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,19 +61,24 @@ function Departamentos() {
         break;
     }
 
-    return (fieldErrors);
+    return(fieldErrors);
   };
 
   const editar = async (form) => {
+    
+
     const q = query(collection(db, "Departamento"), where("Nombre", "==", departamento.Nombre));
+
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       console.log(doc.id, " => ", doc.data());
-      encontrado = doc.id;
+      encontrado =  doc.id;
     });
+
     const docrefence = doc(db, "Departamento", encontrado);
     console.log(docrefence);
+
     console.log(departamento.Nombre);
     console.log(encontrado);
     console.log('Formulario:', form);
@@ -84,8 +89,8 @@ function Departamentos() {
 
       await updateDoc(department, {
         Nombre: form.Nombre,
-        Estado: form.Estado,
-        Descripcion: form.Descripcion,
+        Estado: form.Estado,  
+        Descripcion: form.Descripcion,  
       });
       console.log("Document successfully updated!");
       onCreateDepartamentos();
@@ -100,8 +105,8 @@ function Departamentos() {
     const searchTerm = searchQuery;
     if (searchOption === "Nombre") {
       return departamento.Nombre.includes(searchTerm);
-    } else
-      return false;
+    } else 
+    return false;
   });
 
 
@@ -112,7 +117,7 @@ function Departamentos() {
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
-
+  
   filteredUsers.map((dato) => (
     <tr key={dato.Nombre}>
     </tr>
@@ -149,185 +154,194 @@ function Departamentos() {
       console.error("Error al obtener departamentos: ", error);
     }
   };
-
+  
   const onCreateDepartamentos = () => {
     // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
     obtenerDepartamentos(1);
   };
-  //-------------------------------------------------------------Crear------------------------------------------------------------------------
-  const fieldOrderCrear = {
-    1: "Nombre", // Primer campo en aparecer
-    2: "Estado",
-    3: "Descripcion",
-  };
-  const validateFieldCrear = (fieldName, value) => {
-    const errors = {}
-    let fieldErrors = { ...errors };
+//-------------------------------------------------------------Crear------------------------------------------------------------------------
+const fieldOrderCrear = {
+  1: "Nombre", // Primer campo en aparecer
+  2: "Estado",
+  3: "Descripcion",
+  4: "Imagen"
+};
+const validateFieldCrear = (fieldName, value) => {
+  const errors = {}
+  let fieldErrors = { ...errors };
 
-    switch (fieldName) {
-      case "estado":
-        fieldErrors.contrasena =
-          isNaN(Number(value)) ? "El estado deben ser numeros" : "";
-        break;
-      default:
-        break;
-    }
+  switch (fieldName) {
+    case "estado":
+      fieldErrors.contrasena =
+        isNaN(Number(value)) ? "El estado deben ser numeros" : "";
+      break;
+    default:
+      break;
+  }
 
-    return (fieldErrors);
-  };
-  const crearDepartamento = async (form) => {
-    try {
-      // Crear usuario en Firebase Authentication
-      // Obtener el ID de usuario del usuario creado
-      // Agregar información del usuario a Firestore
+  return(fieldErrors);
+};
+const crearDepartamento = async (form) => {
+  try {
+    // Crear usuario en Firebase Authentication
+    // Obtener el ID de usuario del usuario creado
+    // Agregar información del usuario a Firestore
 
-      console.log(db);
-      console.log(form);
-      await addDoc(collection(db, "Departamento"), {
-        Nombre: form.Nombre,
-        ID: 1,
-        Estado: form.Estado,
-        Descripcion: form.Descripcion
-      });
+    console.log(db);
+    console.log(form);
+    await addDoc(collection(db, "Departamento"), {
+      Nombre: form.Nombre,
+      Estado: form.Estado,
+      Descripcion: form.Descripcion
+    });
 
-      console.log("Departamento creado y documentado en Firestore");
-      onCreateDepartamentos();
-    } catch (error) {
-      console.error("Error al crear departamento y documentar en Firestore: ", error);
-    }
-  };
+    console.log("Departamento creado y documentado en Firestore");
+    onCreateDepartamentos();
+  } catch (error) {
+    console.error("Error al crear departamento y documentar en Firestore: ", error);
+  }
+};
 
-  const initialFormState = {
-    Nombre: "",
-    ID: 1,
-    Estado: "",
-    Descripcion: ""
-  };
+const initialFormState = {
+  Nombre: "",
+  Estado: "",
+  Descripcion: ""
+};
 
-  //-------------------------------------------------------Eliminar---------------------------------------------------------------------
+//-------------------------------------------------------Eliminar---------------------------------------------------------------------
 
-  const abrirModalEliminar = (nombre) => {
-    setDepartamento(nombre);
-    openModalEliminar();
-  };
-  const eliminarDepartamento = async () => {
-    try {
-
-      // Eliminar el usuario de Firebase y Firestore
+const abrirModalEliminar = (nombre) => {
+  setDepartamento(nombre);
+  openModalEliminar();
+};
+const eliminarDepartamento = async () => {
+  try {
+    
+    // Eliminar el usuario de Firebase y Firestore
 
 
-      const q = query(collection(db, "Departamento"), where("Nombre", "==", departamento.Nombre));
+    const q = query(collection(db, "Departamento"), where("Nombre", "==", departamento.Nombre));
 
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
-        encontrado = doc.id;
-      });
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      encontrado =  doc.id;
+    });
 
-      await deleteDoc(doc(db, "Departamento", encontrado));
-      console.log(encontrado)
-      console.log("Departamento eliminado correctamente");
-      onCreateDepartamentos();
-    } catch (error) {
-      console.error("Error al eliminar departamento: ", error);
-    }
-  };
+    await deleteDoc(doc(db, "Departamento", encontrado));
+    console.log(encontrado)
+    console.log("Departamento eliminado correctamente");
+    onCreateDepartamentos();
+  } catch (error) {
+    console.error("Error al eliminar departamento: ", error);
+  }
+};
 
-  //---------------------------------------------------------HTML-------------------------------------------------------------
-  return (
-    <Container>
-      <h1>Departamentos
-      </h1>
-      <br />
-      <Button onClick={openModalCrear} color="success">
-        Crear
-      </Button>
-      <br />
-      <br />
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        placeholder={`Buscar por ${searchOption}`}
-      />
-      <Table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Estado</th>
-            <th>Descripcion</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((dato) => (
-            <tr key={dato.Nombre}>
-              <td>{dato.Nombre}</td>
-              <td>{dato.Estado}</td>
-              <td>{dato.Descripcion}</td>
-              <td>
-                <Button
-                  onClick={() => abrirModalActualizar(dato)}
-                  color="primary"
-                >
-                  <FontAwesomeIcon icon={faPenToSquare} size="lg" />
-                </Button>
-                <Button
-                  onClick={() => abrirModalEliminar(dato)}
-                  color="danger"
-                >
-                  <FontAwesomeIcon icon={faSquareXmark} size="lg" />
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      <div className="pagination">
-        <Button
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          color="primary"
-        >
-          <FontAwesomeIcon icon={faArrowLeft} size="lg" />
-        </Button>
-        <span> Pagina: {currentPage}</span>
-        <Button
-          onClick={handleNextPage}
-          disabled={dataState.length < 10}
-          color="primary"
-        >
-          <FontAwesomeIcon icon={faArrowRight} size="lg" />
-        </Button>
-      </div>
+//---------------------------------------------------------images--------------------------------------------------------------
 
-      <ModalA
-        isOpenA={isOpenActualizar}
-        closeModal={closeModalActualizar}
-        elemento={departamento}
-        validateField={validateField}
-        FuntionEdit={editar}
-        fieldOrder={fieldOrderEditar}
-        nombreCrud={nombre}
-      />
-      <ModalCrear
-        isOpenA={isOpenCrear}
-        closeModal={closeModalCrear}
-        onCreateUsuario={onCreateDepartamentos}
-        validateField={validateFieldCrear}
-        FuntionCreate={crearDepartamento}
-        initialForm={initialFormState}
-        fieldOrder={fieldOrderCrear}
-        nombreCrud={nombre}
-      />
-      <ModalEliminar
-        isOpen={isOpenEliminar}
-        closeModal={closeModalEliminar}
-        nombre={departamento.Nombre}
-        funtionDelete={eliminarDepartamento}
-        nombreCrud={nombre}
-      />
-    </Container>
+const [imageUpload, setImageUpload] = useState(null)
+const uploadimage = () => {};
+
+
+//---------------------------------------------------------HTML-------------------------------------------------------------
+return (
+  <Container>
+    <h1>Departamentos
+    </h1>
+    <br />
+  <Button onClick={openModalCrear} color="success">
+    Crear
+  </Button>
+  <br />
+  <br />
+  <input
+      type="text"
+      value={searchQuery}
+      onChange={handleSearchChange}
+      placeholder={`Buscar por ${searchOption}`}
+    />
+  <Table>
+  <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Estado</th>
+          <th>Imagen</th>
+          <th>Descripcion</th>
+        </tr>
+      </thead>
+    <tbody>
+      {filteredUsers.map((dato) => (
+        <tr key={dato.Nombre}>
+          <td>{dato.Nombre}</td>
+          <td>{dato.Estado}</td>
+          <td>
+                <img src={dato.Imagen} alt={dato.Nombre} style={{ width: '30px', height: '30px' }} />
+          </td>
+          <td>{dato.Descripcion}</td>
+          <td>
+            <Button
+              onClick={() => abrirModalActualizar(dato)}
+              color="primary"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+            </Button>
+            <Button
+              onClick={() => abrirModalEliminar(dato)}
+              color="danger"
+            >
+              <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+            </Button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </Table>
+  <div className="pagination">
+    <Button
+      onClick={handlePrevPage}
+      disabled={currentPage === 1}
+      color="primary"
+    >
+      <FontAwesomeIcon icon={faArrowLeft} size="lg" />
+    </Button>
+    <span> Pagina: {currentPage}</span>
+    <Button
+      onClick={handleNextPage}
+      disabled={dataState.length < 10}
+      color="primary"
+    >
+      <FontAwesomeIcon icon={faArrowRight} size="lg" />
+    </Button>
+  </div>
+
+    <ModalA
+      isOpenA={isOpenActualizar}
+      closeModal={closeModalActualizar}
+      elemento={departamento}
+      validateField ={validateField}
+      FuntionEdit={editar}
+      fieldOrder={fieldOrderEditar}
+      nombreCrud={nombre}
+    />
+    <ModalCrear
+      isOpenA={isOpenCrear}
+      closeModal={closeModalCrear}
+      onCreateUsuario={onCreateDepartamentos}
+      validateField={validateFieldCrear}
+      FuntionCreate={crearDepartamento}
+      initialForm={initialFormState}
+      fieldOrder={fieldOrderCrear}
+      nombreCrud={nombre}
+    />
+    <ModalEliminar
+      isOpen={isOpenEliminar}
+      closeModal={closeModalEliminar}
+      nombre={departamento.Nombre}
+      funtionDelete={eliminarDepartamento}
+      nombreCrud={nombre}
+    />
+  </Container>
   );
 }
 
