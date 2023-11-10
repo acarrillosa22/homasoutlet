@@ -278,6 +278,8 @@ function App() {
         if(nuevosDatos.abono !== undefined){
             activeTabData.abono = nuevosDatos.abono;
         }
+        
+        activeTabData.fecha = Date();
         activeTabData.metodo = nuevosDatos.metodo;
         //Manejar salida de datos
     }
