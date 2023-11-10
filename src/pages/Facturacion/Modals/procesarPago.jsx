@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Button } from "reactstrap";
+import { Button } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -16,6 +16,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         metodoPago: '',
         total: 0,
         fechaApartado: Date(),
+        fechaTemp : Date(),
     });
 
     const [procesarHabilitado, setProcesarHabilitado] = useState(false);
@@ -32,6 +33,12 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
             estado: nuevoEstado,
             metodoPago: '', // Restablecer el método de pago al cambiar el estado
         });
+        if (nuevoEstado === 'pendiente') {
+            setProcesarHabilitado(true);
+        }
+        else{
+            setProcesarHabilitado(false);
+        }
     };
 
     const handleMetodoPagoChange = (e) => {
@@ -45,7 +52,13 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         }
         // Habilitar el botón "Procesar Factura" si se selecciona un método de pago
         else {
-            setProcesarHabilitado(true);
+            console.log(modalData.fechaApartado)
+            if(modalData.estado === 'apartar' &&  modalData.abono !== undefined && modalData.fechaTemp !== modalData.fechaApartado){
+                setProcesarHabilitado(true);
+            }
+            if(modalData.estado === 'pagar'){
+                setProcesarHabilitado(true);
+            }
         }
 
     };
@@ -56,6 +69,21 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
             ...modalData,
             fechaApartado: fechaApartado
         });
+        console.log(modalData.abono !== 0)
+        if(modalData.abono !== undefined){
+            setProcesarHabilitado(true);
+        }
+    };
+
+    const handleAbonoChange = (e) => {
+        const abono = e.target.value;
+        setModalData({
+            ...modalData,
+            abono: abono
+        });
+        if(modalData.fechaTemp !== modalData.fechaApartado){
+            setProcesarHabilitado(true);
+        }
     };
 
     const modalStyle = {
@@ -109,7 +137,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                         <input
                             type="number"
                             value={modalData.abono}
-                            onChange={(e) => setModalData({ ...modalData, abono: e.target.value })}
+                            onChange={handleAbonoChange}
                         />
                         <label>Fecha limite de apartado:</label>
                         <input
@@ -122,9 +150,9 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                 )}
                 <div>
                     <p>Total: {datos.total}</p> {/* Sustituye con el valor correcto */}
-                    <button onClick={handleGuardar} disabled={!procesarHabilitado}>
+                    <Button color="primary" onClick={handleGuardar} disabled={!procesarHabilitado}>
                         Procesar Factura
-                    </button>
+                    </Button>
                     <Button onClick={onClose} color="danger" className="clear-button">
                         Cancelar
                     </Button>

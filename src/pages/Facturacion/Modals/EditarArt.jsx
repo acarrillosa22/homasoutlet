@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
-import {Button } from "reactstrap";
+import { Button } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -27,7 +27,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
         onGuardar(modalData);
         onClose();
     };
-    
+
     const [mensajeError, setMensajeError] = useState('');
     const [botonActivo, setbotonActivo] = useState(false);
 
@@ -44,11 +44,11 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
             [index]: parseFloat(e.target.value)
         };
 
-        if(isNaN(newModalData.cantidad)){
+        if (isNaN(newModalData.cantidad)) {
             newModalData.cantidad = 0;
         }
 
-        if(isNaN(newModalData.descuento)){
+        if (isNaN(newModalData.descuento)) {
             newModalData.descuento = 0;
         }
 
@@ -65,7 +65,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
         } else {
             setbotonActivo(false);
             setMensajeError('');
-            if(newModalData.cantidad === 0){
+            if (newModalData.cantidad === 0) {
                 setbotonActivo(true);
                 setMensajeError("No se puede vender 0 prouctos");
             }
@@ -107,7 +107,9 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
                     onChange={(e) => handleInputChange(e, "cantidad")}
                 />
                 <div>
-                    <button onClick={handleGuardar} disabled={botonActivo}>Guardar</button>
+                    <Button color="primary" onClick={handleGuardar} disabled={botonActivo}>
+                        Guardar
+                    </Button>
                     <Button onClick={onClose} color="danger" className="clear-button">
                         Cancelar
                     </Button>

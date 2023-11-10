@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
-import {Button } from "reactstrap";
+import { Button } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -100,7 +100,9 @@ function EditarAbonoDescuento({ isOpen, onClose, datos, onGuardar }) {
                     onChange={(e) => handleInputChange(e, "descuentoGlobal")}
                 />
                 <div>
-                    <button onClick={handleGuardar}>Guardar</button>
+                    <Button color="primary" onClick={handleGuardar}>
+                        Guardar
+                    </Button>
                     <Button onClick={onClose} color="danger" className="clear-button">
                         Cancelar
                     </Button>
