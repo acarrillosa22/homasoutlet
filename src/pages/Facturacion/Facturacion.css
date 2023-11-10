@@ -1,102 +1,138 @@
 /* Estilo para el botón de agregar con animación */
 .agregar {
-    background-color: #00af1d;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: transform 500ms; /* Duración de la animación en milisegundos*/
-  }
-  
-  /* Estilo para el botón con la animación activada */
-  .agregar.animate {
-    transform: translateX(50%); /* Mueve el botón a la derecha */
-  }
-  
-  /* Estilo para las pestañas*/
-  .nav {
-    list-style: none;
-    display: flex;
-    padding: 0;
-    background-color: #6F6173;
-  }
-  
-  .nav-item {
-    margin-right: 3px;
-    background-color: #2B3035;
-    align-items: center;
-  }
-  
-  .nav-sublink {
-    width: auto;
-    height: 50px;
-    background-color: transparent;
-    border-color: transparent;
-    color: rgb(70, 118, 250);
-  }
+  background-color: #00af1d;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: transform 500ms;
+  /* Duración de la animación en milisegundos*/
+}
 
-  .nav-item.active{
-    align-items: center;
-    display: flex;
-    background-color: lightgreen;
-  }
+/* Estilo para el botón con la animación activada */
+.agregar.animate {
+  transform: translateX(50%);
+  /* Mueve el botón a la derecha */
+}
 
-  th{
-    background-color: gray;
-    padding: 10px 15px;
-  }
+/* Estilo para las pestañas*/
+.nav {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  background-color: white;
+}
 
-  table{
-    margin-left: 5%;
-  }
+.nav-item {
+  margin-right: 3px;
+  background-color: white;
+  align-items: center;
+}
 
-  table td {
-    border: 1px solid #ccc; /*grosor y el color del borde*/
-    padding: 8px; /* Espacio interno dentro de las celdas de la tabla */
-    background-color: white;
-  }
+.nav-sublink {
+  width: auto;
+  height: 50px;
+  background-color: transparent;
+  border-color: transparent;
+  color: rgb(70, 118, 250);
+}
 
-  .remove-button{
-    margin-left: 5px;
-    background-color: #BB2D3B;
-  }
+.nav-item.active {
+  align-items: center;
+  display: flex;
+  background-color: lightgreen;
+}
 
-  .clear-button{
-    margin-left: 5px;
-    background-color: gold;
-  }
+th {
+  background-color: gray;
+  padding: 10px 15px;
+}
 
-  .insert-product{
-    align-items: center;
-    display: flex;
-    justify-content: center;
-  }
+table {
+  margin-left: 5%;
+}
 
-  .agregarProducto{
-    background-color: #00AF1D;
-  }
+table td {
+  border: 1px solid #ccc;
+  /*grosor y el color del borde*/
+  padding: 8px;
+  /* Espacio interno dentro de las celdas de la tabla */
+  background-color: white;
+}
 
-  .eliminarProductoCont{
-    border-color: transparent;
-    padding: 8px; /* Espacio interno dentro de las celdas de la tabla */
-    background-color: white;
-  }
+.remove-button {
+  margin-left: 5px;
+  background-color: #BB2D3B;
+}
 
-  .editarProd{
-    border-color: transparent;
-    border-left-color: 1px solid #ccc; /* Puedes ajustar el grosor y el color del borde según tus preferencias */
-    padding: 8px; /* Espacio interno dentro de las celdas de la tabla */
-    background-color: white;
-  }
+.clear-button {
+  margin-left: 5px;
+  background-color: gold;
+}
 
-  .eliminarProd{
-    background-color: #BB2D3B;
-  }
+.insert-product {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
 
-  .totalCont{
-    font-size: 25px;
-    color: rgb(70, 118, 250);
-  }
+.agregarProducto {
+  background-color: #00AF1D;
+}
 
+.eliminarProductoCont {
+  border-color: transparent;
+  padding: 8px;
+  /* Espacio interno dentro de las celdas de la tabla */
+  background-color: white;
+}
 
-  
+.editarProd {
+  border-color: transparent;
+  border-left-color: 1px solid #ccc;
+  /* Puedes ajustar el grosor y el color del borde según tus preferencias */
+  padding: 8px;
+  /* Espacio interno dentro de las celdas de la tabla */
+  background-color: white;
+}
+
+.eliminarProd {
+  background-color: #BB2D3B;
+}
+
+.totalCont {
+  font-size: 25px;
+  color: rgb(70, 118, 250);
+}
+
+.tabla-container {
+  display: flex;
+  justify-content: center;
+  /* Centrar horizontalmente */
+  align-items: center;
+  /* Centrar verticalmente */
+  max-width: 90%;
+  /* Define el ancho máximo que desees */
+  margin: 0 auto;
+  /* Centra horizontalmente con márgenes automáticos */
+}
+
+input {
+  margin-right: 5px;
+}
+
+.summary-Bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.abono {
+  font-size: 25px;
+  color: rgb(70, 118, 250);
+  margin-left: 10px;
+}
+
+.boton-pago {
+  margin-right: 5%;
+}

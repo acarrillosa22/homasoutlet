@@ -55,3 +55,8 @@
     background-color: #ccc; /* Color de fondo gris claro */
     margin-left: 10px;
 }
+
+.clear-button {
+    margin-left: 5px;
+    background-color: gold;
+  }
