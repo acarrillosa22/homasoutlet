@@ -24,9 +24,6 @@ function TopNavBar() {
           HOMAS outlet
         </Navbar.Brand>
         <Nav className="me-auto" variant="tabs" defaultActiveKey="/home">
-          <Nav.Link className="navo" as={Link} to="/Ventas">
-            Ventas
-          </Nav.Link>
           <Nav.Link className="navo" as={Link} to="/clientes">
             Clientes
           </Nav.Link>

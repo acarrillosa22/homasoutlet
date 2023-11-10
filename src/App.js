@@ -9,7 +9,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
 import Salidas from './components/Movimientos/Salidas';
 import PerfilM from './pages/Perfil/perfil';
-import Factura from './pages/Facturacion/Facturacion';
 import Api from './pages/Producto/Target-api';
 import Producto from './pages/Producto/Productos';
 import Departamentos from './pages/departamentos/departamentos';
@@ -18,6 +17,7 @@ import ObtenerFB from './components/Movimientos/obtenerFB';
 import { useState } from 'react';
 import Clientes from './pages/clientes/cliente';
 import Pedidos from './pages/Pedidos/pedidos';
+import Factura from './pages/Facturacion/Facturacion';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
@@ -38,7 +38,7 @@ function App() {
         <Route path='/Departamentos' element={<Departamentos />} />
         <Route path='/Administradores' element={<h1>Administradores </h1>} />
         <Route path='/Salidas' element={<Salidas />} />
-        <Route path='/Facturacion/Facturacion' element={<Factura />} />
+        <Route path='/Facturacion' element={<Factura />} />
         <Route path='/pedidos' element={<Pedidos />} />
         {/*     </Route> */}
 

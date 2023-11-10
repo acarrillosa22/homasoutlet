@@ -1,59 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Button, Container } from "reactstrap";
-import appPVH from "../../firebase/firebase";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
-import CustomAlert from '../../components/alert/alert';
 import './Target-api.css';
-import ModalCrear from '../../components/modal-crear/modal-crear-departamentos';
-import { Modal, ModalHeader, ModalBody, FormGroup, ModalFooter } from "reactstrap";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave } from '@fortawesome/free-solid-svg-icons';
+
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [hayRequests, setHayRequests] = useState('');
+  const [hayRequests, setHayRequests] = useState(true);
   const [responseData, setResponseData] = useState(null);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [buttonTriggered, setButtonTriggered] = useState();
-  const [departa, setDeparta] = useState([]);
   const [selectedImages, setSelectedImages] = useState({});
-  const [showAlert, setShowAlert] = useState(false);
-  const [textoAlert, setTextoAlert] = useState("");
-  const [tipoAlert, setTipoAlert] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const db = getFirestore(appPVH);
-  const obtenerDepartamentos = async (page) => {
-    try {
-      const userRef = collection(db, "Departamento");
-      const userSnapshot = await getDocs(userRef);
-      setDeparta(userSnapshot.docs.map((departament) => departament.data()));
-    } catch (error) {
-      console.error("Error al obtener departamentos: ", error);
-    }
-  };
   useEffect(() => {
     const numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
     const fetchData = async () => {
-      setTextoAlert("Buscando.....")
-      setTipoAlert("success")
-      setShowAlert(true);
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 2500);
+      window.alert("Buscando...");
       var texto = searchTerm.toString();
       for (var indice = 0; indice < numeros.length; indice++) {//Compureba si lo enviado en un codigo de barras
         if (texto.startsWith(numeros[indice])) {
-          getAPIdata()
-          if (searchTerm) {
-
-          }
+          getAPIdata();
           break;
         }
       }
+
       try {
         const params = {
-          api_key: "D5BE2EF568A54782938EEA35546E0B27"
+          api_key: "EB22F9C4C66A483EB7309793C90E36C6 "
         }
 
         // make the http GET request to RedCircle API
@@ -72,7 +43,7 @@ function App() {
         if (hayRequests) {
           const response = await axios.get('https://api.redcircleapi.com/request', {
             params: {
-              api_key: "D5BE2EF568A54782938EEA35546E0B27",
+              api_key: "EB22F9C4C66A483EB7309793C90E36C6 ",
               search_term: searchTerm,
               type: "search",
               include_out_of_stock: "true"
@@ -84,33 +55,17 @@ function App() {
             setResponseData(resultados.slice(0, 4)); // Mostrar hasta 4 resultados
             setSearchCompleted(true);
           } else {
-            setTextoAlert("Verefique el nombre o codigo ingresado")
-            setTipoAlert("warning")
-            setShowAlert(true);
-            setTimeout(() => {
-              setShowAlert(false);
-            }, 2000);
+            setSearchCompleted(false);
+            window.alert("No se encontraron resultados...");
           }
         }
-        else {
-          setTextoAlert("No quedan consultas disponibles para la busqueda automatica actualise el plan o espere a la fecha de renovacion")
-          setTipoAlert("warning")
-          setShowAlert(true);
-          setTimeout(() => {
-            setShowAlert(false);
-          }, 3000);
-        }
+        else{
 
+        }
       } catch (error) {
         console.error('Error en la solicitud:', error)
         setSearchCompleted(false);
-        setSearchCompleted(false);
-        setTextoAlert("No se encontraron resultados...")
-        setTipoAlert("warning")
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 2500);
+        window.alert("No se encontraron resultados...");
       }
     };
 
@@ -183,59 +138,25 @@ function App() {
     // Actualiza el estado de las imágenes seleccionadas
     setSelectedImages(updatedSelectedImages);
   };
-  const handleSaveProduct = async () => {
-    try {
-      // Crear un arreglo para almacenar los productos seleccionados
-      const productosSeleccionados = [];
 
-      // Iterar a través de los resultados
-      responseData.forEach((resultado, index) => {
-        // Verificar si se ha seleccionado alguna imagen
-        if (selectedImages[index] && selectedImages[index].length > 0) {
-          const producto = resultado.product;
-
-          // Crear un objeto con los datos del producto seleccionado
-          const productoSeleccionado = {
-            Nombre: producto.title,
-            Marca: producto.brand,
-            Codigo: producto.codigo, // Asegúrate de que la API proporcione un código si no, ajusta esta parte
-            Descripcion: producto.feature_bullets.join(', '),
-            Departamento: producto.department_id,
-            PrecioDolares: producto.offers.primary.price,
-            PrecioColones: producto.precioVenta, // Ajusta esta parte según tu lógica
-            Imagen: producto.images.slice(0, 4), // Guarda solo las primeras 4 imágenes
-            URL: producto.link,
-          };
-
-          productosSeleccionados.push(productoSeleccionado);
-        }
-      });
-
-      if (productosSeleccionados.length > 0) {
-        // Aquí puedes guardar los productos seleccionados en Firestore
-        const db = getFirestore(appPVH);
-
-        productosSeleccionados.forEach(async (producto) => {
-          await addDoc(collection(db, "Productos"), producto);
-        });
-
-        // Limpia las imágenes seleccionadas
-        setSelectedImages({});
-
-        console.log("Productos seleccionados guardados en Firestore");
-        window.alert("Productos seleccionados guardados con éxito");
-      } else {
-        console.log("Ningún producto seleccionado para guardar");
-        window.alert("No se ha seleccionado ningún producto para guardar");
-      }
-    } catch (error) {
-      console.error("Error al guardar productos en Firestore: ", error);
-      window.alert("Ocurrió un error al guardar los productos");
-    }
+  const handleSaveImages = () => {
+    // Accede a las imágenes seleccionadas por fila
+    Object.keys(selectedImages).forEach((rowIndex) => {
+      const selectedImageIndices = selectedImages[rowIndex];
+      // Accede a las imágenes correspondientes a los índices seleccionados
+      const selectedImagesForRow = selectedImageIndices.map(
+        (imageIndex) => responseData[rowIndex].product.images[imageIndex]
+      );
+      // Aquí puedes hacer algo con las imágenes seleccionadas, como guardarlas
+      console.log(
+        `Imágenes seleccionadas en la fila ${rowIndex}:`,
+        selectedImagesForRow
+      );
+    });
   };
 
   return (
-    <Container>
+    <div className="app-container">
       <div className="search-container">
         <input
           type="text"
@@ -243,18 +164,19 @@ function App() {
           placeholder="Ingresa código de barras o nombre del producto"
           className="search-input"
         />
-        <Button onClick={handleSearchClick} className="search-button">
+        <button onClick={handleSearchClick} className="search-button">
           Buscar
-        </Button>
-        <Button onClick={() => setIsModalOpen(true)} className="save-button">
-          <FontAwesomeIcon icon={faSave} /></Button>
+        </button>
+        <button onClick={handleSaveImages} className="save-button">
+          Guardar Imágenes Seleccionadas
+        </button>
       </div>
       {searchCompleted && responseData && (
         <div className="table-container">
-          <Table>
+          <table className="result-table">
             <thead>
               <tr>
-                <th>Nombre del producto</th>
+                <th>Nombre del prdoucto</th>
                 <th>Descripción</th>
                 <th>Imágenes</th>
                 <th>Marca</th>
@@ -275,20 +197,68 @@ function App() {
                       onChange={(e) => handleInputChange(e, index, 'title')}
                     />
                   </td>
-                  {/* ... (otras celdas) */}
+                  <td>
+                    <input
+                      class="resultado"
+                      type="text"
+                      value={resultado.product.feature_bullets.join(', ')}
+                      onChange={(e) => handleInputChange(e, index, 'feature_bullets')}
+                    />
+                  </td>
+                  <td className="image-container">
+                    {resultado.product.images.slice(0, 4).map((image, imgIndex) => (
+                      <div key={imgIndex} className="image-item">
+                        <img
+                          src={image}
+                          alt={`Imagen ${imgIndex}`}
+                          className="product-image"
+                        />
+                        <input
+                          type="checkbox"
+                          checked={
+                            selectedImages[index] &&
+                            selectedImages[index].includes(imgIndex)
+                          }
+                          onChange={(e) => handleImageSelection(e, index, imgIndex)}
+                        />
+                      </div>
+                    ))}
+                  </td>
+
+                  <td>
+                    {resultado.product.brand}
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={resultado.product.department_id}
+                      onChange={(e) => handleInputChange(e, index, 'department_id')}
+                    />
+                  </td>
+                  <td>{resultado.offers.primary.price}$</td>
+                  <td>
+                    <div className='Precio'>
+                      <input
+                        className="precio-pensado"
+                        type="text"
+                        placeholder='Ingresa tu precio estimado'
+                        onChange={(e) => handleInputChange(e, index, 'Precio de venta')}
+                      />
+                      <span className="currency-symbol">₡</span>
+                    </div>
+                  </td>
+                  <td>
+                    <a href={resultado.product.link} target="_blank" rel="noopener noreferrer" className="product-link">
+                      Ver producto
+                    </a>
+                  </td>
                 </tr>
               ))}
             </tbody>
-          </Table>
+          </table>
         </div>
       )}
-      {showAlert && <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />}
-      <ModalCrear
-        isOpenA={isModalOpen}
-        closeModal={() => setIsModalOpen(false)}
-        onCreateUsuario={handleSaveProduct} // Puedes modificar el nombre de la función si es necesario
-      />
-    </Container>
+    </div>
   );
 }
 

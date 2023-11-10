@@ -16,7 +16,7 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
-function App() {
+function Factura() {
     const [activeTab, setActiveTab] = useState(0);
     const [modalIsOpenArt, setModalIsOpenArt] = useState(false);
     const [modalArt, setModalArt] = useState(null);
@@ -492,4 +492,4 @@ function App() {
     );
 }
 
-export default App;
+export default Factura;
