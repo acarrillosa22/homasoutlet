@@ -1,4 +1,13 @@
 import React, { useState } from 'react';
+import { Table, Button } from "reactstrap";
+//fortawesome
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
     const [modalData, setModalData] = useState({
@@ -27,25 +36,26 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
 
     const handleMetodoPagoChange = (e) => {
         const nuevoMetodoPago = e.target.value;
-        console.log(nuevoMetodoPago)
         setModalData({
             ...modalData,
             metodoPago: nuevoMetodoPago,
         });
-        if(nuevoMetodoPago === ''){
+        if (nuevoMetodoPago === '') {
             setProcesarHabilitado(false);
         }
         // Habilitar el botón "Procesar Factura" si se selecciona un método de pago
-        else{
+        else {
             setProcesarHabilitado(true);
         }
-        
+
     };
 
     const handleFechaApartadoChange = (e) => {
         const fechaApartado = e.target.value;
-        setModalData({ ...modalData,
-            fechaApartado: fechaApartado});
+        setModalData({
+            ...modalData,
+            fechaApartado: fechaApartado
+        });
     };
 
     const modalStyle = {
@@ -103,11 +113,11 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                         />
                         <label>Fecha limite de apartado:</label>
                         <input
-                        type="date"
-                        placeholder="Fecha de duración del apartado"
-                        value={modalData.fechaApartado}
-                        onChange={handleFechaApartadoChange}
-                    />
+                            type="date"
+                            placeholder="Fecha de duración del apartado"
+                            value={modalData.fechaApartado}
+                            onChange={handleFechaApartadoChange}
+                        />
                     </>
                 )}
                 <div>
@@ -115,7 +125,9 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                     <button onClick={handleGuardar} disabled={!procesarHabilitado}>
                         Procesar Factura
                     </button>
-                    <button onClick={onClose}>Cancelar</button>
+                    <Button onClick={onClose} color="danger" className="clear-button">
+                        Eliminar factura
+                    </Button>
                 </div>
             </div>
         </div>

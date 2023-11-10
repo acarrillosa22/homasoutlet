@@ -3,6 +3,16 @@ import "./Facturacion.css"
 import EditarArt from './Modals/EditarArt';
 import EditarAbonoDescuento from './Modals/EditarAbonoDescuento';
 import ProcesarPago from './Modals/procesarPago';
+import { Table, Button } from "reactstrap";
+//fortawesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
@@ -275,10 +285,10 @@ function App() {
         //Salida de los datos
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
-        if(nuevosDatos.abono !== undefined){
+        if (nuevosDatos.abono !== undefined) {
             activeTabData.abono = nuevosDatos.abono;
         }
-        
+
         activeTabData.fecha = Date();
         activeTabData.metodo = nuevosDatos.metodo;
         //Manejar salida de datos
@@ -363,7 +373,9 @@ function App() {
                             })
                         }
                     />
-                    <button className="agregarProducto" type="submit">Agregar</button>
+                    <Button color="success" type="submit">
+                        Agregar
+                    </Button>
                 </form>
                 <form onSubmit={editarNombre}>
                     <input
@@ -374,11 +386,15 @@ function App() {
                             setNombreCliente(e.target.value)
                         }
                     />
-                    <button className="nombreCliente" type="submit">Asignar cliente</button>
+                    <Button color="success" type="submit">
+                        Asignar Cliente
+                    </Button>
                 </form>
             </div>
             <div className="insert-product">
-                <button onClick={() => handleEditarAD()}>Opciones de factura</button>
+                <Button color="primary" type="submit" onClick={() => handleEditarAD()}>
+                    Opciones de factura
+                </Button>
                 <EditarAbonoDescuento
                     isOpen={modalIsOpenAD}
                     onClose={() => setModalIsOpenAD(false)}
@@ -413,17 +429,27 @@ function App() {
                                         <td>{producto.cantidad}</td>
                                         <td>₡{producto.importe}</td>
                                         <td>{producto.existencia}</td>
-                                        <td className='editarProd'><button onClick={() => handleEditarArt(producto)}>Editar</button>
+                                        <td className="editarProd">
+                                            {" "}
+                                            <Button
+                                                onClick={() => handleEditarArt(producto)}
+                                                color="primary"
+                                            >
+                                                <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                                            </Button>
                                             <EditarArt
                                                 isOpen={modalIsOpenArt}
                                                 onClose={() => setModalIsOpenArt(false)}
                                                 datos={modalArt}
                                                 onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, tab.content.productos) }} />
                                         </td>
-                                        <td className='eliminarProductoCont'>
-                                            <button className='eliminarProd' onClick={() => eliminarFila(index, productoIndex)}>
-                                                Eliminar
-                                            </button>
+                                        <td className="eliminarProductoCont">
+                                            <Button
+                                                onClick={() => eliminarFila(index, productoIndex)}
+                                                color="danger"
+                                            >
+                                                <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                                            </Button>
                                         </td>
                                     </tr>
                                 )}
@@ -436,7 +462,9 @@ function App() {
                             <div className="abono">
                                 Abono: ₡{tab.content.abono}
                             </div>
-                            <button className="boton-pago" onClick={() => procesarPago()}>Procesar pago</button>
+                            <Button className="boton-pago" color="primary" type="submit" onClick={() => procesarPago()}>
+                                Procesar pago
+                            </Button>
                             <ProcesarPago
                                 isOpen={modalIsOpenProceso}
                                 onClose={() => setModalIsOpenProceso(false)}
@@ -448,14 +476,18 @@ function App() {
             </div>
 
             {isButtonVisible && (
-                <button onClick={() => removeTab(activeTab)} className="remove-button">
+                <Button onClick={() => removeTab(activeTab)} color="danger" >
                     Eliminar factura
-                </button>
+                </Button>
             )}
 
-            <button onClick={() => clearTableData(activeTab)} className="clear-button">
+            <Button
+                onClick={() => clearTableData(activeTab)}
+                className="clear-button"
+                color="warning"
+            >
                 Limpiar Factura
-            </button>
+            </Button>
         </div>
     );
 }

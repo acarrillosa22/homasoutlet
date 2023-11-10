@@ -90,8 +90,10 @@ function EditarAbonoDescuento({ isOpen, onClose, datos, onGuardar }) {
                     value={modalData.descuentoGlobal}
                     onChange={(e) => handleInputChange(e, "descuentoGlobal")}
                 />
-                <button onClick={handleGuardar}>Guardar</button>
-                <button onClick={onClose}>Cancelar</button>
+                <div>
+                    <button onClick={handleGuardar}>Guardar</button>
+                    <button onClick={onClose}>Cancelar</button>
+                </div>
                 {mensajeError && <p className="error-message">{mensajeError}</p>}
             </div>
         </div>
