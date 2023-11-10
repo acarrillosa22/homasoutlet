@@ -7,10 +7,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import ModalA from "../../components/modal-editar/modal-editar-departamentos";
 import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
+import CustomAlert from '../../components/alert/alert';
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
-import CustomAlert from '../../components/alert/alert';
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -38,7 +38,7 @@ function Producto() {
   const [dataState, setData] = useState([]);
   let encontrado = '';
   useEffect(() => {
-    obtenerProducto(1); // Fetch the first page of departments
+    obtenerProducto(1);
   }, []);
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
 
@@ -56,23 +56,33 @@ function Producto() {
     openModalActualizar();
   };
   const [sortBy, setSortBy] = useState('');
-  const editar = async (form, productoId) => {
-    const docRef = doc(db, "Producto", productoId);
 
+  const editar = async (form) => {
+    const q = query(collection(db, "Producto"), where("Id", "==", producto.Id));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      encontrado = doc.id;
+    });
     try {
-      await updateDoc(docRef, {
+      const department = doc(db, "Producto", encontrado);
+      console.log(departamento)
+
+      await updateDoc(department, {
         Nombre: form.Nombre,
-        Precio: form.precio,
-        Marca: form.marca,
-        Cantidad: form.cantidad,
-        Estado: "Disponible",
-        Image: form.imagen,
-        Descripcion: form.descripcion
+        Precio: form.Precio,
+        Marca: form.Marca,
+        Cantidad: form.Cantidad,
+        Estado: form.Estado,
+        Image: form.Image,
+        Descripcion: form.Descripcion
       });
-      console.log("Documento actualizado exitosamente");
-      onCreateDepartamentos();
+      console.log("Document successfully updated!");
+      onCreateProducto();
+
     } catch (error) {
-      console.error("Error al actualizar el documento: ", error);
+      console.error("Error updating document: ", error);
     }
   };
 
@@ -126,8 +136,8 @@ function Producto() {
       const userSnapshot = await getDocs(userRef);
       const allProducts = userSnapshot.docs
         .map((product) => product.data())
-        .filter((product) => product.Estado !== "Eliminado"); // Filtrar productos con estado "Eliminado"
-
+        .filter((product) => product.Estado !== "Eliminado");
+      // Filtrar productos con estado "Eliminado"
       // Calcular el conjunto de productos para la página actual
       const slicedProducts = allProducts.slice(startIndex, startIndex + usersPerPage);
 
@@ -147,7 +157,7 @@ function Producto() {
       console.error("Error al obtener departamentos: ", error);
     }
   };
-  const onCreateDepartamentos = () => {
+  const onCreateProducto = () => {
     // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
     obtenerProducto(1);
   };
@@ -169,27 +179,28 @@ function Producto() {
     switch (fieldName) {
       case "precio":
         fieldErrors.precio =
-          isNaN(Number(value))
+          Number(value) > 0 ||
+            isNaN(Number(value))
             ? "El precio debe ser un numero"
             : "";
         break;
       case "precioReferencia":
-        fieldErrors.precioReferencia =
+        fieldErrors.precioReferencia = Number(value) > 0 ||
           isNaN(Number(value))
-            ? "El precio de referencia debe ser un numero"
-            : "";
+          ? "El precio de referencia debe ser un numero"
+          : "";
         break;
       case "cantidad":
-        fieldErrors.cantidad =
+        fieldErrors.cantidad = Number(value) > 0 ||
           isNaN(Number(value))
-            ? "La cantidad debe ser un numero"
-            : "";
+          ? "La cantidad debe ser un numero"
+          : "";
         break;
       case "codigo":
-        fieldErrors.estado =
+        fieldErrors.estado = value.length !== 6 ||
           isNaN(Number(value))
-            ? "El codigo debe ser un numero"
-            : "";
+          ? "El codigo debe ser un numero"
+          : "";
         break;
       default:
         break;
@@ -197,67 +208,37 @@ function Producto() {
     return (fieldErrors);
   };
   const crearProducto = async (form) => {
-    const errors = {};
-    // Validar campos vacíos
-    if (!form.nombre) {
-      errors.nombre = "El nombre es requerido";
-    }
-    if (!form.codigo) {
-      errors.codigo = "El código es requerido";
-    }
-    if (!form.precio) {
-      errors.precio = "El precio es requerido";
-    }
-    if (!form.cantidad) {
-      errors.cantidad = "El cantidad es requerido";
-    }
-    if (!form.marca) {
-      errors.marca = "El marca es requerido";
-    }
-    if (!form.departamento) {
-      errors.departamento = "El departamento es requerido";
-    } if (!form.imagen) {
-      errors.imagen = "El imagen es requerido";
-    }
-    if (!form.precioReferencia) {
-      errors.precioReferencia = "El precioReferencia es requerido";
-    }
-    if (!form.descripcion) {
-      errors.descripcion = "El descripcion es requerido";
-    }
-    // Comprobar si hay errores
-    if (Object.keys(errors).length > 0) {
-      console.log("Campos requeridos vacíos:", errors);
-      return;
-    }
-
     try {
       await addDoc(collection(db, "Producto"), {
-        Nombre: form.nombre,
-        Id: form.codigo,
-        Precio: form.precio,
-        Marca: form.marca,
-        Cantidad: form.cantidad,
+        Nombre: form.Nombre,
+        Id: form.Codigo,
+        Precio: form.Precio,
+        Marca: form.Marca,
+        Cantidad: form.Cantidad,
         Estado: "Disponible",
-        NombreDepartamento: form.departamento,
-        PrecioReferencia: form.precioReferencia,
-        Image: form.imagen,
-        Descripcion: form.descripcion
+        NombreDepartamento: form.Departamento,
+        PrecioReferencia: form.PrecioReferencia,
+        Image: form.Image,
+        Descripcion: form.Descripcion
       });
 
       console.log("Producto creado y documentado en Firestore");
-      onCreateDepartamentos();
+      onCreateProducto();
     } catch (error) {
       console.error("Error al crear producto y documentar en Firestore: ", error);
     }
   };
 
   const initialFormState = {
-    nombre: '',
-    precio: '',
-    cantidad: '',
-    imagen: '',
-    descripcion: ''
+    Nombre: '',
+    Precio: 0,
+    Cantidad: '',
+    Image: '',
+    Descripcion: '',
+    PrecioReferencia: 0,
+    Departamento: '',
+    Codigo: 0,
+    Marca: '',
   };
 
   //-------------------------------------------------------Eliminar---------------------------------------------------------------------
@@ -267,19 +248,30 @@ function Producto() {
     openModalEliminar();
   };
   const eliminarProducto = async (productoId) => {
-    const docRef = doc(db, "Producto", productoId);
+    const q = query(collection(db, "Producto"), where("Id", "==", producto.Id));
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      encontrado = doc.id;
+    });
     try {
-      await updateDoc(docRef, {
-        Estado: "Eliminado" // Cambiar el estado del producto a "No Disponible"
+      const department = doc(db, "Producto", encontrado);
+      console.log(departamento)
+
+      await updateDoc(department, {
+        Estado: "Eliminado"
       });
       console.log("Estado del producto cambiado correctamente");
-      onCreateDepartamentos();
+      onCreateProducto();
     } catch (error) {
       console.error("Error al cambiar el estado del producto: ", error);
     }
   };
-
-
+  const agregarProductoAFactura = (producto) => {
+    // Devuelve el producto sin realizar acciones adicionales
+    return producto;
+  };
   //---------------------------------------------------------HTML-------------------------------------------------------------
   return (
     <Container>
@@ -296,6 +288,15 @@ function Producto() {
         onChange={handleSearchChange}
         placeholder={`Buscar por ${searchOption}`}
       />
+      <label>Buscar por:</label>
+      <select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+      >
+        <option value="">Nombre</option>
+        <option value="Precio">Departamento</option>
+        <option value="Cantidad">Cantidad</option>
+      </select>
       <label>Ordenar por:</label>
       <select
         value={sortBy}
@@ -314,6 +315,7 @@ function Producto() {
             <th>Precio</th>
             <th>Imagen</th>
             <th>Descripción</th>
+            <th>Codigo</th>
           </tr>
         </thead>
         <tbody>
@@ -327,6 +329,7 @@ function Producto() {
                 <img src={dato.Image} alt={dato.Nombre} style={{ width: '30px', height: '30px' }} />
               </td>
               <td>{dato.Descripcion}</td>
+              <td>{dato.Id}</td>
               <td>
                 <Button
                   onClick={() => abrirModalActualizar(dato)}
@@ -336,6 +339,11 @@ function Producto() {
                 <Button
                   onClick={() => abrirModalEliminar(dato)}
                   color="danger">
+                  <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                </Button>
+                <Button
+                  onClick={() => agregarProductoAFactura(dato)}
+                  color="primary">
                   <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
               </td>
@@ -373,7 +381,7 @@ function Producto() {
       <ModalCrear
         isOpenA={isOpenCrear}
         closeModal={closeModalCrear}
-        onCreateUsuario={onCreateDepartamentos}
+        onCreateUsuario={onCreateProducto}
         validateField={validateFieldCrear}
         FuntionCreate={crearProducto}
         initialForm={initialFormState}
