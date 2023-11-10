@@ -65,20 +65,15 @@ function Departamentos() {
   };
 
   const editar = async (form) => {
-
-
     const q = query(collection(db, "Departamento"), where("Nombre", "==", departamento.Nombre));
-
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       console.log(doc.id, " => ", doc.data());
       encontrado = doc.id;
     });
-
     const docrefence = doc(db, "Departamento", encontrado);
     console.log(docrefence);
-
     console.log(departamento.Nombre);
     console.log(encontrado);
     console.log('Formulario:', form);
