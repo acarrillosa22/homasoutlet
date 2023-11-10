@@ -16,6 +16,7 @@ function ModalA({
   FuntionEdit,
   fieldOrder,
   nombreCrud,
+  combobox2
 }) {
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
@@ -86,6 +87,43 @@ function ModalA({
               checked={form[key] || false}
               onChange={handleChange}
             />
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      }else if (key === "correoElectronico" || key === "Correo") {
+        return (
+          <FormGroup key={key} className={errors ? "error" : ""}>
+           <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <input
+              required
+              className="form-control"
+              type="email"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            />
+            {errors && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      }
+      else if (key === "Departamento") {
+        // Si es el atributo "rol", generar un combobox
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Selecciona un Departamento</option>
+              {combobox2.map((encargado) => (
+                <option key={encargado.id} value={encargado.nombre}>
+                  {encargado.nombre}
+                </option>
+              ))}
+            </select>
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );

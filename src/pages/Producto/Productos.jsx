@@ -73,7 +73,6 @@ function Producto() {
       await updateDoc(department, {
         Nombre: form.Nombre,
         Precio: form.Precio,
-        Marca: form.Marca,
         Cantidad: form.Cantidad,
         Estado: form.Estado,
         Image: form.Image,
@@ -147,13 +146,16 @@ function Producto() {
       console.error("Error al obtener productos: ", error);
     }
   };
-
+  useEffect(() => {
+    obtenerDepartamentos();
+  }, [isOpenActualizar,isOpenCrear]);
   const obtenerDepartamentos = async (page) => {
     try {
       const userRef = collection(db, "Departamento");
       const userSnapshot = await getDocs(userRef);
       const allDepartmentos = userSnapshot.docs
         .map((departament) => departament.data())
+      setDepartamento(allDepartmentos);
     } catch (error) {
       console.error("Error al obtener departamentos: ", error);
     }
@@ -168,7 +170,7 @@ function Producto() {
     2: "Marca",
     3: "Codigo",
     4: "Descripcion",
-    5: "Departamento",
+    5: "NombreDepartamento",
     6: "Precio",
     7: "PrecioReferencia",
     8: "Cantidad",
@@ -217,7 +219,7 @@ function Producto() {
         Marca: form.Marca,
         Cantidad: form.Cantidad,
         Estado: "Disponible",
-        NombreDepartamento: form.Departamento,
+        NombreDepartamento: form.NombreDepartamento,
         PrecioReferencia: form.PrecioReferencia,
         Image: form.Image,
         Descripcion: form.Descripcion,
@@ -238,7 +240,7 @@ function Producto() {
     Image: '',
     Descripcion: '',
     PrecioReferencia: 0,
-    Departamento: '',
+    NombreDepartamento: '',
     Codigo: 0,
     Marca: '',
   };
@@ -295,9 +297,8 @@ function Producto() {
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value)}
       >
-        <option value="">Nombre</option>
-        <option value="Precio">Departamento</option>
-        <option value="Cantidad">Cantidad</option>
+        <option value="Nombre">Nombre</option>
+        <option value="NombreDepartamento">Departamento</option>
       </select>
       <label>Ordenar por:</label>
       <select
@@ -312,6 +313,7 @@ function Producto() {
         <thead>
           <tr>
             <th>Nombre</th>
+            <th>Departamento</th>
             <th>Estado</th>
             <th>Cantidad</th>
             <th>Precio</th>
@@ -324,6 +326,7 @@ function Producto() {
           {filteredUsers.map((dato) => (
             <tr key={dato.Nombre}>
               <td>{dato.Nombre}</td>
+              <td>{dato.NombreDepartamento}</td>
               <td>{dato.Estado}</td>
               <td>{dato.Cantidad}</td>
               <td>{dato.Precio}</td>
@@ -379,6 +382,7 @@ function Producto() {
         FuntionEdit={editar}
         fieldOrder={fieldOrderEditar}
         nombreCrud={nombre}
+        combobox2={departamento}
       />
       <ModalCrear
         isOpenA={isOpenCrear}
@@ -389,6 +393,7 @@ function Producto() {
         initialForm={initialFormState}
         fieldOrder={fieldOrderCrear}
         nombreCrud={nombre}
+        combobox2={departamento}
       />
       <ModalEliminar
         isOpen={isOpenEliminar}
