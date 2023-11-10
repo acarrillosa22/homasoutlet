@@ -15,11 +15,12 @@ import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faCaretUp, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faCartFlatbed } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft,faCaretUp);
 const nombre = "Producto";
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Producto() {
@@ -344,7 +345,7 @@ function Producto() {
                 <Button
                   onClick={() => agregarProductoAFactura(dato)}
                   color="primary">
-                  <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                  <FontAwesomeIcon icon={faCartFlatbed} size="lg"  />
                 </Button>
               </td>
             </tr>
