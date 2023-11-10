@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
 
-const EditarArt = ({ isOpen, onClose, datos, onGuardar }) => {
+function EditarArt({ isOpen, onClose, datos, onGuardar }) {
     const [modalData, setModalData] = useState([
         //Molde para evitar que se caiga
         {
@@ -18,11 +18,9 @@ const EditarArt = ({ isOpen, onClose, datos, onGuardar }) => {
         onGuardar(modalData);
         onClose();
     };
-
-    const [botonDeshabilitado, setBotonDeshabilitado] = useState(false);
+    
     const [mensajeError, setMensajeError] = useState('');
-    const [cantidadAux, setCantidadAux] = useState(0);
-    const [descuentoAux, setDescuentoAux] = useState(0);
+    const [botonActivo, setbotonActivo] = useState(false);
 
     useEffect(() => {
         if (isOpen && datos) {
@@ -37,22 +35,31 @@ const EditarArt = ({ isOpen, onClose, datos, onGuardar }) => {
             [index]: parseFloat(e.target.value)
         };
 
+        if(isNaN(newModalData.cantidad)){
+            newModalData.cantidad = 0;
+        }
+
+        if(isNaN(newModalData.descuento)){
+            newModalData.descuento = 0;
+        }
+
         // Validar que no se este vendiendo más de lo que hay, se aplique un descuento inválido o se aplique valores negativos
         const validador = newModalData.existencia;
-        if ((validador < newModalData.cantidad || newModalData.descuento > 100 || newModalData[index] < 0)) {
-            setBotonDeshabilitado(true);
+        if (validador < newModalData.cantidad || newModalData.descuento > 100 || newModalData[index] < 0) {
             if (newModalData.descuento > 100) {
-                setMensajeError("No se puede guardar debido a que el descuento excede el 100%.");
+                setMensajeError("El descuento excede el 100%.");
             }
-            else if (newModalData[index] < 0) {
-                setMensajeError("No se puede guardar debido a hay valor(es) negativo(s)");
-            } 
+
             else {
-                setMensajeError("No se puede guardar debido a la cantidad que se quiere vender es mayor a lo que hay (" + validador + ")");
+                setMensajeError("La cantidad que se quiere vender es mayor a lo que hay (" + validador + ")");
             }
         } else {
-            setBotonDeshabilitado(false);
+            setbotonActivo(false);
             setMensajeError('');
+            if(newModalData.cantidad === 0){
+                setbotonActivo(true);
+                setMensajeError("No se puede vender 0 prouctos");
+            }
             setModalData(newModalData); // Actualizar modalData después de las validaciones
         }
     };
@@ -90,9 +97,8 @@ const EditarArt = ({ isOpen, onClose, datos, onGuardar }) => {
                     value={modalData.cantidad}
                     onChange={(e) => handleInputChange(e, "cantidad")}
                 />
-                {/* Agregar más campos y etiquetas para otros datos aquí */}
                 <div>
-                    <button onClick={handleGuardar} disabled={botonDeshabilitado}>Guardar</button>
+                    <button onClick={handleGuardar} disabled={botonActivo}>Guardar</button>
                     <button onClick={onClose}>Cancelar</button>
                 </div>
                 {mensajeError && <p className="error-message">{mensajeError}</p>}

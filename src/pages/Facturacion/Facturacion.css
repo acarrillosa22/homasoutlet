@@ -98,5 +98,19 @@
     color: rgb(70, 118, 250);
   }
 
+  .summary-Bar {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.abono {
+    margin-left: 10px; 
+}
+
+.boton-pago{
+    margin-right: 5%;
+}
+
 
   
