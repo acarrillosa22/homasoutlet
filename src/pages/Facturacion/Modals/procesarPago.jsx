@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button } from "reactstrap";
+import {Button } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -126,7 +126,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                         Procesar Factura
                     </button>
                     <Button onClick={onClose} color="danger" className="clear-button">
-                        Eliminar factura
+                        Cancelar
                     </Button>
                 </div>
             </div>

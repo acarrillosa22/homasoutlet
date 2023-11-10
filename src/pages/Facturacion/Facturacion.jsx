@@ -3,7 +3,7 @@ import "./Facturacion.css"
 import EditarArt from './Modals/EditarArt';
 import EditarAbonoDescuento from './Modals/EditarAbonoDescuento';
 import ProcesarPago from './Modals/procesarPago';
-import { Table, Button } from "reactstrap";
+import {Button } from "reactstrap";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";

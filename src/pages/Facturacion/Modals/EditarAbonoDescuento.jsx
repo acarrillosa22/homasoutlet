@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
+import {Button } from "reactstrap";
+//fortawesome
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function EditarAbonoDescuento({ isOpen, onClose, datos, onGuardar }) {
     const [modalData, setModalData] = useState([
@@ -92,7 +101,9 @@ function EditarAbonoDescuento({ isOpen, onClose, datos, onGuardar }) {
                 />
                 <div>
                     <button onClick={handleGuardar}>Guardar</button>
-                    <button onClick={onClose}>Cancelar</button>
+                    <Button onClick={onClose} color="danger" className="clear-button">
+                        Cancelar
+                    </Button>
                 </div>
                 {mensajeError && <p className="error-message">{mensajeError}</p>}
             </div>
