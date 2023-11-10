@@ -6,6 +6,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         estado: 'pagar', // Valor predeterminado
         metodoPago: '',
         total: 0,
+        fechaApartado: Date(),
     });
 
     const [procesarHabilitado, setProcesarHabilitado] = useState(false);
@@ -39,6 +40,12 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
             setProcesarHabilitado(true);
         }
         
+    };
+
+    const handleFechaApartadoChange = (e) => {
+        const fechaApartado = e.target.value;
+        setModalData({ ...modalData,
+            fechaApartado: fechaApartado});
     };
 
     const modalStyle = {
@@ -94,6 +101,12 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                             value={modalData.abono}
                             onChange={(e) => setModalData({ ...modalData, abono: e.target.value })}
                         />
+                        <input
+                        type="date"
+                        placeholder="Fecha de duración del apartado"
+                        value={modalData.fechaApartado}
+                        onChange={handleFechaApartadoChange}
+                    />
                     </>
                 )}
                 <div>
