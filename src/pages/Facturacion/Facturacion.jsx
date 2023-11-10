@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import "./Facturacion.css"
 import EditarArt from './Modals/EditarArt';
+import EditarAbonoDescuento from './Modals/EditarAbonoDescuento';
+import ProcesarPago from './Modals/procesarPago';
+import {Button } from "reactstrap";
+//fortawesome
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
+
 
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
 function Factura() {
     const [activeTab, setActiveTab] = useState(0);
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [modalData, setModalData] = useState(null);
+    const [modalIsOpenArt, setModalIsOpenArt] = useState(false);
+    const [modalArt, setModalArt] = useState(null);
+    const [modalIsOpenAD, setModalIsOpenAD] = useState(false);
+    const [modalAD, setModalAD] = useState(null);
+    const [modalIsOpenProceso, setModalIsOpenProceso] = useState(false);
+    const [modalProceso, setModalProceso] = useState(null);
     const [actualizaTab, setActualizaTab] = useState(true);
     const [isButtonVisible, setButtonVisibility] = useState(false);
+    const [nombreCliente, setNombreCliente] = useState("");
     const [tabs, setTabs] = useState([
         {
             title: 'Factura 1',
@@ -36,6 +54,7 @@ function Factura() {
                 total: 0,
                 descuentoGlobal: 0,
                 nombreCliente: "",
+                abono: 0,
             },
         },
     ]);
@@ -70,6 +89,9 @@ function Factura() {
             total: 0,
             descuentoGlobal: 0,
             nombreCliente: "",
+            abono: 0,
+            estado: 0,
+            metodo: 0,
         },
     };
 
@@ -99,6 +121,7 @@ function Factura() {
         }, 500); // Duración de la animación en milisegundos
     };
     //Inhabilitar: Borrar factura después de 3 años de existencia
+
     //Elimina la pestaña
     const removeTab = (index) => {
         const updatedTabs = tabs.filter((tab, tabIndex) => tabIndex !== index);
@@ -117,15 +140,43 @@ function Factura() {
             descuentoGlobal: 0,
             total: 0,
             nombreCliente: "",
+            abono: 0,
+            estado: 0,
+            metodo: 0,
         };
         updatedTabs[index].content = { ...defaultContent };
         setTabs(updatedTabs);
     };
 
     //Modal de producto
-    const handleEditar = (datos) => {
-        setModalData(datos);
-        setModalIsOpen(true);
+    const handleEditarArt = (datos) => {
+        setModalArt(datos);
+        setModalIsOpenArt(true);
+    };
+
+    //Modal de abono
+    const handleEditarAD = () => {
+        const updatedTabs = [...tabs];
+        const activeTabData = {
+            abono: updatedTabs[activeTab].content.abono,
+            descuentoGlobal: updatedTabs[activeTab].content.descuentoGlobal,
+            total: updatedTabs[activeTab].content.total,
+        }
+        setModalAD(activeTabData);
+        setModalIsOpenAD(true);
+    };
+
+    //Modal de Pago
+    const procesarPago = () => {
+        const updatedTabs = [...tabs];
+        const activeTabData = {
+            abono: updatedTabs[activeTab].content.abono,
+            estado: updatedTabs[activeTab].content.estado,
+            metodo: updatedTabs[activeTab].content.metodo,
+            total: updatedTabs[activeTab].content.total,
+        }
+        setModalProceso(activeTabData);
+        setModalIsOpenProceso(true);
     };
 
     const agregarProducto = (e) => {
@@ -136,9 +187,6 @@ function Factura() {
             e.preventDefault();
         }
         setActualizaTab(true);
-
-        // Encuentra la pestaña activa
-        const activeTabIndex = activeTab;
 
         // Copia el estado actual de las pestañas
         const updatedTabs = [...tabs];
@@ -155,8 +203,9 @@ function Factura() {
         });
 
         // Encuentra la pestaña activa y agrega el producto a la lista de productos
+        //Se encuentra un código de barras igual en la lista de productos
         if (!hay) {
-            updatedTabs[activeTabIndex].content.productos.push(productoAInsertar);
+            updatedTabs[activeTab].content.productos.push(productoAInsertar);
         }
 
 
@@ -175,10 +224,74 @@ function Factura() {
         });
     };
 
-    const actualizarProducto = (nuevosDatos, index, producto) => {
-        producto.descuento = nuevosDatos.descuento;
-        producto.cantidad = nuevosDatos.cantidad;
-        auxiliar(index)
+    const editarNombre = (e) => {
+        if (e.key === 'Enter') {
+            //Se presiona enter
+        }
+        else {
+            e.preventDefault();
+        }
+        setActualizaTab(true);
+
+
+        // Copia el estado actual de las pestañas
+        const updatedTabs = [...tabs];
+        if (nombreCliente === "") {
+            updatedTabs[activeTab].title = "Factura " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
+        }
+        else {
+            updatedTabs[activeTab].title = nombreCliente + " " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
+        }
+        updatedTabs[activeTab].nombreCliente = nombreCliente;
+        //Hacer algo si el cliente está moroso
+        setTabs(updatedTabs);
+
+        setNombreCliente("");
+    }
+
+    //Actualiza cambios de modal producto
+    const actualizarProducto = (nuevosDatos, index, listaProductos) => {
+        var productoE = {
+            codigoBarras: '',
+            descripcion: '',
+            precioVenta: 0,
+            cantidad: 0,
+            importe: 0,
+            existencia: 0,
+            descuento: 0,
+        };
+        for (const producto of listaProductos) {
+            if (producto.codigoBarras === nuevosDatos.codigoBarras) {
+                productoE = producto;
+                break;
+            }
+        }
+        productoE.descuento = nuevosDatos.descuento;
+        productoE.cantidad = nuevosDatos.cantidad;
+        auxiliar(index);
+    }
+
+    //Actualiza cambios de modal Abono descuento global
+    const actualizarAD = (nuevosDatos) => {
+        const updatedTabs = [...tabs];
+        const activeTabData = updatedTabs[activeTab].content;
+
+        activeTabData.descuentoGlobal = nuevosDatos.descuentoGlobal;
+        activeTabData.abono = nuevosDatos.abono;
+        auxiliar(activeTab);
+    }
+    // Actualiza cambios modal Pago y envia resultados a la base de datos
+    const procesar = (nuevosDatos) => {
+        //Salida de los datos
+        const updatedTabs = [...tabs];
+        const activeTabData = updatedTabs[activeTab].content;
+        if (nuevosDatos.abono !== undefined) {
+            activeTabData.abono = nuevosDatos.abono;
+        }
+
+        activeTabData.fecha = Date();
+        activeTabData.metodo = nuevosDatos.metodo;
+        //Manejar salida de datos
     }
 
     const eliminarFila = (tabIndex, productoIndex) => {
@@ -193,7 +306,7 @@ function Factura() {
 
         // Calcula el total sumando los importes de todos los productos
         const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total * (1 - activeTabData.descuentoGlobal / 100);
+        activeTabData.total = total;
         setTabs(updatedTabs);
     };
 
@@ -209,7 +322,7 @@ function Factura() {
 
         // Calcula el total sumando los importes de todos los productos
         const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total * (1 - activeTabData.descuentoGlobal / 100);
+        activeTabData.total = total;
 
         // Actualiza el estado con los cálculos
         if (actualizaTab === true) {
@@ -260,8 +373,33 @@ function Factura() {
                             })
                         }
                     />
-                    <button className="agregarProducto" type="submit">Agregar</button>
+                    <Button color="success" type="submit">
+                        Agregar
+                    </Button>
                 </form>
+                <form onSubmit={editarNombre}>
+                    <input
+                        type="text"
+                        placeholder="Nombre del Cliente"
+                        value={nombreCliente}
+                        onChange={(e) =>
+                            setNombreCliente(e.target.value)
+                        }
+                    />
+                    <Button color="success" type="submit">
+                        Asignar Cliente
+                    </Button>
+                </form>
+            </div>
+            <div className="insert-product">
+                <Button color="primary" type="submit" onClick={() => handleEditarAD()}>
+                    Opciones de factura
+                </Button>
+                <EditarAbonoDescuento
+                    isOpen={modalIsOpenAD}
+                    onClose={() => setModalIsOpenAD(false)}
+                    datos={modalAD}
+                    onGuardar={(nuevosDatos) => { actualizarAD(nuevosDatos) }} />
             </div>
             <div className="tab-content">
                 {tabs.map((tab, index) => (
@@ -291,38 +429,65 @@ function Factura() {
                                         <td>{producto.cantidad}</td>
                                         <td>₡{producto.importe}</td>
                                         <td>{producto.existencia}</td>
-                                        <td className='editarProd'><button onClick={() => handleEditar(producto)}>Editar</button>
+                                        <td className="editarProd">
+                                            {" "}
+                                            <Button
+                                                onClick={() => handleEditarArt(producto)}
+                                                color="primary"
+                                            >
+                                                <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                                            </Button>
                                             <EditarArt
-                                                isOpen={modalIsOpen}
-                                                onClose={() => setModalIsOpen(false)}
-                                                datos={modalData}
-                                                onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, producto) }} />
+                                                isOpen={modalIsOpenArt}
+                                                onClose={() => setModalIsOpenArt(false)}
+                                                datos={modalArt}
+                                                onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, tab.content.productos) }} />
                                         </td>
-                                        <td className='eliminarProductoCont'>
-                                            <button className='eliminarProd' onClick={() => eliminarFila(index, productoIndex)}>
-                                                Eliminar
-                                            </button>
+                                        <td className="eliminarProductoCont">
+                                            <Button
+                                                onClick={() => eliminarFila(index, productoIndex)}
+                                                color="danger"
+                                            >
+                                                <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                                            </Button>
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
-                        <div className='totalCont'>
-                            Total: ₡{tab.content.total}
+                        <div className="summary-Bar">
+                            <div className="totalCont">
+                                Total: ₡{tab.content.total * (1 - tab.content.descuentoGlobal / 100)}
+                            </div>
+                            <div className="abono">
+                                Abono: ₡{tab.content.abono}
+                            </div>
+                            <Button className="boton-pago" color="primary" type="submit" onClick={() => procesarPago()}>
+                                Procesar pago
+                            </Button>
+                            <ProcesarPago
+                                isOpen={modalIsOpenProceso}
+                                onClose={() => setModalIsOpenProceso(false)}
+                                datos={modalProceso}
+                                onGuardar={(nuevosDatos) => { procesar(nuevosDatos) }} />
                         </div>
                     </div>
                 ))}
             </div>
 
             {isButtonVisible && (
-                <button onClick={() => removeTab(activeTab)} className="remove-button">
+                <Button onClick={() => removeTab(activeTab)} color="danger" >
                     Eliminar factura
-                </button>
+                </Button>
             )}
 
-            <button onClick={() => clearTableData(activeTab)} className="clear-button">
+            <Button
+                onClick={() => clearTableData(activeTab)}
+                className="clear-button"
+                color="warning"
+            >
                 Limpiar Factura
-            </button>
+            </Button>
         </div>
     );
 }

@@ -10,17 +10,13 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
-function EditarArt({ isOpen, onClose, datos, onGuardar }) {
+function EditarAbonoDescuento({ isOpen, onClose, datos, onGuardar }) {
     const [modalData, setModalData] = useState([
         //Molde para evitar que se caiga
         {
-            codigoBarras: '',
-            descripcion: '',
-            precioVenta: 0,
-            cantidad: 0,
-            importe: 0,
-            existencia: 0,
-            descuento: 0,
+            abono: undefined,
+            descuentoGlobal: undefined,
+            total: undefined,
         },
     ]);
     const handleGuardar = () => {
@@ -29,11 +25,13 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
     };
 
     const [mensajeError, setMensajeError] = useState('');
-    const [botonActivo, setbotonActivo] = useState(false);
 
     useEffect(() => {
         if (isOpen && datos) {
             setModalData(datos);
+            if (datos.descuentoGlobal !== 0) {
+                setMensajeError('Aplicando el descuento, se obtendrá un total de: ' + datos.total * (1 - datos.descuentoGlobal / 100));
+            }
         }
     }, [isOpen, datos]);
 
@@ -44,33 +42,28 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
             [index]: parseFloat(e.target.value)
         };
 
-        if (isNaN(newModalData.cantidad)) {
-            newModalData.cantidad = 0;
+        if (isNaN(newModalData.abono)) {
+            newModalData.abono = 0;
         }
 
-        if (isNaN(newModalData.descuento)) {
-            newModalData.descuento = 0;
+        if (isNaN(newModalData.descuentoGlobal)) {
+            newModalData.descuentoGlobal = 0;
         }
 
-        // Validar que no se este vendiendo más de lo que hay, se aplique un descuento inválido o se aplique valores negativos
-        const validador = newModalData.existencia;
-        if (validador < newModalData.cantidad || newModalData.descuento > 100 || newModalData[index] < 0) {
-            if (newModalData.descuento > 100) {
-                setMensajeError("El descuento excede el 100%.");
-            }
+        if (newModalData.descuentoGlobal > 100) {
+            setMensajeError("El descuento excede el 100%.");
+        }
 
-            else {
-                setMensajeError("La cantidad que se quiere vender es mayor a lo que hay (" + validador + ")");
-            }
-        } else {
-            setbotonActivo(false);
-            setMensajeError('');
-            if (newModalData.cantidad === 0) {
-                setbotonActivo(true);
-                setMensajeError("No se puede vender 0 prouctos");
-            }
+        else {
             setModalData(newModalData); // Actualizar modalData después de las validaciones
+            if (newModalData.descuentoGlobal !== 0) {
+                setMensajeError('Aplicando el descuento, se obtendrá un total de: ' + newModalData.total * (1 - newModalData.descuentoGlobal / 100));
+            }
+            else {
+                setMensajeError('');
+            }
         }
+
     };
 
     const modalStyle = {
@@ -94,20 +87,20 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
         <div className={modalStyle}>
             <div className="modal-content">
                 <h2>Editar Datos</h2>
-                <label>Descuento:</label>
+                <label>Abono:</label>
                 <input
                     type="number"
-                    value={modalData.descuento}
-                    onChange={(e) => handleInputChange(e, "descuento")}
+                    value={modalData.abono}
+                    onChange={(e) => handleInputChange(e, "abono")}
                 />
-                <label>Cantidad:</label>
+                <label>Descuento global:</label>
                 <input
                     type="number"
-                    value={modalData.cantidad}
-                    onChange={(e) => handleInputChange(e, "cantidad")}
+                    value={modalData.descuentoGlobal}
+                    onChange={(e) => handleInputChange(e, "descuentoGlobal")}
                 />
                 <div>
-                    <Button color="primary" onClick={handleGuardar} disabled={botonActivo}>
+                    <Button color="primary" onClick={handleGuardar}>
                         Guardar
                     </Button>
                     <Button onClick={onClose} color="danger" className="clear-button">
@@ -120,4 +113,4 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
     );
 };
 
-export default EditarArt;
+export default EditarAbonoDescuento;
