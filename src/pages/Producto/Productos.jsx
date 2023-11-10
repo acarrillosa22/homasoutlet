@@ -220,7 +220,8 @@ function Producto() {
         NombreDepartamento: form.Departamento,
         PrecioReferencia: form.PrecioReferencia,
         Image: form.Image,
-        Descripcion: form.Descripcion
+        Descripcion: form.Descripcion,
+        PrecioLiquidacion:0
       });
 
       console.log("Producto creado y documentado en Firestore");
