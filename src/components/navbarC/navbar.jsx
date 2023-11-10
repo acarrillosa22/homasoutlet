@@ -66,9 +66,6 @@ function TopNavBar() {
           <Nav.Link className="navo" as={Link} to="/productos">
             Productos
           </Nav.Link>
-          <Nav.Link className="navo" as={Link} to="/inventario">
-            Inventario
-          </Nav.Link>
           <Nav.Link className="navo" as={Link} to="/config">
             Configuración
           </Nav.Link>
@@ -86,6 +83,9 @@ function TopNavBar() {
           </Nav.Link>
           <Nav.Link className="navo" as={Link} to="/obtenerFB">
             Factura Provisional
+          </Nav.Link>
+          <Nav.Link className="navo" as={Link} to="/pedidos">
+            Pedidos
           </Nav.Link>
         </Nav>
         {isReadyForInstall && (

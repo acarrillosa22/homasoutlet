@@ -15,6 +15,7 @@ import { ProtectedRoutes } from './components/ProtectRoutes';
 import ObtenerFB from './components/Movimientos/obtenerFB';
 import { useState } from 'react';
 import Clientes from './pages/clientes/cliente';
+import Pedidos from './pages/Pedidos/pedidos';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
       <Route path='/Administradores' element={<h1>Administradores </h1>} /> 
       <Route path='/Salidas' element={<Salidas />} />
       <Route path='/obtenerFB' element={<ObtenerFB />} />
+      <Route path='/Pedidos' element={<Pedidos />} />
  {/*     </Route> */ }
       
     </Routes>
