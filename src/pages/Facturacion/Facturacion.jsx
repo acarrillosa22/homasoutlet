@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Facturacion.css"
+import appPVH from '../../firebase/firebase';
+import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
 import EditarAbonoDescuento from './Modals/EditarAbonoDescuento';
 import ProcesarPago from './Modals/procesarPago';
@@ -12,11 +14,19 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
 function Factura() {
+    const dbPVH = getFirestore(appPVH);
+    const dbHOT = getFirestore(appHOT);
+    const [departamento, setDepartamento] = useState([]);
+    const [factura, setFactura] = useState([]);
+    const [producto, setProducto] = useState([]);
+    const [cliente, setCliente] = useState([]);
+    const [vetas, setVentas] = useState([]);
     const [activeTab, setActiveTab] = useState(0);
     const [modalIsOpenArt, setModalIsOpenArt] = useState(false);
     const [modalArt, setModalArt] = useState(null);
@@ -94,7 +104,63 @@ function Factura() {
             metodo: 0,
         },
     };
-
+    const obtenerFactura = async (page) => {
+        try {
+          const userRef = collection(dbPVH, "Factura");
+          const userSnapshot = await getDocs(userRef);
+          const allDepartmentos = userSnapshot.docs
+            .map((departament) => departament.data())
+          setFactura(allDepartmentos);
+        } catch (error) {
+          console.error("Error al obtener departamentos: ", error);
+        }
+      };
+      const obtenerCliente = async (page) => {
+        try {
+            const userRef = collection(dbHOT, "Usuarios");
+            const userSnapshot = await getDocs(userRef);
+            const allUsers = userSnapshot.docs
+              .map((user) => user.data())
+              .filter((user) => user.rol === "Cliente");
+            setCliente(allUsers);
+        } catch (error) {
+          console.error("Error al obtener departamentos: ", error);
+        }
+      };
+      const obtenerProducto = async (page) => {
+        try {
+          const userRef = collection(dbPVH, "Producto");
+          const userSnapshot = await getDocs(userRef);
+          const allDepartmentos = userSnapshot.docs
+            .map((departament) => departament.data())
+            .filter((user) => user.Cantidad > 0 );
+          setProducto(allDepartmentos);
+        } catch (error) {
+          console.error("Error al obtener departamentos: ", error);
+        }
+      };
+      const obtenerVentas = async (page) => {
+        try {
+          const userRef = collection(dbPVH, "Venta Departamento");
+          const userSnapshot = await getDocs(userRef);
+          const allDepartmentos = userSnapshot.docs
+            .map((departament) => departament.data());
+          setVentas(allDepartmentos);
+        } catch (error) {
+          console.error("Error al obtener departamentos: ", error);
+        }
+      };
+      const obtenerDepartamentos = async (page) => {
+        try {
+          const userRef = collection(dbPVH, "Departamento");
+          const userSnapshot = await getDocs(userRef);
+          const allDepartmentos = userSnapshot.docs
+            .map((departament) => departament.data())
+          setDepartamento(allDepartmentos);
+        } catch (error) {
+          console.error("Error al obtener departamentos: ", error);
+        }
+      };
     const [productoAInsertar, setProductoAInsertar] = useState({
         codigoBarras: '',
         descripcion: 'Producto C',

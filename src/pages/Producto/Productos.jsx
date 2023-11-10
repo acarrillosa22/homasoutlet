@@ -72,8 +72,8 @@ function Producto() {
 
       await updateDoc(department, {
         Nombre: form.Nombre,
-        Precio: form.Precio,
-        Cantidad: form.Cantidad,
+        Precio: isNaN(form.Precio) ? 0 : form.Precio, // Si no se puede convertir, asigna 0
+        Cantidad: isNaN(form.Cantidad) ? 0 : form.Cantidad,
         Estado: form.Estado,
         Image: form.Image,
         Descripcion: form.Descripcion
@@ -93,9 +93,9 @@ function Producto() {
     if (searchOption === "Nombre") {
       return departamento.Nombre.includes(searchTerm);
     } if (searchOption === "Marca") {
-      return departamento.Nombre.includes(searchTerm);
+      return departamento.Marca.includes(searchTerm);
     } if (searchOption === "Departamento") {
-      return departamento.Nombre.includes(searchTerm);
+      return departamento.NombreDepartamento.includes(searchTerm);
     }
     else
       return false;
@@ -180,27 +180,27 @@ function Producto() {
     const errors = {}
     let fieldErrors = { ...errors };
     switch (fieldName) {
-      case "precio":
+      case "Precio":
         fieldErrors.precio =
           Number(value) > 0 ||
             isNaN(Number(value))
             ? "El precio debe ser un numero"
             : "";
         break;
-      case "precioReferencia":
+      case "PrecioReferencia":
         fieldErrors.precioReferencia = Number(value) > 0 ||
           isNaN(Number(value))
           ? "El precio de referencia debe ser un numero"
           : "";
         break;
-      case "cantidad":
+      case "Cantidad":
         fieldErrors.cantidad = Number(value) > 0 ||
           isNaN(Number(value))
           ? "La cantidad debe ser un numero"
           : "";
         break;
-      case "codigo":
-        fieldErrors.estado = value.length !== 6 ||
+      case "Codigo":
+        fieldErrors.estado = value.length > 6 ||
           isNaN(Number(value))
           ? "El codigo debe ser un numero"
           : "";
@@ -294,25 +294,18 @@ function Producto() {
       />
       <label>Buscar por:</label>
       <select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
+        value={searchOption}
+        onChange={(e) => handleSearchOptionChange(e)}
       >
         <option value="Nombre">Nombre</option>
-        <option value="NombreDepartamento">Departamento</option>
-      </select>
-      <label>Ordenar por:</label>
-      <select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
-      >
-        <option value="">Sin ordenar</option>
-        <option value="Precio">Precio</option>
-        <option value="Cantidad">Cantidad</option>
+        <option value="Departamento">Departamento</option>
+        <option value="Marca">Marca</option>
       </select>
       <Table>
         <thead>
           <tr>
             <th>Nombre</th>
+            <th>Marca</th>
             <th>Departamento</th>
             <th>Estado</th>
             <th>Cantidad</th>
@@ -326,6 +319,7 @@ function Producto() {
           {filteredUsers.map((dato) => (
             <tr key={dato.Nombre}>
               <td>{dato.Nombre}</td>
+              <td>{dato.Marca}</td>
               <td>{dato.NombreDepartamento}</td>
               <td>{dato.Estado}</td>
               <td>{dato.Cantidad}</td>

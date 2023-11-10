@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Table from "react-bootstrap/Table";
 import "./tabla.css";
 import {Button, Container } from "reactstrap";
@@ -17,11 +17,14 @@ function ResponsiveBreakpointsExample(props, user) {
     props.dinero[1],
     props.dinero[2],
   ]);
-
+  useEffect(() => {
+    sumarValor(1);
+  }, []);
   const sumarValor = () => {
-    obtenerProducto();
+    obtenerApartado();
     let suma = 0;
     apartado.forEach((apartadoItem) => {
+      console.log(apartadoItem.Saldo)
       suma += apartadoItem.Saldo || 0; // Asegúrate de manejar el caso en que el campo no esté presente
     });
     setSuma(suma);
@@ -29,7 +32,7 @@ function ResponsiveBreakpointsExample(props, user) {
   };
   const obtenerDepartamentos = async (page) => {
     try {
-      const userRef = collection(db, "Departamento");
+      const userRef = collection(db, "Venta Departamento");
       const userSnapshot = await getDocs(userRef);
       const allD = userSnapshot.docs
         .map((departament) => departament.data())
@@ -67,6 +70,7 @@ function ResponsiveBreakpointsExample(props, user) {
       const allApartados = userSnapshot.docs
         .map((product) => product.data());
       setApartado(allApartados);
+      console.log(allApartados);
     } catch (error) {
       console.error("Error al obtener apartado: ", error);
     }
@@ -126,10 +130,6 @@ function ResponsiveBreakpointsExample(props, user) {
         </Table>
         <Table striped bordered hover size="sm">
           <tbody>
-          <tr>
-              <td><button> Abonos</button></td>
-              <td>${dinero[0]+dinero[1]}</td>
-            </tr>
             <tr>
               <td>Pago a proveedores</td>
               <td>${dinero[1]}</td>
@@ -184,7 +184,7 @@ function ResponsiveBreakpointsExample(props, user) {
             </tr>
           </tbody>
         </Table>
-        <h3>Deuda total de los clientes: ${sumarValor}</h3>
+        <h3>Deuda total de los clientes: ${sumaD}</h3>
       </div>
     </div>
     <div id="resumen">
