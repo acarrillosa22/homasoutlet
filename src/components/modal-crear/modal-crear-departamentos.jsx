@@ -92,7 +92,7 @@ function ModalCrear({
           </FormGroup>
         );
       }
-      else if (key === "NombreDepartamento") {
+      else if (key === "Nombre del Departamento") {
         // Si es el atributo "rol", generar un combobox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>

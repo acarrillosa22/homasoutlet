@@ -20,7 +20,7 @@ import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faCartFlatbed } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft,faCaretUp);
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faCaretUp);
 const nombre = "Producto";
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Producto() {
@@ -59,7 +59,7 @@ function Producto() {
   const [sortBy, setSortBy] = useState('');
 
   const editar = async (form) => {
-    const q = query(collection(db, "Producto"), where("Id", "==", producto.Id));
+    const q = query(collection(db, "Producto"), where("CodigoBarras", "==", producto.CodigoBarras));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
@@ -168,53 +168,55 @@ function Producto() {
   const fieldOrderCrear = {
     1: "Nombre",
     2: "Marca",
-    3: "Codigo",
+    3: "Codigo de Barras",
     4: "Descripcion",
-    5: "NombreDepartamento",
+    5: "Nombre del Departamento",
     6: "Precio",
-    7: "PrecioReferencia",
+    7: "Precio de Referencia",
     8: "Cantidad",
     9: "Image",
   };
   const validateFieldCrear = (fieldName, value) => {
-    const errors = {}
+    const errors = {};
     let fieldErrors = { ...errors };
+  
     switch (fieldName) {
       case "Precio":
-        fieldErrors.precio =
-          Number(value) > 0 ||
-            isNaN(Number(value))
-            ? "El precio debe ser un numero"
+        fieldErrors.Precio =
+          isNaN(Number(value)) || Number(value) < 0
+            ? "El precio debe ser un número positivo"
             : "";
         break;
-      case "PrecioReferencia":
-        fieldErrors.precioReferencia = Number(value) > 0 ||
-          isNaN(Number(value))
-          ? "El precio de referencia debe ser un numero"
-          : "";
+      case "Precio de Referencia":
+        fieldErrors.PrecioReferencia =
+          isNaN(Number(value)) || Number(value) < 0
+            ? "El precio de referencia debe ser un número positivo"
+            : "";
         break;
       case "Cantidad":
-        fieldErrors.cantidad = Number(value) > 0 ||
-          isNaN(Number(value))
-          ? "La cantidad debe ser un numero"
-          : "";
+        fieldErrors.Cantidad =
+          isNaN(Number(value)) || Number(value) < 0
+            ? "La cantidad debe ser un número positivo"
+            : "";
         break;
-      case "Codigo":
-        fieldErrors.estado = value.length > 6 ||
-          isNaN(Number(value))
-          ? "El codigo debe ser un numero"
-          : "";
+      case "Codigo de Barras":
+        fieldErrors.CodigoBarras =
+          isNaN(Number(value)) || value.length < 6
+            ? "El código de barras debe ser un número con al menos 6 dígitos"
+            : "";
         break;
       default:
         break;
     }
-    return (fieldErrors);
+  
+    return fieldErrors;
   };
+  
   const crearProducto = async (form) => {
     try {
       await addDoc(collection(db, "Producto"), {
         Nombre: form.Nombre,
-        Id: parseFloat(form.Codigo),
+        CodigoBarras: parseFloat(form.CodigoBarras),
         Precio: parseFloat(form.Precio),
         Marca: form.Marca,
         Cantidad: parseFloat(form.Cantidad),
@@ -223,7 +225,7 @@ function Producto() {
         PrecioReferencia: parseFloat(form.PrecioReferencia),
         Image: form.Image,
         Descripcion: form.Descripcion,
-        PrecioLiquidacion:0
+        PrecioLiquidacion: 0
       });
 
       console.log("Producto creado y documentado en Firestore");
@@ -241,7 +243,7 @@ function Producto() {
     Descripcion: '',
     PrecioReferencia: 0,
     NombreDepartamento: '',
-    Codigo: 0,
+    CodigoBarras: 0,
     Marca: '',
   };
 
@@ -251,8 +253,8 @@ function Producto() {
     console.log(id);
     openModalEliminar();
   };
-  const eliminarProducto = async (productoId) => {
-    const q = query(collection(db, "Producto"), where("Id", "==", producto.Id));
+  const eliminarProducto = async () => {
+    const q = query(collection(db, "Producto"), where("CodigoBarras", "==", producto.CodigoBarras));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
@@ -327,7 +329,7 @@ function Producto() {
                 <img src={dato.Image} alt={dato.Nombre} style={{ width: '30px', height: '30px' }} />
               </td>
               <td>{dato.Descripcion}</td>
-              <td>{dato.Id}</td>
+              <td>{dato.CodigoBarras}</td>
               <td>
                 <Button
                   onClick={() => abrirModalActualizar(dato)}
@@ -342,7 +344,7 @@ function Producto() {
                 <Button
                   onClick={() => agregarProductoAFactura(dato)}
                   color="primary">
-                  <FontAwesomeIcon icon={faCartFlatbed} size="lg"  />
+                  <FontAwesomeIcon icon={faCartFlatbed} size="lg" />
                 </Button>
               </td>
             </tr>
