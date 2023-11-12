@@ -3,9 +3,8 @@ import "./Facturacion.css"
 import appPVH from '../../firebase/firebase';
 import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
-import EditarAbonoDescuento from './Modals/EditarAbonoDescuento';
 import ProcesarPago from './Modals/procesarPago';
-import {Button } from "reactstrap";
+import { Button } from "reactstrap";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -14,53 +13,33 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
-
-
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
 function Factura() {
     const dbPVH = getFirestore(appPVH);
     const dbHOT = getFirestore(appHOT);
     const [departamento, setDepartamento] = useState([]);
-    const [factura, setFactura] = useState([]);
     const [producto, setProducto] = useState([]);
     const [cliente, setCliente] = useState([]);
-    const [vetas, setVentas] = useState([]);
     const [activeTab, setActiveTab] = useState(0);
     const [modalIsOpenArt, setModalIsOpenArt] = useState(false);
     const [modalArt, setModalArt] = useState(null);
-    const [modalIsOpenAD, setModalIsOpenAD] = useState(false);
-    const [modalAD, setModalAD] = useState(null);
+    const [descuentoGlobal, setDescuentoGlobal] = useState(0);
     const [modalIsOpenProceso, setModalIsOpenProceso] = useState(false);
     const [modalProceso, setModalProceso] = useState(null);
     const [actualizaTab, setActualizaTab] = useState(true);
     const [isButtonVisible, setButtonVisibility] = useState(false);
     const [nombreCliente, setNombreCliente] = useState("");
+    let encontrado = '';
+    useEffect(() => { obtenerProducto() }, []);
+    useEffect(() => { obtenerCliente() }, []);
+    useEffect(() => { obtenerDepartamentos() }, []);
     const [tabs, setTabs] = useState([
         {
             title: 'Factura 1',
             content: {
-                productos: [
-                    {
-                        codigoBarras: '123456',
-                        descripcion: 'Producto 1',
-                        precioVenta: 10.00,
-                        cantidad: 5,
-                        importe: 0,
-                        existencia: 20,
-                        descuento: 0,
-                    },
-                    {
-                        codigoBarras: '789123',
-                        descripcion: 'Producto B',
-                        precioVenta: 15.00,
-                        cantidad: 3,
-                        importe: 0,
-                        existencia: 20,
-                        descuento: 0,
-                    },
-                ],
+                productos: [],
                 total: 0,
                 descuentoGlobal: 0,
                 nombreCliente: "",
@@ -68,7 +47,6 @@ function Factura() {
             },
         },
     ]);
-
     const [newContador, setContador] = useState(2);
     const [addAnimation, setAddAnimation] = useState(false);
     //${newContador}`
@@ -76,26 +54,7 @@ function Factura() {
     const defaultTab = {
         title: `Factura ${newContador}`,
         content: {
-            productos: [
-                {
-                    codigoBarras: '123456',
-                    descripcion: `Producto ${newContador}`,
-                    precioVenta: 10.00,
-                    cantidad: 5,
-                    importe: 0,
-                    existencia: 20,
-                    descuento: 0,
-                },
-                {
-                    codigoBarras: '789123',
-                    descripcion: 'Producto B',
-                    precioVenta: 15.00,
-                    cantidad: 3,
-                    importe: 0,
-                    existencia: 20,
-                    descuento: 0,
-                },
-            ],
+            productos: [],
             total: 0,
             descuentoGlobal: 0,
             nombreCliente: "",
@@ -104,63 +63,73 @@ function Factura() {
             metodo: 0,
         },
     };
-    const obtenerFactura = async (page) => {
+    const registroVenta = async () => {
+        const updatedTabs = [...tabs];
+        const listaProductos = updatedTabs[activeTab].producto;
+        listaProductos.forEach(pro => {
+            const q = query(collection(dbHOT, "Departamento"), where("Nombre", "==", pro.NombreDepartamento));
+            const querySnapshot = getDocs(q);
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+                console.log(doc.id, " => ", doc.data());
+                encontrado = doc.id;
+            });
+            if (encontrado !== '') {
+                try {
+                    const department = doc(dbPVH, "Departamento", encontrado);
+                    updateDoc(department, {
+                        Ventas: ["nuevo_valor", 1, "12/10/2"]
+                    });
+                } catch (error) {
+                    console.error("Error updating document: ", error);
+                }
+            }
+        });
+    };
+    const crearFactura = async (form) => {
         try {
-          const userRef = collection(dbPVH, "Factura");
-          const userSnapshot = await getDocs(userRef);
-          const allDepartmentos = userSnapshot.docs
-            .map((departament) => departament.data())
-          setFactura(allDepartmentos);
+            await addDoc(collection(dbPVH, "Factura"), {
+
+            })
         } catch (error) {
-          console.error("Error al obtener departamentos: ", error);
+
         }
-      };
-      const obtenerCliente = async (page) => {
+    };
+    const obtenerCliente = async (page) => {
         try {
             const userRef = collection(dbHOT, "Usuarios");
             const userSnapshot = await getDocs(userRef);
             const allUsers = userSnapshot.docs
-              .map((user) => user.data())
-              .filter((user) => user.rol === "Cliente");
+                .map((user) => user.data())
+                .filter((user) => user.rol === "Cliente");
             setCliente(allUsers);
         } catch (error) {
-          console.error("Error al obtener departamentos: ", error);
+            console.error("Error al obtener departamentos: ", error);
         }
-      };
-      const obtenerProducto = async (page) => {
+    };
+    const obtenerProducto = async (page) => {
         try {
-          const userRef = collection(dbPVH, "Producto");
-          const userSnapshot = await getDocs(userRef);
-          const allDepartmentos = userSnapshot.docs
-            .map((departament) => departament.data())
-            .filter((user) => user.Cantidad > 0 );
-          setProducto(allDepartmentos);
+            const userRef = collection(dbPVH, "Producto");
+            const userSnapshot = await getDocs(userRef);
+            const allDepartmentos = userSnapshot.docs
+                .map((departament) => departament.data())
+                .filter((user) => user.Cantidad > 0);
+            setProducto(allDepartmentos);
         } catch (error) {
-          console.error("Error al obtener departamentos: ", error);
+            console.error("Error al obtener departamentos: ", error);
         }
-      };
-      const obtenerVentas = async (page) => {
+    };
+    const obtenerDepartamentos = async (page) => {
         try {
-          const userRef = collection(dbPVH, "Venta Departamento");
-          const userSnapshot = await getDocs(userRef);
-          const allDepartmentos = userSnapshot.docs
-            .map((departament) => departament.data());
-          setVentas(allDepartmentos);
+            const userRef = collection(dbPVH, "Departamento");
+            const userSnapshot = await getDocs(userRef);
+            const allDepartmentos = userSnapshot.docs
+                .map((departament) => departament.data())
+            setDepartamento(allDepartmentos);
         } catch (error) {
-          console.error("Error al obtener departamentos: ", error);
+            console.error("Error al obtener departamentos: ", error);
         }
-      };
-      const obtenerDepartamentos = async (page) => {
-        try {
-          const userRef = collection(dbPVH, "Departamento");
-          const userSnapshot = await getDocs(userRef);
-          const allDepartmentos = userSnapshot.docs
-            .map((departament) => departament.data())
-          setDepartamento(allDepartmentos);
-        } catch (error) {
-          console.error("Error al obtener departamentos: ", error);
-        }
-      };
+    };
     const [productoAInsertar, setProductoAInsertar] = useState({
         codigoBarras: '',
         descripcion: 'Producto C',
@@ -219,19 +188,6 @@ function Factura() {
         setModalArt(datos);
         setModalIsOpenArt(true);
     };
-
-    //Modal de abono
-    const handleEditarAD = () => {
-        const updatedTabs = [...tabs];
-        const activeTabData = {
-            abono: updatedTabs[activeTab].content.abono,
-            descuentoGlobal: updatedTabs[activeTab].content.descuentoGlobal,
-            total: updatedTabs[activeTab].content.total,
-        }
-        setModalAD(activeTabData);
-        setModalIsOpenAD(true);
-    };
-
     //Modal de Pago
     const procesarPago = () => {
         const updatedTabs = [...tabs];
@@ -261,7 +217,7 @@ function Factura() {
         const activeTabData = updatedTabs[activeTab].content;
         activeTabData.productos.forEach((producto) => {
             if (producto.codigoBarras === productoAInsertar.codigoBarras) {
-                if (producto.existencia > producto.cantidad) {
+                if (producto.Cantidad > producto.compra) {
                     producto.cantidad++;
                 }
                 hay = true;
@@ -336,16 +292,6 @@ function Factura() {
         productoE.cantidad = nuevosDatos.cantidad;
         auxiliar(index);
     }
-
-    //Actualiza cambios de modal Abono descuento global
-    const actualizarAD = (nuevosDatos) => {
-        const updatedTabs = [...tabs];
-        const activeTabData = updatedTabs[activeTab].content;
-
-        activeTabData.descuentoGlobal = nuevosDatos.descuentoGlobal;
-        activeTabData.abono = nuevosDatos.abono;
-        auxiliar(activeTab);
-    }
     // Actualiza cambios modal Pago y envia resultados a la base de datos
     const procesar = (nuevosDatos) => {
         //Salida de los datos
@@ -380,28 +326,61 @@ function Factura() {
         // Calcula el importe para cada producto en la pestaña activa
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
-
-        activeTabData.productos.forEach((producto, productoIndex) => {
-            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
-            activeTabData.productos[productoIndex].importe = importe;
-        });
-
-        // Calcula el total sumando los importes de todos los productos
-        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total;
-
-        // Actualiza el estado con los cálculos
-        if (actualizaTab === true) {
-            setTabs(updatedTabs);
-            setActualizaTab(false);
+        if (isNaN(descuentoGlobal)) {
+            setDescuentoGlobal(0);
         }
-    }, [tabs, activeTab, actualizaTab]);
 
+        else if (descuentoGlobal > 100) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
+
+        else if (descuentoGlobal < 0) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
+
+        else {
+            activeTabData.descuentoGlobal = descuentoGlobal;
+        }// eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tabs, activeTab, actualizaTab]);
     const auxiliar = (index) => {
         setActiveTab(index)
         setActualizaTab(true);
     }
+    const handleAplicarDescuentoGlobal = (e) => {
+        if (e.key === 'Enter') {
+            //Se presiona enter
+        }
+        else {
+            e.preventDefault();
+        }
+        setActualizaTab(true);
 
+        // Copia el estado actual de las pestañas
+        const updatedTabs = [...tabs];
+
+        // Obtén el descuento global del estado
+        const descuentoGlobalValue = parseFloat(descuentoGlobal);
+
+        // Realiza las validaciones necesarias
+        if (isNaN(descuentoGlobalValue)) {
+            setDescuentoGlobal(0);
+        }
+
+        if (descuentoGlobal > 100) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
+
+        else {
+            setDescuentoGlobal(descuentoGlobalValue);
+            updatedTabs[activeTab].descuentoGlobal = descuentoGlobal;
+        }
+
+        setTabs(updatedTabs);
+        // Resto del código...
+    };
     return (
         <div>
             <ul className="nav">
@@ -457,15 +436,21 @@ function Factura() {
                     </Button>
                 </form>
             </div>
-            <div className="insert-product">
-                <Button color="primary" type="submit" onClick={() => handleEditarAD()}>
-                    Opciones de factura
-                </Button>
-                <EditarAbonoDescuento
-                    isOpen={modalIsOpenAD}
-                    onClose={() => setModalIsOpenAD(false)}
-                    datos={modalAD}
-                    onGuardar={(nuevosDatos) => { actualizarAD(nuevosDatos) }} />
+            <div className="discount-options">
+                <form onSubmit={handleAplicarDescuentoGlobal}>
+                    <input
+                        type="number"
+                        placeholder="Descuento global"
+                        onChange={(e) => setDescuentoGlobal(e.target.value)}
+                    />
+                    <Button
+                        color="primary"
+                        type="button"
+                        onClick={handleAplicarDescuentoGlobal}
+                    >
+                        Aplicar descuento global
+                    </Button>
+                </form>
             </div>
             <div className="tab-content">
                 {tabs.map((tab, index) => (
@@ -524,9 +509,6 @@ function Factura() {
                         <div className="summary-Bar">
                             <div className="totalCont">
                                 Total: ₡{tab.content.total * (1 - tab.content.descuentoGlobal / 100)}
-                            </div>
-                            <div className="abono">
-                                Abono: ₡{tab.content.abono}
                             </div>
                             <Button className="boton-pago" color="primary" type="submit" onClick={() => procesarPago()}>
                                 Procesar pago

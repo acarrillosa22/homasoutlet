@@ -10,16 +10,8 @@ function ResponsiveBreakpointsExample(props, user) {
   const [departamento, setDepartamento] = useState([]);
   const [apartado, setApartado] = useState([]);
   const [producto, setProducto] = useState([]);
-  const [factura, setFactura] = useState([]);
   const [sumaD, setSuma] = useState([]);
-  const [dinero, setDinero] = useState([
-    props.dinero[0],
-    props.dinero[1],
-    props.dinero[2],
-  ]);
-  useEffect(() => {
-    sumarValor(1);
-  }, []);
+  useEffect(() => {sumarValor();}, []);
   const sumarValor = () => {
     obtenerApartado();
     let suma = 0;
@@ -32,24 +24,13 @@ function ResponsiveBreakpointsExample(props, user) {
   };
   const obtenerDepartamentos = async (page) => {
     try {
-      const userRef = collection(db, "Venta Departamento");
+      const userRef = collection(db, "Departamento");
       const userSnapshot = await getDocs(userRef);
       const allD = userSnapshot.docs
         .map((departament) => departament.data())
         setDepartamento(allD);
     } catch (error) {
       console.error("Error al obtener departamentos: ", error);
-    }
-  };
-  const obtenerFactura = async (page) => {
-    try {
-      const userRef = collection(db, "Factura");
-      const userSnapshot = await getDocs(userRef);
-      const all = userSnapshot.docs
-        .map((departament) => departament.data())
-        setFactura(all);
-    } catch (error) {
-      console.error("Error al obtener factura: ", error);
     }
   };
   const obtenerProducto = async (page) => {
@@ -91,15 +72,15 @@ function ResponsiveBreakpointsExample(props, user) {
           <tbody>
             <tr>
               <td>Entrada de dinero</td>
-              <td>${dinero[0]+dinero[1]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Dinero inicial</td>
-              <td>${dinero[1]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Total</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
           </tbody>
         </Table>
@@ -112,19 +93,19 @@ function ResponsiveBreakpointsExample(props, user) {
           <tbody>
             <tr>
               <td>Efectivo</td>
-              <td>${dinero[0]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Tarjeta de debito o credito</td>
-              <td>${dinero[1]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>SINPE</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Total</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
           </tbody>
         </Table>
@@ -132,7 +113,7 @@ function ResponsiveBreakpointsExample(props, user) {
           <tbody>
             <tr>
               <td>Pago a proveedores</td>
-              <td>${dinero[1]}</td>
+              <td>$</td>
             </tr>
           </tbody>
         </Table>
@@ -147,15 +128,15 @@ function ResponsiveBreakpointsExample(props, user) {
           <tbody>
             <tr>
               <td>Ventas en efectivo</td>
-              <td>${dinero[0]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Entradas</td>
-              <td>${dinero[1]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>Pago a proveedores</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
           </tbody>
         </Table>
@@ -168,19 +149,19 @@ function ResponsiveBreakpointsExample(props, user) {
           <tbody>
             <tr>
               <td>Articulos varios</td>
-              <td>${dinero[0]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>departamento 1</td>
-              <td>${dinero[1]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>departamento 2</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
             <tr>
               <td>departamento 3</td>
-              <td>${dinero[2]}</td>
+              <td>$</td>
             </tr>
           </tbody>
         </Table>
@@ -188,8 +169,8 @@ function ResponsiveBreakpointsExample(props, user) {
       </div>
     </div>
     <div id="resumen">
-    <h3>Ventas Totales: ${dinero[2]}</h3>
-    <h3>Ganancia del día: ${dinero[2]}</h3>
+    <h3>Ventas Totales: $</h3>
+    <h3>Ganancia del día: $</h3>
     </div>
     </div>
   );

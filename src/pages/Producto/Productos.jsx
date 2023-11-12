@@ -72,8 +72,8 @@ function Producto() {
 
       await updateDoc(department, {
         Nombre: form.Nombre,
-        Precio: isNaN(form.Precio) ? 0 : form.Precio, // Si no se puede convertir, asigna 0
-        Cantidad: isNaN(form.Cantidad) ? 0 : form.Cantidad,
+        Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
+        Cantidad: parseFloat(form.Cantidad),
         Estado: form.Estado,
         Image: form.Image,
         Descripcion: form.Descripcion
@@ -148,7 +148,7 @@ function Producto() {
   };
   useEffect(() => {
     obtenerDepartamentos();
-  }, [isOpenActualizar,isOpenCrear]);
+  }, [isOpenCrear]);
   const obtenerDepartamentos = async (page) => {
     try {
       const userRef = collection(db, "Departamento");
@@ -214,13 +214,13 @@ function Producto() {
     try {
       await addDoc(collection(db, "Producto"), {
         Nombre: form.Nombre,
-        Id: form.Codigo,
-        Precio: form.Precio,
+        Id: parseFloat(form.Codigo),
+        Precio: parseFloat(form.Precio),
         Marca: form.Marca,
-        Cantidad: form.Cantidad,
+        Cantidad: parseFloat(form.Cantidad),
         Estado: "Disponible",
         NombreDepartamento: form.NombreDepartamento,
-        PrecioReferencia: form.PrecioReferencia,
+        PrecioReferencia: parseFloat(form.PrecioReferencia),
         Image: form.Image,
         Descripcion: form.Descripcion,
         PrecioLiquidacion:0
@@ -272,9 +272,8 @@ function Producto() {
       console.error("Error al cambiar el estado del producto: ", error);
     }
   };
-  const agregarProductoAFactura = (producto) => {
-    // Devuelve el producto sin realizar acciones adicionales
-    return producto;
+  const agregarProductoAFactura = (pro) => {
+    return pro;
   };
   //---------------------------------------------------------HTML-------------------------------------------------------------
   return (

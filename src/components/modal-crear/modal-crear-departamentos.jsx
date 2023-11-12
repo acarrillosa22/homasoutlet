@@ -105,8 +105,8 @@ function ModalCrear({
             >
               <option value="">Selecciona un Departamento</option>
               {combobox2.map((encargado) => (
-                <option key={encargado.id} value={encargado.nombre}>
-                  {encargado.nombre}
+                <option key={encargado.id} value={encargado.Nombre}>
+                  {encargado.Nombre}
                 </option>
               ))}
             </select>
