@@ -18,13 +18,15 @@ import { useState } from 'react';
 import Clientes from './pages/clientes/cliente';
 import Pedidos from './pages/Pedidos/pedidos';
 import Factura from './pages/Facturacion/Facturacion';
+import Apartado from './pages/Apartados/Apartado';
+import Login from './pages/login/Login';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
     <Router className='App'>
       <TopNavBar />
       <Routes>
-        <Route path='/  Login' element={<h1>edfwe</h1>} />
+        <Route path='/Login' element={<Login />} />
         {/*
       <Route element={<ProtectedRoutes isAllowed={!!user}/>}> */ }
         <Route path='/Cierre' element={<ResponsiveBreakpointsExample dinero={numbers} />} />
@@ -41,6 +43,8 @@ function App() {
         <Route path='/Facturacion' element={<Factura />} />
         <Route path='/pedidos' element={<Pedidos />} />
         <Route path='/obtenerFB' element={<ObtenerFB />} />
+        <Route path='/Apartados' element={<Apartado />} />
+
         {/*     </Route> */}
 
       </Routes>
