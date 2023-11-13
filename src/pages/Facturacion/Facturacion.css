@@ -48,13 +48,14 @@ th {
   padding: 10px 15px;
 }
 
-table {
+.TablaF table {
   margin-left: 5%;
+  width: 70%;
 }
 
-table td {
+.TablaF td {
   border: 1px solid #ccc;
-  /*grosor y el color del borde*/
+  /*grosor y el color del borde/
   padding: 8px;
   /* Espacio interno dentro de las celdas de la tabla */
   background-color: white;

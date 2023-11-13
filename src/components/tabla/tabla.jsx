@@ -8,24 +8,9 @@ import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc
 function ResponsiveBreakpointsExample() {
   const db = getFirestore(appPVH);
   const [departamento, setDepartamento] = useState([]);
-  const [apartado, setApartado] = useState([]);
   const [producto, setProducto] = useState([]);
   const [sumaD, setSuma] = useState([]);
-
-  useEffect(() => {sumarValor()}, []);
-
-  const sumarValor = () => {
-    obtenerApartado();
-    console.log("Datos obtenidos:", apartado);
-    const suma = apartado.reduce((total, apartadoItem) => {
-      return total + (apartadoItem.Saldo || 0);
-    }, 0);
-    setSuma(suma);
-    console.log("La suma total es:", suma);
-  };
-  const departamentoMasVendido = async()=>{
-
-  }
+  
   const obtenerDepartamentos = async () => {
     try {
       const userRef = collection(db, "Departamento");
@@ -48,17 +33,21 @@ function ResponsiveBreakpointsExample() {
       console.error("Error al obtener Producto: ", error);
     }
   };
-  const obtenerApartado = async () => {
+  const  obtenerApartado = async () => {
     try {
       const userRef = collection(db, "Apartado");
       const userSnapshot = await getDocs(userRef);
       const allApartados = userSnapshot.docs
         .map((product) => product.data());
-        setApartado(allApartados);
+        const suma = allApartados.reduce((total, apartadoItem) => {
+          return total + (apartadoItem.Saldo || 0);
+        }, 0);
+        setSuma(suma);
     } catch (error) {
       console.error("Error al obtener apartado: ", error);
-    }
+    }                           
   };
+  useEffect(() => {obtenerApartado()}, []);
   return (
     <div>
       <h4>Corte de fecha de hoy</h4>

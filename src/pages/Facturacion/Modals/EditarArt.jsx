@@ -92,7 +92,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
 
     return (
         <div className={modalStyle}>
-            <div className="modal-content">
+            <div className="modal-content2">
                 <h2>Editar Datos</h2>
                 <label>Descuento:</label>
                 <input
