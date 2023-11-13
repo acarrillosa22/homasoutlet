@@ -38,26 +38,21 @@ function Producto() {
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
   let encontrado = '';
-  useEffect(() => {
-    obtenerProducto(1);
-  }, []);
+  useEffect(() => {obtenerProducto(1);}, []);
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
-
   const fieldOrderEditar = {
-    1: "Nombre", // Primer campo en aparecer
+    1: "Nombre",
     2: "Precio",
     3: "Descripcion",
     4: "Image",
     5: "Cantidad",
   };
   const abrirModalActualizar = (cedula) => {
-    setTextoAlert("Cliente modificado con éxito");
+    setTextoAlert("Producto modificado con éxito");
     setTipoAlert("success");
     setProducto(cedula);
     openModalActualizar();
   };
-  const [sortBy, setSortBy] = useState('');
-
   const editar = async (form) => {
     const q = query(collection(db, "Producto"), where("CodigoBarras", "==", producto.CodigoBarras));
     const querySnapshot = await getDocs(q);
@@ -85,7 +80,6 @@ function Producto() {
       console.error("Error updating document: ", error);
     }
   };
-
   //-----------------------------------------------------Ver-------------------------------------------------------
   const [searchOption, setSearchOption] = useState("Nombre");
   const filteredUsers = dataState.filter((departamento) => {
@@ -100,7 +94,6 @@ function Producto() {
     else
       return false;
   });
-
 
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
@@ -146,10 +139,8 @@ function Producto() {
       console.error("Error al obtener productos: ", error);
     }
   };
-  useEffect(() => {
-    obtenerDepartamentos();
-  }, [isOpenCrear]);
-  const obtenerDepartamentos = async (page) => {
+  useEffect(() => {obtenerDepartamentos();}, [isOpenCrear]);
+  const obtenerDepartamentos = async () => {
     try {
       const userRef = collection(db, "Departamento");
       const userSnapshot = await getDocs(userRef);
@@ -160,10 +151,7 @@ function Producto() {
       console.error("Error al obtener departamentos: ", error);
     }
   };
-  const onCreateProducto = () => {
-    // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
-    obtenerProducto(1);
-  };
+  const onCreateProducto = () => {obtenerProducto(1);};
   //-------------------------------------------------------------Crear------------------------------------------------------------------------
   const fieldOrderCrear = {
     1: "Nombre",
