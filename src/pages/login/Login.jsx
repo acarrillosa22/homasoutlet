@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import appPVH from "../../firebase/firebase";
-
+import appHOT from "../../firebase/firebaseHOT";
+import HomasLogo from "../../img/HomasLogo.png";
 import CrearCuenta from "./crearCuenta";
 import RecuperarContraseña from "./RecuperarContra";
 import CustomAlert from "../../components/alert/alert";
@@ -23,7 +23,7 @@ function Login() {
             setError("Por favor, complete todos los campos.");
             return;
         }
-        const auth = getAuth(appPVH);
+        const auth = getAuth(appHOT);
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -71,15 +71,8 @@ function Login() {
         setTextoAlert("Se ha iniciado sesión");
         setTipoAlert("success");
       };
-/*
-    const handleCrearCuentaClick = () => {
-        setShowCrearCuenta(true);
-
-    };
-*/
     const handleRecuperarContraseñaClick = () => {
         setShowRecuperarContraseña(true);
-
     };
 
     useEffect(() => {
@@ -92,7 +85,7 @@ function Login() {
                 <div>
                     <h1>Inicio de Sesión</h1>
                     <div className="image-container">
-                        <img src="HomasLogo.png" alt="Logo" />
+                    <img id="logo" src={HomasLogo} />
                     </div>
                     <div className="container-correo">
                         <label className="objeto">Correo</label>

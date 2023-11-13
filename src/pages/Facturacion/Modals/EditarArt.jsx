@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
-import { Button } from "reactstrap";
+import { Button,Modal } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -91,6 +91,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
     }
 
     return (
+        <Modal>
         <div className={modalStyle}>
             <div className="modal-content2">
                 <h2>Editar Datos</h2>
@@ -117,6 +118,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
                 {mensajeError && <p className="error-message">{mensajeError}</p>}
             </div>
         </div>
+        </Modal>
     );
 };
 

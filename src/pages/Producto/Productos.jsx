@@ -38,7 +38,7 @@ function Producto() {
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
   let encontrado = '';
-  useEffect(() => {obtenerProducto(1);}, []);
+  useEffect(() => { obtenerProducto(1); }, []);
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
   const fieldOrderEditar = {
     1: "Nombre",
@@ -98,7 +98,6 @@ function Producto() {
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
   };
-
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
@@ -112,7 +111,20 @@ function Producto() {
     obtenerProducto(currentPage + 1);
     setCurrentPage((prevPage) => prevPage + 1);
   };
-
+  const [orderOption, setOrderOption] = useState("Precio"); // Nuevo estado para la opción de ordenar
+  const handleOrder = (event) => {
+    setOrderOption(event.target.value);
+    ordenarPor(event.target.value);
+  };
+  const ordenarPor = (option) => {
+    const allProducts = [...dataState];
+    if (option === 'Precio') {
+      allProducts.sort((a, b) => a.Precio - b.Precio);
+    } else if (option === 'Cantidad') {
+      allProducts.sort((a, b) => a.Cantidad - b.Cantidad);
+    }
+    setData(allProducts);
+  };
   const handlePrevPage = () => {
     if (currentPage > 1) {
       // Decrement the page and fetch the previous page of users
@@ -139,7 +151,7 @@ function Producto() {
       console.error("Error al obtener productos: ", error);
     }
   };
-  useEffect(() => {obtenerDepartamentos();}, [isOpenCrear]);
+  useEffect(() => { obtenerDepartamentos(); }, [isOpenCrear]);
   const obtenerDepartamentos = async () => {
     try {
       const userRef = collection(db, "Departamento");
@@ -151,7 +163,7 @@ function Producto() {
       console.error("Error al obtener departamentos: ", error);
     }
   };
-  const onCreateProducto = () => {obtenerProducto(1);};
+  const onCreateProducto = () => { obtenerProducto(1); };
   //-------------------------------------------------------------Crear------------------------------------------------------------------------
   const fieldOrderCrear = {
     1: "Nombre",
@@ -167,7 +179,7 @@ function Producto() {
   const validateFieldCrear = (fieldName, value) => {
     const errors = {};
     let fieldErrors = { ...errors };
-  
+
     switch (fieldName) {
       case "Precio":
         fieldErrors.Precio =
@@ -196,10 +208,10 @@ function Producto() {
       default:
         break;
     }
-  
+
     return fieldErrors;
   };
-  
+
   const crearProducto = async (form) => {
     try {
       await addDoc(collection(db, "Producto"), {
@@ -289,6 +301,14 @@ function Producto() {
         <option value="Nombre">Nombre</option>
         <option value="Departamento">Departamento</option>
         <option value="Marca">Marca</option>
+      </select>
+      <label>Ordenar por:</label>
+      <select
+        value={orderOption}
+        onChange={(e) => handleOrder(e)}
+      >
+        <option value="Precio">Precio</option>
+        <option value="Cantidad">Cantidad</option>
       </select>
       <Table>
         <thead>
