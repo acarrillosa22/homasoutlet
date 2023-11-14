@@ -1,8 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics} from "firebase/analytics";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
-import { getDatabase, ref, onDisconnect } from "firebase/database";
+import { ref, uploadBytes, getDownloadURL,getStorage } from "firebase/storage";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,5 +17,12 @@ const configPVH = {
 };
 // Initialize Firebase
 const appPVH = initializeApp(configPVH);
-const analyticsPVH = getAnalytics(appPVH);
+const storage = getStorage(appPVH);
+const uploadImageToStorage = async (file, folderName) => {
+  const storageRef = ref(storage, `${folderName}/${file.name}`);
+  await uploadBytes(storageRef, file);
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+};
+export { uploadImageToStorage };
 export default appPVH;

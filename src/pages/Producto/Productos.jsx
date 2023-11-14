@@ -11,6 +11,7 @@ import CustomAlert from '../../components/alert/alert';
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
+import { uploadImageToStorage } from "../../firebase/firebase";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,6 +38,7 @@ function Producto() {
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
+  const urlImagen='';
   let encontrado = '';
   useEffect(() => { obtenerProducto(1); }, []);
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
@@ -169,11 +171,11 @@ function Producto() {
   const fieldOrderCrear = {
     1: "Nombre",
     2: "Marca",
-    3: "Codigo de Barras",
+    3: "CodigoBarras",
     4: "Descripcion",
-    5: "Nombre del Departamento",
+    5: "NombreDepartamento",
     6: "Precio",
-    7: "Precio de Referencia",
+    7: "PrecioReferencia",
     8: "Cantidad",
     9: "Image",
   };
@@ -188,7 +190,7 @@ function Producto() {
             ? "El precio debe ser un número positivo"
             : "";
         break;
-      case "Precio de Referencia":
+      case "PrecioReferencia":
         fieldErrors.PrecioReferencia =
           isNaN(Number(value)) || Number(value) < 0
             ? "El precio de referencia debe ser un número positivo"
@@ -200,7 +202,7 @@ function Producto() {
             ? "La cantidad debe ser un número positivo"
             : "";
         break;
-      case "Codigo de Barras":
+      case "CodigoBarras":
         fieldErrors.CodigoBarras =
           isNaN(Number(value)) || value.length < 6
             ? "El código de barras debe ser un número con al menos 6 dígitos"
@@ -215,6 +217,7 @@ function Producto() {
 
   const crearProducto = async (form) => {
     try {
+      console.log(form.Image);
       await addDoc(collection(db, "Producto"), {
         Nombre: form.Nombre,
         CodigoBarras: parseFloat(form.CodigoBarras),
@@ -226,7 +229,8 @@ function Producto() {
         PrecioReferencia: parseFloat(form.PrecioReferencia),
         Image: form.Image,
         Descripcion: form.Descripcion,
-        PrecioLiquidacion: 0
+        PrecioLiquidacion: 0,
+        CantidaVendidos:0
       });
       console.log("Producto creado y documentado en Firestore");
       onCreateProducto();
@@ -406,6 +410,7 @@ function Producto() {
         fieldOrder={fieldOrderCrear}
         nombreCrud={nombre}
         combobox2={departamento}
+        image={urlImagen}
       />
       <ModalEliminar
         isOpen={isOpenEliminar}

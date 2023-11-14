@@ -8,6 +8,7 @@ import {
   ModalFooter,
   Button
 } from "reactstrap";
+import { uploadImageToStorage } from "../../firebase/firebase";
 function ModalCrear({
   isOpenA,
   closeModal,
@@ -21,7 +22,7 @@ function ModalCrear({
   image
 }) {
   const [errors, setErrors] = useState({});
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
@@ -33,17 +34,43 @@ function ModalCrear({
   const resetForm = () => {
     setForm(initialForm);
   };
-  const handleImageUpload = (url) => {
-    setImageUrl(url);
-  };
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: value,
-    });
+  const handleChange = async (e) => {
+    const { name } = e.target;
+    if (name === "Image" ) {
+      const imageUrl = await uploadImageToStorage(e.target.files[0], "Imagenes"+nombreCrud);
+      console.log(imageUrl.toString()); 
+      const { value } = imageUrl;
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      setErrors(validateField(name, value));
+    } if (name === "Foto" ) {
+      const { value } = e.target.files[0];
+      console.log(value);
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      setErrors(validateField(name, value));
+    } if (name === "Imagen") {
+      const { value } = e.target.files[0];
+      console.log(value);
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      setErrors(validateField(name, value));
+    } else {
+      const { value } = e.target;
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      setErrors(validateField(name, value));
+    }
     // Realizar validaciones en tiempo real
-    setErrors(validateField(name, value));
+
   };
 
   const cerrarModalCrear = () => {
@@ -51,7 +78,7 @@ function ModalCrear({
   };
 
   const crear = async () => {
-    const formWithImage = { ...form, Image: imageUrl };
+    const formWithImage = { ...form };
     FuntionCreate(formWithImage);
     closeModal();
   };
@@ -94,7 +121,7 @@ function ModalCrear({
           </FormGroup>
         );
       }
-      else if (key === "Nombre del Departamento") {
+      else if (key === "NombreDepartamento") {
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
             <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
@@ -117,26 +144,16 @@ function ModalCrear({
       } else if (key === "Image" || key === "Foto" || key === "Imagen") {
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
-            {errors[key] && <div className="error">{errors[key]}</div>}
-          </FormGroup>
-        );
-      }else if (key === "Monto" || key === "CantidadAbonada" ) {
-        return (
-          <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
             <input
-              required
-              className="form-control"
-              type="number"
+              type="file"
               name={key}
+              accept="image/*"
               value={form[key] || ""}
               onChange={handleChange}
             />
-            {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
-      } 
+      }
       else {
         // Generar un input para los otros atributos
         return (

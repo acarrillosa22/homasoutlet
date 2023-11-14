@@ -7,7 +7,7 @@ import {
   Button,
 } from "reactstrap";
 import React, { useEffect, useState } from "react";
-
+import { uploadImageToStorage } from "../../firebase/firebase";
 function ModalA({
   isOpenA,
   closeModal,
@@ -19,6 +19,7 @@ function ModalA({
   combobox2
 }) {
   const [form, setForm] = useState({});
+  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -32,7 +33,13 @@ function ModalA({
   const resetForm = () => {
     setForm({});
   };
-
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    // Llama a la función para cargar la imagen al storage y obtén la URL
+    const imageUrl = await uploadImageToStorage(file, "Imagenes" + nombreCrud);
+    // Puedes hacer lo que quieras con la URL, por ejemplo, almacenarla en el estado
+    setImageFile(imageUrl);
+  };
   const handleChange = (e) => {
     const { name, type, checked, value } = e.target;
     const newValue = type === "checkbox" ? checked : value;
@@ -40,7 +47,7 @@ function ModalA({
       ...form,
       [name]: newValue,
     });
-  
+
     // Realizar validaciones en tiempo real
     setErrors(validateField(name, newValue));
   };
@@ -93,7 +100,7 @@ function ModalA({
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
-      }else if (key === "Morosidad"||key === "morosidad") {
+      } else if (key === "Morosidad" || key === "morosidad") {
         // Si es el atributo "morosidad", generar un checkbox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
@@ -107,10 +114,10 @@ function ModalA({
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
-      }else if (key === "correoElectronico" || key === "Correo") {
+      } else if (key === "correoElectronico" || key === "Correo") {
         return (
           <FormGroup key={key} className={errors ? "error" : ""}>
-           <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
             <input
               required
               className="form-control"
@@ -120,6 +127,17 @@ function ModalA({
               onChange={handleChange}
             />
             {errors && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      } else if (key === "Image" || key === "Foto" || key === "Imagen") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <input
+              type="file"
+              accept="image/*"
+              value={form[key] || ""}
+              onChange={handleImageChange}
+            />
           </FormGroup>
         );
       }
