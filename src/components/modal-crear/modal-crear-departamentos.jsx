@@ -6,9 +6,8 @@ import {
   ModalBody,
   FormGroup,
   ModalFooter,
-  Button,
+  Button
 } from "reactstrap";
-
 function ModalCrear({
   isOpenA,
   closeModal,
@@ -18,10 +17,11 @@ function ModalCrear({
   fieldOrder,
   Combobox,
   nombreCrud,
-  combobox2
+  combobox2,
+  image
 }) {
   const [errors, setErrors] = useState({});
-
+  const [imageUrl, setImageUrl] = useState('');
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
@@ -33,14 +33,15 @@ function ModalCrear({
   const resetForm = () => {
     setForm(initialForm);
   };
-
+  const handleImageUpload = (url) => {
+    setImageUrl(url);
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({
       ...form,
       [name]: value,
     });
-
     // Realizar validaciones en tiempo real
     setErrors(validateField(name, value));
   };
@@ -50,7 +51,8 @@ function ModalCrear({
   };
 
   const crear = async () => {
-    FuntionCreate(form);
+    const formWithImage = { ...form, Image: imageUrl };
+    FuntionCreate(formWithImage);
     closeModal();
   };
   const generateFormGroups = () => {
@@ -66,12 +68,12 @@ function ModalCrear({
               value={form[key] || ""}
               onChange={handleChange}
             >
-            <option value="">Seleccione un rol</option>
-            {Object.entries(Combobox).map(([roleKey, roleName]) => (
-              <option key={roleKey} value={roleKey}>
-                {roleName}
-              </option>
-            ))}
+              <option value="">Seleccione un rol</option>
+              {Object.entries(Combobox).map(([roleKey, roleName]) => (
+                <option key={roleKey} value={roleKey}>
+                  {roleName}
+                </option>
+              ))}
             </select>
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
@@ -79,7 +81,7 @@ function ModalCrear({
       } else if (key === "correoElectronico" || key === "Correo") {
         return (
           <FormGroup key={key} className={errors ? "error" : ""}>
-           <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
             <input
               required
               className="form-control"
@@ -93,7 +95,6 @@ function ModalCrear({
         );
       }
       else if (key === "Nombre del Departamento") {
-        // Si es el atributo "rol", generar un combobox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
             <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
@@ -113,7 +114,30 @@ function ModalCrear({
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
-      } else {
+      } else if (key === "Image" || key === "Foto" || key === "Imagen") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      }else if (key === "Monto" || key === "CantidadAbonada" ) {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <input
+              required
+              className="form-control"
+              type="number"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            />
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      } 
+      else {
         // Generar un input para los otros atributos
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
@@ -142,7 +166,7 @@ function ModalCrear({
       </ModalHeader>
 
       <ModalBody>
-      {generateFormGroups()}
+        {generateFormGroups()}
       </ModalBody>
 
       <ModalFooter>

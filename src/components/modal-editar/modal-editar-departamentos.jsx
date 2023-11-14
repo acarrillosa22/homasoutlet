@@ -76,7 +76,24 @@ function ModalA({
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
-      } else if (key === "morosidad") {
+      } else if (key === "Estado") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un rol</option>
+              <option value="Moroso">Moroso</option>
+              <option value="ADia">Al Dia</option>
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      }else if (key === "Morosidad"||key === "morosidad") {
         // Si es el atributo "morosidad", generar un checkbox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>

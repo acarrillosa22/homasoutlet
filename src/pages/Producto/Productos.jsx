@@ -63,8 +63,6 @@ function Producto() {
     });
     try {
       const department = doc(db, "Producto", encontrado);
-      console.log(departamento)
-
       await updateDoc(department, {
         Nombre: form.Nombre,
         Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
@@ -75,7 +73,10 @@ function Producto() {
       });
       console.log("Document successfully updated!");
       onCreateProducto();
-
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -227,9 +228,12 @@ function Producto() {
         Descripcion: form.Descripcion,
         PrecioLiquidacion: 0
       });
-
       console.log("Producto creado y documentado en Firestore");
       onCreateProducto();
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
     } catch (error) {
       console.error("Error al crear producto y documentar en Firestore: ", error);
     }
@@ -238,7 +242,7 @@ function Producto() {
   const initialFormState = {
     Nombre: '',
     Precio: 0,
-    Cantidad: '',
+    Cantidad: 0,
     Image: '',
     Descripcion: '',
     PrecioReferencia: 0,
@@ -250,7 +254,8 @@ function Producto() {
   //-------------------------------------------------------Eliminar---------------------------------------------------------------------
   const abrirModalEliminar = (id) => {
     setProducto(id);
-    console.log(id);
+    setTextoAlert("Producto Eliminado con éxito");
+    setTipoAlert("success");
     openModalEliminar();
   };
   const eliminarProducto = async () => {
@@ -268,6 +273,10 @@ function Producto() {
       await updateDoc(department, {
         Estado: "Eliminado"
       });
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
       console.log("Estado del producto cambiado correctamente");
       onCreateProducto();
     } catch (error) {

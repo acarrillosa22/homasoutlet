@@ -10,14 +10,16 @@ import ListaAbonoModal from "../../components/datallesModal/listaAbonos";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
-import { getDoc, getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
+  getDoc, getFirestore,
   collection,
   getDocs,
   doc,
   updateDoc,
   setDoc,
   deleteDoc,
+  query,
+  where
 } from "firebase/firestore";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -35,7 +37,7 @@ function Apartado() {
     const date = new Date(timestamp.seconds * 1000);
     return date.toDateString();
   };
-  const nombre = "Cliente";
+  const nombre2 = "Abono";
   const db = getFirestore(appPVH);
   //hooks
   const [showAlert, setShowAlert] = useState(false);
@@ -43,25 +45,20 @@ function Apartado() {
   const [tipoAlert, setTipoAlert] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [apartado, setApartado] = useState([]);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
     useModal(false);
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] =
     useModal(false);
-  const [isOpenDetalles, openModalDetalles, closeModalDetalles] =
-    useModal(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dataState, setData] = useState([]);
   const [isOpenListaAbonoModal, openListaAbonoModal, closeListaAbonoModal] =
     useModal(false);
-  const [ListaAbono, setListaAbono] = useState([]);
   const [isOpenProductoModal, openProductoModal, closeProductoModal] =
     useModal(false);
-  const [Productos, setProductos] = useState([]);
-
   const [isOpenListaAbono, setIsOpenListaAbono] = useState(false);
   const [isOpenProducto, setIsOpenProducto] = useState(false);
-  
   const [usuario, setUsuario] = useState({
     id: "",
     Estado: "",
@@ -70,37 +67,35 @@ function Apartado() {
 
   useEffect(() => {
     obtenerApartados(1); // Fetch the first page of users
-  
     const verificarMorosidad = async (codigo, fechaLimite) => {
       try {
         const today = new Date(); // Obtener la fecha actual del sistema
         const limite = new Date(fechaLimite); // Convertir la fecha límite a un objeto de fecha
-  
         if (limite < today) {
           const apartadoRef = doc(db, "Apartado", codigo);
           await updateDoc(apartadoRef, { Estado: "Moroso" });
-          console.log("El estado ha sido actualizado a 'moroso' para el apartado con el código:", codigo);
-        } else {
-          console.log("La fecha límite para el apartado con el código", codigo, "no es anterior a la fecha actual.");
         }
       } catch (error) {
         console.error("Error al verificar morosidad: ", error);
       }
     };
-  
+
     if (usuario && usuario.fechaLimite) {
       verificarMorosidad(usuario.id, usuario.fechaLimite);
     }
   }, [usuario]);
-  
-  //------------------------------------------------------Editar--------------------------------------------------------------------
 
-  
+  //------------------------------------------------------Editar--------------------------------------------------------------------
   const fieldOrderEditar = {
     1: "Estado", // Primer campo en aparecer
     2: "Fecha Limite",
   };
-
+  const fieldOrderAbono = {
+    1: "Monto", // Primer campo en aparecer
+  };
+  const initialFormState = {
+    CantidadAbonada: 0,
+  }
   const EtiquetasEditar = {
     fechaLimite: "Fecha Límite"
   };
@@ -118,59 +113,32 @@ function Apartado() {
     setUsuario(codigo);
     openModalActualizar();
   };
-  const actualizarSaldo = async (codigoApartado, montoAbono) => {
+  const agregarNuevoAbono = async (form) => {
+    console.log(form.CantidadAbonada);
     try {
-      const apartadoRef = doc(db, "Apartado", codigoApartado);
-      const apartadoDoc = await getDoc(apartadoRef);
-      if (apartadoDoc.exists()) {
-        const saldoActual = apartadoDoc.data().Saldo;
-        const nuevoSaldo = saldoActual - montoAbono;
-        await updateDoc(apartadoRef, { Saldo: nuevoSaldo });
-      } else {
-        console.log("No se encontró el apartado con el código proporcionado.");
-      }
-    } catch (error) {
-      console.error("Error al actualizar el saldo: ", error);
-    }
-  };
-  const agregarNuevoAbono = async (codigoApartado, nuevoMonto) => {
-    try {
-      const abonoRef = doc(db, "Apartado", codigoApartado);
+      const abonoRef = doc(db, "Apartado", apartado.ID);
       const listaAbonos = await getDoc(abonoRef);
       if (listaAbonos.exists()) {
+        const saldoActual = apartado.Saldo - parseFloat(form.CantidadAbonada);
         const listaAbonoData = listaAbonos.data().listaAbono || [];
-        const updatedListaAbono = [...listaAbonoData, { Fecha: new Date(), Monto: nuevoMonto }];
-        await updateDoc(abonoRef, { listaAbono: updatedListaAbono });
-  
-        // Llamar a la función de actualización de saldo
-        await actualizarSaldo(codigoApartado, nuevoMonto);
-      } else {
-        console.log("No se encontró el apartado con el código proporcionado.");
-      }
+        const updatedListaAbono = [...listaAbonoData, { Fecha: new Date(), CantidadAbonada: parseFloat(form.CantidadAbonada) }];
+        await updateDoc(abonoRef, {
+          listaAbono: updatedListaAbono,
+          Saldo: saldoActual
+        });
+      } 
     } catch (error) {
       console.error("Error al agregar el nuevo abono: ", error);
     }
   };
-  const agregarAbono = async (codigoApartado, montoAbono) => {
-  try {
-    await agregarNuevoAbono(codigoApartado, montoAbono);
-    console.log("Nuevo abono agregado con éxito.");
-  } catch (error) {
-    console.error("Error al agregar el abono: ", error);
-  }
-};
-
-// Llamada a la función para agregar un nuevo abono con un código de apartado y un monto específicos
-agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApartadoEjemplo" con el código del apartado real y "100" con el monto del abono real.
-    
   const validateField = (fieldName, value, form) => {
     const errors = {};
     let fieldErrors = { ...errors };
 
     switch (fieldName) {
-      case "Estado":
-        if (!value || value.trim() === "") {
-          fieldErrors.Estado = "El campo Estado es obligatorio";
+      case "Monto":
+        if (isNaN(value)) {
+          fieldErrors.CantidadAbonada = "El campo debe ser un número";
         }
         break;
       case "Saldo":
@@ -189,36 +157,22 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
   };
 
   const editar = async (form) => {
-    
-    console.log("Valores de los campos a editar:", form);
-    form.fechaLimite= form.fechaLimite.toString();
-    
-    console.log("dfghjk",typeof form.fechaLimite);
-
+    form.fechaLimite = form.fechaLimite.toString();
     try {
       const { Estado, fechaLimite, codigo } = form;
-      
       if (!Estado || !fechaLimite) {
         console.error("Estado o fechaLimite no definidos correctamente en el formulario.");
         return;
-      }      
-      console.log("codigo : ",codigo)
+      }
       const apartadoRef = doc(db, "Apartado", codigo);
-
-      console.log("apartadoref",apartadoRef.cedula)
-      console.log("apartadoref",apartadoRef.Estado)
-      console.log("apartadoref",apartadoRef.Total)
-
       await updateDoc(apartadoRef, {
-        Estado:form.Estado,
-        fechaLimite:form.FechaLimite
+        Estado: form.Estado,
+        fechaLimite: form.FechaLimite
       });
-
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
-      }, 4000);
-
+      }, 1500);
       console.log("final de update");
       // Asegúrate de tener la función onCreateApartado para actualizar la vista después de la edición
       onCreateApartado();
@@ -240,9 +194,10 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
       return (
         apartado.Estado && apartado.Estado.toLowerCase().startsWith(searchTerm)
       );
-    } else if (searchOption === "Cédula") {
+    } else if (searchOption === "Cedula") {
       return (
-        apartado.Cedula && apartado.Cedula.toLowerCase().startsWith(searchTerm)
+        apartado.Cedula &&
+        apartado.Cedula.toString().toLowerCase().startsWith(searchTerm)
       );
     }
     // Retorna verdadero para mantener los datos si no coincide con ninguna opción de búsqueda
@@ -255,18 +210,18 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
   const handleSearchChange = (event) => {
     const { value } = event.target;
     setSearchQuery(value);
-    if (searchOption === "Cédula") {
+    if (searchOption === "Cedula") {
       obtenerApartados(1); // Reiniciar los resultados de búsqueda cuando el campo de 'Cédula' cambia
       if (value.trim() !== "") {
         const filteredApartados = dataState.filter((apartado) =>
-          apartado.cedula === value.trim()
+          apartado.Cedula === value.trim()
         );
         setData(filteredApartados);
       }
     }
   };
-  
-  
+
+
   function handleDateChange(date) {
     setSelectedDate(date);
   }
@@ -290,24 +245,15 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
     try {
       const apartadosPerPage = 10; // Número de apartados para recuperar por página
       const startIndex = (page - 1) * apartadosPerPage;
-
       const apartadoRef = collection(db, "Apartado");
       const apartadoSnapshot = await getDocs(apartadoRef);
       const allApartados = apartadoSnapshot.docs.map((apartado) =>
         apartado.data()
       );
-
-      // Verifica la estructura de cada documento
-      allApartados.forEach((apartado) => {
-        console.log("Estado:", apartado.Estado);
-        console.log("fechaLimite:", apartado.FechaLimite);
-      });
-
       const slicedApartados = allApartados.slice(
         startIndex,
         startIndex + apartadosPerPage
       );
-
       setData(slicedApartados); // Actualiza el estado de los datos con los apartados recuperados
     } catch (error) {
       console.error("Error al obtener apartados: ", error);
@@ -332,7 +278,7 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
   const eliminarApartado = async () => {
     try {
       // Eliminar el apartado de Firebase y Firestore
-      await deleteDoc(doc(db, "Apartado", usuario.codigo));
+      await deleteDoc(doc(db, "Apartado", usuario.ID));
       console.log("Apartado eliminado correctamente");
 
       setShowAlert(true);
@@ -354,7 +300,12 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
     setUsuario(codigo);
     openListaAbonoModal();
   };
-
+  const abrirModalAbono = (cedula) => {
+    setTextoAlert("Abono agregado con éxito");
+    setTipoAlert("success");
+    setApartado(cedula);
+    openModalCrear();
+  };
   const abrirModalProductos = (codigo) => {
     setUsuario(codigo);
     openProductoModal();
@@ -376,7 +327,7 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
         onChange={handleSearchOptionChange}
       >
         <option value="Nombre">Nombre</option>
-        <option value="cedula">Cédula</option>
+        <option value="Cedula">Cédula</option>
         <option value="Estado">Estado</option>
       </select>
       <Table>
@@ -396,18 +347,17 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
             .filter((apartado) =>
               searchOption === "Nombre"
                 ? apartado.NombreCliente
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase())
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase())
                 : apartado.Estado &&
-                  apartado.Estado.toLowerCase().includes(
-                    searchQuery.toLowerCase()
-                  )
+                apartado.Estado.toLowerCase().includes(
+                  searchQuery.toLowerCase()
+                )
             )
-
             .map((dato) => (
               <tr
                 key={dato.id}
-                className={dato.Estado == "Moroso" ? "table-danger" : ""}
+                className={dato.Estado === "Moroso" ? "table-danger" : ""}
               >
                 <td>{dato.NombreCliente}</td>
                 <td>{dato.Cedula}</td>
@@ -433,13 +383,19 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
                     onClick={() => abrirModalProductos(dato)}
                     color="primary"
                   >
-                    <FontAwesomeIcon icon={faArrowLeft} size="lg"/>
+                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
                   </Button>
                   <Button
                     onClick={() => abrirModalListaAbono(dato)}
                     color="primary"
                   >
                     <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                  </Button>
+                  <Button
+                    onClick={() => abrirModalAbono(dato)}
+                    color="primary"
+                  >
+                    Abono
                   </Button>
                 </td>
               </tr>
@@ -463,6 +419,16 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
           <FontAwesomeIcon icon={faArrowRight} size="lg" />
         </Button>
       </div>
+      <ModalCrear
+        isOpenA={isOpenCrear}
+        closeModal={closeModalCrear}
+        onCreateUsuario={onCreateApartado}
+        validateField={validateField}
+        FuntionCreate={agregarNuevoAbono}
+        initialForm={initialFormState}
+        fieldOrder={fieldOrderAbono}
+        nombreCrud={nombre2}
+      />
       <ModalA
         isOpenA={isOpenActualizar}
         closeModal={closeModalActualizar}
@@ -476,7 +442,7 @@ agregarAbono("codigoApartadoEjemplo", 100); // Aquí debes reemplazar "codigoApa
       <ModalEliminar
         isOpen={isOpenEliminar}
         closeModal={closeModalEliminar}
-        nombre={Apartado.NombreCliente}
+        nombre={apartado.NombreCliente}
         funtionDelete={eliminarApartado}
         nombreCrud={"Apartado"}
       />
