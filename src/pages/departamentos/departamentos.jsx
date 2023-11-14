@@ -23,11 +23,10 @@ const nombre = "Departamento";
 
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Departamentos() {
-
   const db = getFirestore(appFirebase);
-
   //----------------------------------------------Hooks varios--------------------------------------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
+  const [imageFile, setImageFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [departamento, setDepartamento] = useState([]);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
@@ -41,7 +40,7 @@ function Departamentos() {
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
   const fieldOrderEditar = {
     1: "Nombre", // Primer campo en aparecer
-    2: "Estado",
+    2: "EstadoD",
     3: "Descripcion",
   };
   const abrirModalActualizar = (nombre) => {
@@ -79,7 +78,7 @@ function Departamentos() {
 
       await updateDoc(department, {
         Nombre: form.Nombre,
-        Estado: form.Estado,  
+        Estado: form.EstadoD,  
         Descripcion: form.Descripcion,  
       });
       console.log("Document successfully updated!");
@@ -178,10 +177,11 @@ const crearDepartamento = async (form) => {
     // Agregar información del usuario a Firestore
 
     console.log(db);
-    console.log(form);
+    console.log(imageFile);
     await addDoc(collection(db, "Departamento"), {
       Nombre: form.Nombre,
       Estado: form.Estado,
+      Imagen: imageFile,
       Descripcion: form.Descripcion,
       Ventas:["",0,""]
     });
@@ -207,10 +207,7 @@ const abrirModalEliminar = (nombre) => {
 };
 const eliminarDepartamento = async () => {
   try {
-    
     // Eliminar el usuario de Firebase y Firestore
-
-
     const q = query(collection(db, "Departamento"), where("Nombre", "==", departamento.Nombre));
 
     const querySnapshot = await getDocs(q);
@@ -228,12 +225,6 @@ const eliminarDepartamento = async () => {
     console.error("Error al eliminar departamento: ", error);
   }
 };
-
-//---------------------------------------------------------images--------------------------------------------------------------
-
-const [imageUpload, setImageUpload] = useState(null)
-const uploadimage = () => {};
-
 
 //---------------------------------------------------------HTML-------------------------------------------------------------
 return (
@@ -324,6 +315,7 @@ return (
       initialForm={initialFormState}
       fieldOrder={fieldOrderCrear}
       nombreCrud={nombre}
+      setImageFile={setImageFile}
     />
     <ModalEliminar
       isOpen={isOpenEliminar}

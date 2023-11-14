@@ -19,10 +19,10 @@ function ModalCrear({
   Combobox,
   nombreCrud,
   combobox2,
-  image
+  setImageFile
 }) {
   const [errors, setErrors] = useState({});
-  const [imageFile, setImageFile] = useState(null);
+  
   const [form, setForm] = useState(initialForm);
 
   useEffect(() => {
@@ -34,33 +34,11 @@ function ModalCrear({
   const resetForm = () => {
     setForm(initialForm);
   };
-  const handleChange = async (e) => {
+  const handleChange = async(e) => {
     const { name } = e.target;
-    if (name === "Image" ) {
+    if (name === "Image" || name === "Foto" || name === "Imagen") {
       const imageUrl = await uploadImageToStorage(e.target.files[0], "Imagenes"+nombreCrud);
-      console.log(imageUrl.toString()); 
-      const { value } = imageUrl;
-      setForm({
-        ...form,
-        [name]: value,
-      });
-      setErrors(validateField(name, value));
-    } if (name === "Foto" ) {
-      const { value } = e.target.files[0];
-      console.log(value);
-      setForm({
-        ...form,
-        [name]: value,
-      });
-      setErrors(validateField(name, value));
-    } if (name === "Imagen") {
-      const { value } = e.target.files[0];
-      console.log(value);
-      setForm({
-        ...form,
-        [name]: value,
-      });
-      setErrors(validateField(name, value));
+      setImageFile(imageUrl);
     } else {
       const { value } = e.target;
       setForm({
@@ -69,8 +47,6 @@ function ModalCrear({
       });
       setErrors(validateField(name, value));
     }
-    // Realizar validaciones en tiempo real
-
   };
 
   const cerrarModalCrear = () => {

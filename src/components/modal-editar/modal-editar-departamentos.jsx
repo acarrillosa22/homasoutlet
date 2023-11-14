@@ -16,10 +16,10 @@ function ModalA({
   FuntionEdit,
   fieldOrder,
   nombreCrud,
-  combobox2
+  combobox2,
+  setImageFile
 }) {
   const [form, setForm] = useState({});
-  const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -33,23 +33,19 @@ function ModalA({
   const resetForm = () => {
     setForm({});
   };
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    // Llama a la función para cargar la imagen al storage y obtén la URL
-    const imageUrl = await uploadImageToStorage(file, "Imagenes" + nombreCrud);
-    // Puedes hacer lo que quieras con la URL, por ejemplo, almacenarla en el estado
-    setImageFile(imageUrl);
-  };
-  const handleChange = (e) => {
-    const { name, type, checked, value } = e.target;
-    const newValue = type === "checkbox" ? checked : value;
-    setForm({
-      ...form,
-      [name]: newValue,
-    });
-
-    // Realizar validaciones en tiempo real
-    setErrors(validateField(name, newValue));
+  const handleChange = async (e) => {
+    const { name } = e.target;
+    if (name === "Image" || name === "Foto" || name === "Imagen") {
+      const imageUrl = await uploadImageToStorage(e.target.files[0], "Imagenes" + nombreCrud);
+      setImageFile(imageUrl);
+    } else {
+      const { value } = e.target;
+      setForm({
+        ...form,
+        [name]: value,
+      });
+      setErrors(validateField(name, value));
+    }
   };
 
   const cerrarModalActualizar = () => {
@@ -134,9 +130,10 @@ function ModalA({
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
             <input
               type="file"
+              name={key}
               accept="image/*"
-              value={form[key] || ""}
-              onChange={handleImageChange}
+              value={""}
+              onChange={handleChange}
             />
           </FormGroup>
         );
