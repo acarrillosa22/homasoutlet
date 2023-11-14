@@ -45,6 +45,7 @@ function Apartado() {
   const [tipoAlert, setTipoAlert] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [cantidadAbonada, setCantidadAbonada] = useState(0);
   const [apartado, setApartado] = useState([]);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
     useModal(false);
@@ -90,12 +91,6 @@ function Apartado() {
     1: "Estado", // Primer campo en aparecer
     2: "Fecha Limite",
   };
-  const fieldOrderAbono = {
-    1: "Monto", // Primer campo en aparecer
-  };
-  const initialFormState = {
-    CantidadAbonada: 0,
-  }
   const EtiquetasEditar = {
     fechaLimite: "Fecha Límite"
   };
@@ -113,20 +108,38 @@ function Apartado() {
     setUsuario(codigo);
     openModalActualizar();
   };
-  const agregarNuevoAbono = async (form) => {
-    console.log(form.CantidadAbonada);
+  const agregarNuevoAbono = async (cantidadAbonada) => {
+
     try {
       const abonoRef = doc(db, "Apartado", apartado.ID);
       const listaAbonos = await getDoc(abonoRef);
+      console.log(cantidadAbonada);
       if (listaAbonos.exists()) {
-        const saldoActual = apartado.Saldo - parseFloat(form.CantidadAbonada);
-        const listaAbonoData = listaAbonos.data().listaAbono || [];
-        const updatedListaAbono = [...listaAbonoData, { Fecha: new Date(), CantidadAbonada: parseFloat(form.CantidadAbonada) }];
-        await updateDoc(abonoRef, {
-          listaAbono: updatedListaAbono,
-          Saldo: saldoActual
-        });
-      } 
+        if (apartado.Saldo >= cantidadAbonada && cantidadAbonada >= 1) {
+          console.log(apartado.Saldo);
+          const saldoActual = apartado.Saldo - parseFloat(cantidadAbonada);
+          console.log(saldoActual);
+          const listaAbonoData = listaAbonos.data().listaAbono || [];
+          const updatedListaAbono = [...listaAbonoData, { Fecha: new Date(), CantidadAbonada: parseFloat(cantidadAbonada) }];
+          await updateDoc(abonoRef, {
+            listaAbono: updatedListaAbono,
+            Saldo: saldoActual
+          });
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 1500);
+          onCreateApartado();
+          setCantidadAbonada(0);
+        } else {
+          setTextoAlert("Abono superior a la cantidad que se deve o el abono es 0");
+          setTipoAlert("warn");
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 2000);
+        }
+      }
     } catch (error) {
       console.error("Error al agregar el nuevo abono: ", error);
     }
@@ -137,7 +150,7 @@ function Apartado() {
 
     switch (fieldName) {
       case "Monto":
-        if (isNaN(value)) {
+        if (isNaN(value) || !/^\d*\.?\d*$/.test(value)) {
           fieldErrors.CantidadAbonada = "El campo debe ser un número";
         }
         break;
@@ -284,7 +297,7 @@ function Apartado() {
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
-      }, 4000);
+      }, 1500);
       onCreateApartado();
     } catch (error) {
       console.error("Error al eliminar apartado: ", error);
@@ -304,7 +317,7 @@ function Apartado() {
     setTextoAlert("Abono agregado con éxito");
     setTipoAlert("success");
     setApartado(cedula);
-    openModalCrear();
+    agregarNuevoAbono(cantidadAbonada);
   };
   const abrirModalProductos = (codigo) => {
     setUsuario(codigo);
@@ -391,12 +404,19 @@ function Apartado() {
                   >
                     <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                   </Button>
+                  <input
+                    type="number"
+                    value={cantidadAbonada}
+                    onChange={(e) => setCantidadAbonada(e.target.value)}
+                    placeholder="CantidadAbonada"
+                  />
                   <Button
                     onClick={() => abrirModalAbono(dato)}
                     color="primary"
                   >
                     Abono
                   </Button>
+
                 </td>
               </tr>
             ))}
@@ -419,16 +439,6 @@ function Apartado() {
           <FontAwesomeIcon icon={faArrowRight} size="lg" />
         </Button>
       </div>
-      <ModalCrear
-        isOpenA={isOpenCrear}
-        closeModal={closeModalCrear}
-        onCreateUsuario={onCreateApartado}
-        validateField={validateField}
-        FuntionCreate={agregarNuevoAbono}
-        initialForm={initialFormState}
-        fieldOrder={fieldOrderAbono}
-        nombreCrud={nombre2}
-      />
       <ModalA
         isOpenA={isOpenActualizar}
         closeModal={closeModalActualizar}
