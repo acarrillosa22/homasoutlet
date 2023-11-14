@@ -20,6 +20,7 @@ import Pedidos from './pages/Pedidos/pedidos';
 import Factura from './pages/Facturacion/Facturacion';
 import Apartado from './pages/Apartados/Apartado';
 import Login from './pages/login/Login';
+import Cortes from './pages/Cortes/Cortes';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path='/pedidos' element={<Pedidos />} />
         <Route path='/obtenerFB' element={<ObtenerFB />} />
         <Route path='/Apartados' element={<Apartado />} />
+        <Route path='/cortes' element={<Cortes />} />
 
         {/*     </Route> */}
 

@@ -5,6 +5,7 @@ import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
 import ProcesarPago from './Modals/procesarPago';
 import { Button,Table } from "reactstrap";
+import CustomAlert from "../../components/alert/alert";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +20,9 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 function Factura() {
     const dbPVH = getFirestore(appPVH);
     const dbHOT = getFirestore(appHOT);
+    const [showAlert, setShowAlert] = useState(false);
+    const [textoAlert, setTextoAlert] = useState("");
+    const [tipoAlert, setTipoAlert] = useState("");
     const [departamento, setDepartamento] = useState([]);
     const [producto, setProducto] = useState([]);
     const [cliente, setCliente] = useState([]);
@@ -326,20 +330,33 @@ function Factura() {
         // Calcula el total sumando los importes de todos los productos
         const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
         activeTabData.total = total;
+        setTextoAlert("Cambio de productos realizados");
+        setTipoAlert("success");
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 4000);
         auxiliar(index);
 
     }
     // Actualiza cambios modal Pago y envia resultados a la base de datos
     const procesar = (nuevosDatos) => {
-        //Salida de los datos
+        setTextoAlert("factura guardada")
+        setTipoAlert("success")
+
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
         if (nuevosDatos.abono !== undefined) {
             activeTabData.abono = nuevosDatos.abono;
+
         }
 
         activeTabData.fecha = Date();
         activeTabData.metodo = nuevosDatos.metodo;
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 4000);
         //Manejar salida de datos
     }
 
@@ -404,12 +421,22 @@ function Factura() {
             setDescuentoGlobal(0);
             descuentoGlobalValue = descuentoGlobal;
         }
-        if (descuentoGlobal > 100) {
+        if (descuentoGlobal > 100 || descuentoGlobal<0) {
+          setTextoAlert("Valor de descuento invalido");
+          setTipoAlert("danger");
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 4000);
+        }else{
+          setTextoAlert("Se aplicó el descuento");
+          setTipoAlert("success");
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 4000);
+        }
 
-        }
-        if (descuentoGlobal < 0) {
-            //
-        }
 
         // Aplica el descuento global a la pestaña activa
         updatedTabs[activeTab].content.descuentoGlobal = descuentoGlobalValue;
@@ -426,6 +453,7 @@ function Factura() {
         activeTabData.total = total;
 
         // Actualiza el estado de las pestañas
+        
         setTabs(updatedTabs);
     };
 
@@ -601,6 +629,9 @@ function Factura() {
             >
                 Limpiar Factura
             </Button>
+            {showAlert && (
+        <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
+      )}
         </div>
     );
 }
