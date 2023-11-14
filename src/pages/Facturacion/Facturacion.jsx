@@ -4,8 +4,7 @@ import appPVH from '../../firebase/firebase';
 import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
 import ProcesarPago from './Modals/procesarPago';
-import { Button,Table } from "reactstrap";
-import CustomAlert from "../../components/alert/alert";
+import { Button } from "reactstrap";
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -20,9 +19,6 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 function Factura() {
     const dbPVH = getFirestore(appPVH);
     const dbHOT = getFirestore(appHOT);
-    const [showAlert, setShowAlert] = useState(false);
-    const [textoAlert, setTextoAlert] = useState("");
-    const [tipoAlert, setTipoAlert] = useState("");
     const [departamento, setDepartamento] = useState([]);
     const [producto, setProducto] = useState([]);
     const [cliente, setCliente] = useState([]);
@@ -136,11 +132,11 @@ function Factura() {
     };
     const [productoAInsertar, setProductoAInsertar] = useState({
         codigoBarras: '',
-        descripcion: '',
-        precioVenta: 0,
-        cantidad: 0,
+        descripcion: 'Producto C',
+        precioVenta: 5,
+        cantidad: 5,
         importe: 0,
-        existencia: 0,
+        existencia: 15,
         descuento: 0,
     });
 
@@ -199,7 +195,7 @@ function Factura() {
             abono: updatedTabs[activeTab].content.abono,
             estado: updatedTabs[activeTab].content.estado,
             metodo: updatedTabs[activeTab].content.metodo,
-            total: (updatedTabs[activeTab].content.total * (1 - updatedTabs[activeTab].content.descuentoGlobal / 100)),
+            total: updatedTabs[activeTab].content.total,
         }
         setModalProceso(activeTabData);
         setModalIsOpenProceso(true);
@@ -216,65 +212,53 @@ function Factura() {
 
         // Copia el estado actual de las pestañas
         const updatedTabs = [...tabs];
-
+        var hay = false;
         // En caso de que se este añadiendo otro producto igual
         const activeTabData = updatedTabs[activeTab].content;
-        const existingProductIndex = activeTabData.productos.findIndex(
-            (producto) => producto.codigoBarras === parseInt(productoAInsertar.codigoBarras)
-        );
-
-        if (existingProductIndex !== -1) {
-            // Si el producto ya existe, actualiza la cantidad
-            if (activeTabData.productos[existingProductIndex].existencia > activeTabData.productos[existingProductIndex].cantidad) {
-                activeTabData.productos[existingProductIndex].cantidad++;
+        activeTabData.productos.forEach((producto) => {
+            if (producto.codigoBarras === productoAInsertar.codigoBarras) {
+                if (producto.Cantidad > producto.compra) {
+                    producto.cantidad++;
+                }
+                hay = true;
             }
-        } else {
-            // Si el producto no existe, agrégalo a la lista de productos con cantidad 1
-            //productos
-            producto.forEach((productoBase) => {
-                if (productoBase.CodigoBarras === parseInt(productoAInsertar.codigoBarras)) {
-                    const newProducto = {
-                        codigoBarras: productoBase.CodigoBarras,
-                        descripcion: productoBase.Descripcion,
-                        precioVenta: productoBase.Precio,
+        });
+
+        // Encuentra la pestaña activa y agrega el producto a la lista de productos
+        //Se encuentra un código de barras igual en la lista de productos
+        if (!hay) {
+            updatedTabs[activeTab].content.productos.push(productoAInsertar);
+        }
+        /*
+        producto.forEach((producto) => {
+                if (producto.codigoBarras === productoAInsertar.codigoBarras) {
+                    setProductoAInsertar({
+                        codigoBarras: producto.CodigoBarras,
+                        descripcion: producto.Descripcion,
+                        precioVenta: producto.Precio,
                         cantidad: 1,
                         importe: 0,
-                        existencia: productoBase.Cantidad,
+                        existencia: producto.Cantidad,
                         descuento: 0,
-                    };
-                    // Actualiza el estado de las pestañas directamente
-                    updatedTabs[activeTab].content.productos.push(newProducto);
+                    });
                 }
             });
         }
-        /*
-        setProductoAInsertar((prevProducto) => {
-                                const newProducto = {
-                                    ...prevProducto,
-                                    descripcion: productoBase.Descripcion,
-                                    precioVenta: productoBase.Precio,
-                                    cantidad: 1,
-                                    importe: 0,
-                                    existencia: productoBase.Cantidad,
-                                    descuento: 0,
-                                };
-                                console.log(newProducto);
-                                updatedTabs[activeTab].content.productos.push(newProducto);
-                                return newProducto;
-                        });
         */
-        // Realiza los cálculos inmediatamente después de insertar
-        activeTabData.productos.forEach((producto) => {
-            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
-            producto.importe = importe;
-        });
-
-        // Calcula el total sumando los importes de todos los productos
-        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total;
 
         // Actualiza el estado de las pestañas
         setTabs(updatedTabs);
+
+        // Limpia el estado del producto a insertar
+        setProductoAInsertar({
+            codigoBarras: '',
+            descripcion: 'Producto C',
+            precioVenta: 5,
+            cantidad: 5,
+            importe: 0,
+            existencia: 15,
+            descuento: 0,
+        });
     };
 
     const editarNombre = (e) => {
@@ -304,8 +288,6 @@ function Factura() {
 
     //Actualiza cambios de modal producto
     const actualizarProducto = (nuevosDatos, index, listaProductos) => {
-        const updatedTabs = [...tabs];
-        const activeTabData = updatedTabs[activeTab].content;
         var productoE = {
             codigoBarras: '',
             descripcion: '',
@@ -323,40 +305,19 @@ function Factura() {
         }
         productoE.descuento = nuevosDatos.descuento;
         productoE.cantidad = nuevosDatos.cantidad;
-        activeTabData.productos.forEach((producto, productoIndex) => {
-            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
-            activeTabData.productos[productoIndex].importe = importe;
-        });
-        // Calcula el total sumando los importes de todos los productos
-        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total;
-        setTextoAlert("Cambio de productos realizados");
-        setTipoAlert("success");
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 4000);
         auxiliar(index);
-
     }
     // Actualiza cambios modal Pago y envia resultados a la base de datos
     const procesar = (nuevosDatos) => {
-        setTextoAlert("factura guardada")
-        setTipoAlert("success")
-
+        //Salida de los datos
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
         if (nuevosDatos.abono !== undefined) {
             activeTabData.abono = nuevosDatos.abono;
-
         }
 
         activeTabData.fecha = Date();
         activeTabData.metodo = nuevosDatos.metodo;
-        setShowAlert(true);
-        setTimeout(() => {
-          setShowAlert(false);
-        }, 4000);
         //Manejar salida de datos
     }
 
@@ -380,26 +341,28 @@ function Factura() {
         // Calcula el importe para cada producto en la pestaña activa
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
-
-        activeTabData.productos.forEach((producto, productoIndex) => {
-            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
-            activeTabData.productos[productoIndex].importe = importe;
-        });
-
-        // Calcula el total sumando los importes de todos los productos
-        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total;
         if (isNaN(descuentoGlobal)) {
             setDescuentoGlobal(0);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tabs, activeTab, actualizaTab]);
 
+        else if (descuentoGlobal > 100) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
+
+        else if (descuentoGlobal < 0) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
+
+        else {
+            activeTabData.descuentoGlobal = descuentoGlobal;
+        }// eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tabs, activeTab, actualizaTab]);
     const auxiliar = (index) => {
         setActiveTab(index)
         setActualizaTab(true);
     }
-
     const handleAplicarDescuentoGlobal = (e) => {
         if (e.key === 'Enter') {
             //Se presiona enter
@@ -407,56 +370,32 @@ function Factura() {
         else {
             e.preventDefault();
         }
-
         setActualizaTab(true);
 
         // Copia el estado actual de las pestañas
         const updatedTabs = [...tabs];
 
         // Obtén el descuento global del estado
-        var descuentoGlobalValue = parseFloat(descuentoGlobal);
+        const descuentoGlobalValue = parseFloat(descuentoGlobal);
 
         // Realiza las validaciones necesarias
         if (isNaN(descuentoGlobalValue)) {
             setDescuentoGlobal(0);
-            descuentoGlobalValue = descuentoGlobal;
-        }
-        if (descuentoGlobal > 100 || descuentoGlobal<0) {
-          setTextoAlert("Valor de descuento invalido");
-          setTipoAlert("danger");
-          setShowAlert(true);
-          setTimeout(() => {
-            setShowAlert(false);
-          }, 4000);
-        }else{
-          setTextoAlert("Se aplicó el descuento");
-          setTipoAlert("success");
-          setShowAlert(true);
-          setTimeout(() => {
-            setShowAlert(false);
-          }, 4000);
         }
 
+        if (descuentoGlobal > 100) {
+            //modalAlert
+            //setMensajeError("El descuento excede el 100%.");
+        }
 
-        // Aplica el descuento global a la pestaña activa
-        updatedTabs[activeTab].content.descuentoGlobal = descuentoGlobalValue;
+        else {
+            setDescuentoGlobal(descuentoGlobalValue);
+            updatedTabs[activeTab].descuentoGlobal = descuentoGlobal;
+        }
 
-        // Calcula el importe para cada producto en la pestaña activa
-        const activeTabData = updatedTabs[activeTab].content;
-        activeTabData.productos.forEach((producto) => {
-            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
-            producto.importe = importe;
-        });
-
-        // Calcula el total sumando los importes de todos los productos
-        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
-        activeTabData.total = total;
-
-        // Actualiza el estado de las pestañas
-        
         setTabs(updatedTabs);
+        // Resto del código...
     };
-
     return (
         <div>
             <ul className="nav">
@@ -465,20 +404,20 @@ function Factura() {
                         key={index}
                         className={`nav-item ${activeTab === index ? 'active' : ''}`}
                     >
-                        <Button
+                        <button
                             className="nav-sublink"
                             onClick={() => auxiliar(index)}
                         >
                             {tab.title}
-                        </Button>
+                        </button>
                     </li>
                 ))}
-                <Button
+                <button
                     onClick={addTab}
                     className={`agregar ${addAnimation ? 'animate' : ''}`}
                 >
                     +
-                </Button>
+                </button>
             </ul>
             <div className="insert-product">
                 <h2>Insertar Producto</h2>
@@ -499,45 +438,30 @@ function Factura() {
                     </Button>
                 </form>
                 <form onSubmit={editarNombre}>
-                    {/* Utiliza un select con estilos Bootstrap */}
-                    <div className="input-group">
-                        <select
-                            className="form-select"
-                            value={nombreCliente}
-                            onChange={(e) => setNombreCliente(e.target.value)}
-                        >
-                            <option value="">Selecciona un cliente</option>
-                            {cliente.map((clien) => (
-                                <option
-                                    key={clien.idUser}
-                                    value={clien.nombre}
-                                    style={{ background: clien.morosidad ? 'red' : 'transparent' }}
-                                >
-                                    {clien.nombre}
-                                </option>
-                            ))}
-                        </select>
-                        <Button
-                            className="btn btn-success"
-                            type="submit"
-                        >
-                            Asignar Cliente
-                        </Button>
-                    </div>
+                    <input
+                        type="text"
+                        placeholder="Nombre del Cliente"
+                        value={nombreCliente}
+                        onChange={(e) =>
+                            setNombreCliente(e.target.value)
+                        }
+                    />
+                    <Button color="success" type="submit">
+                        Asignar Cliente
+                    </Button>
                 </form>
-
             </div>
             <div className="discount-options">
                 <form onSubmit={handleAplicarDescuentoGlobal}>
                     <input
                         type="number"
                         placeholder="Descuento global"
-                        value={descuentoGlobal}
                         onChange={(e) => setDescuentoGlobal(e.target.value)}
                     />
                     <Button
                         color="primary"
-                        type="submit"
+                        type="button"
+                        onClick={handleAplicarDescuentoGlobal}
                     >
                         Aplicar descuento global
                     </Button>
@@ -549,8 +473,7 @@ function Factura() {
                         key={index}
                         className={`tab-pane ${activeTab === index ? 'active' : ''}`}
                     >
-                        <div className='TablaF'>
-                        <Table>
+                        <table>
                             <thead>
                                 <tr>
                                     <th>Código de Barras</th>
@@ -570,7 +493,7 @@ function Factura() {
                                         <td>₡{producto.precioVenta}</td>
                                         <td>{producto.descuento}%</td>
                                         <td>{producto.cantidad}</td>
-                                        <td>₡{(producto.importe).toFixed(0)}</td>
+                                        <td>₡{producto.importe}</td>
                                         <td>{producto.existencia}</td>
                                         <td className="editarProd">
                                             {" "}
@@ -597,11 +520,10 @@ function Factura() {
                                     </tr>
                                 )}
                             </tbody>
-                        </Table>
-                        </div>
+                        </table>
                         <div className="summary-Bar">
                             <div className="totalCont">
-                                Total: ₡{(tab.content.total * (1 - tab.content.descuentoGlobal / 100)).toFixed(0)}
+                                Total: ₡{tab.content.total * (1 - tab.content.descuentoGlobal / 100)}
                             </div>
                             <Button className="boton-pago" color="primary" type="submit" onClick={() => procesarPago()}>
                                 Procesar pago
@@ -629,9 +551,6 @@ function Factura() {
             >
                 Limpiar Factura
             </Button>
-            {showAlert && (
-        <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
-      )}
         </div>
     );
 }

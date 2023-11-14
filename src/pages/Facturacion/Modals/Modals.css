@@ -7,15 +7,15 @@
     left: 0;
     width: 100%;
     height: 105%;
-    background-color: rgba(0, 0, 0, 0.7);  /* Fondo oscuro semitransparente //
-    z-index: 999; /* Asegura que el modal esté en la parte superior //
+    background-color: rgba(0, 0, 0, 0.7);  /* Fondo oscuro semitransparente *//*
+    z-index: 999; /* Asegura que el modal esté en la parte superior *//*
     margin-top: 25%;
     margin-left: 50%;
 }
 
 
 /* Estilo para el contenido del modal */
-.modal-content2 {
+.modal-content {
     position: fixed;
     top: 50%; /* Centra verticalmente */
     left: 50%; /* Centra horizontalmente */
@@ -29,27 +29,27 @@
 }
 
 /* Estilo para el título del modal */
-.modal-content2 h2 {
+.modal-content h2 {
     font-size: 1.5rem;
     margin: 0;
 }
 
 /* Estilo para los campos de entrada y botones dentro del modal */
-.modal-content2 input {
+.modal-content input {
     width: 100%;
     padding: 5px;
     margin-bottom: 10px;
 }
 
 /* Estilo para los botones */
-.modal-content2 button {
-    color:black; /* Color del texto blanco */
+.modal-content button {
+    color: #fff; /* Color del texto blanco */
     padding: 10px 20px;
     border: none;
     cursor: pointer;
 }
 
 /* Estilo para el botón "Cancelar" */
-.modal-content2 button:last-child {
+.modal-content button:last-child {
     margin-left: 10px;
 }
