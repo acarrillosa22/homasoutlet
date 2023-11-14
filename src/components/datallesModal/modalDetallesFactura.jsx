@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button,Table } from "reactstrap";
 import "./modalDetalles.css";
 
 function ModalDetallesFactura({ isOpenA, closeModal, elemento,mostrar }) {
@@ -17,21 +17,26 @@ function ModalDetallesFactura({ isOpenA, closeModal, elemento,mostrar }) {
       </ModalHeader>
 
       <ModalBody className="cuerpoModal">
-        <div>
-          {elemento.Productos.map((producto, index) => (
-            <div key={index}>
-              <p>Nombre: {producto.Nombre}</p>
-              <p>Cantidad: {producto.Cantidad}</p>
-              {mostrar && producto.Descuento && (
-                <div>
-                  <p>Descuento: {producto.Descuento}</p>
-                </div>
-              )}
-              <p>Precio: {producto.Precio}</p>
-              <hr />
-            </div>
+      <Table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Descuento</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          {elemento.Productos.map((dato) => (
+            <tr key={dato.Nombre}>
+              <td>{dato.Nombre}</td>
+              <td>{dato.Cantidad}</td>
+              <td>{dato.Descuento}</td>
+              <td>{dato.Precio}</td>
+            </tr>
           ))}
-        </div>
+        </tbody>
+      </Table>
       </ModalBody>
 
       <ModalFooter>

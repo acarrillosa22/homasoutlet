@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "./HistorialFactura.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 import ModalDetallesFactura from "../../components/datallesModal/modalDetallesFactura.jsx";
 // Firebase
-import { Timestamp } from "firebase/firestore";
 import { Table, Button, Container } from "reactstrap";
-import appFirebase from "../../firebase/firebase.config";
+import appPVH from "../../firebase/firebase.js";
 import {
   getFirestore,
   collection,
@@ -17,19 +16,67 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
+import jsPDF from 'jspdf';
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faArrowRight, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faArrowLeft,faPrint } from "@fortawesome/free-solid-svg-icons";
 import { fromUnixTime } from "date-fns";
 import { format } from "date-fns";
 import { fromMillis } from "firebase/firestore";
-library.add(faArrowRight, faArrowLeft, faEye);
+library.add(faArrowRight, faArrowLeft, faEye,faPrint);
 
 function HistorialFactura() {
-  const nombre = "Detalles de factura";
-  const db = getFirestore(appFirebase);
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp.seconds * 1000);
+    return format(date, "dd/MM/yyyy"); // Formatea la fecha como "dd/MM/yyyy"
+  };
 
+  const nombre = "Detalles de factura";
+  const db = getFirestore(appPVH);
+  const generarPDF = (dato) => {
+    const doc = new jsPDF();
+    var numArticulos = 0;
+    // Configuración de fuente y tamaño para el encabezado
+    //doc.setFontSize(25);
+   // doc.text(`${dato.Cajero.Nombre}`, 75, 20);
+    doc.setFontSize(15);
+    doc.text(`${dato.Encabezado.Dueño.Nombre}`, 100, 30);
+    doc.text(`${dato.Encabezado.Dueño.Cedula}`, 65, 30);
+    doc.text('FACEBOOK: HOMAS OUTLET', 75, 40);
+    doc.text(`CORREO:${dato.Encabezado.CorreoSede}`, 60, 60);
+    doc.text(`TELÉFONO: ${dato.Encabezado.Telefono}`, 85, 50);
+    doc.text(`${formatTimestamp(dato.Fecha)}`, 85, 70);
+    doc.setFontSize(20);
+
+    // Contenido de la factura
+    doc.text(`CAJERO: ${dato.Cajero.Nombre}`, 10, 90);
+    doc.text(`CANTIDAD`, 10, 120);
+    doc.text(`DESCRIPCIÓN `, 70, 120);
+    doc.text(`IMPORTE `, 140, 120);
+    doc.text(`=====================================================`, 1, 130);
+    for (let index = 0; index < dato.Productos.length; index++) {
+      doc.text(`${dato.Productos[index].Cantidad}`, 10, 140);
+      doc.text(`${dato.Productos[index].Nombre}`, 50, 140);
+      doc.text(`${dato.Productos[index].Precio}`, 150, 140);
+      numArticulos =numArticulos+ dato.Productos[index].Cantidad;
+    }
+    doc.text(`=====================================================`, 1, 150);
+    doc.text(`NO.ARTICULOS: ${numArticulos || ''}`, 70, 170);
+    doc.setFontSize(25);
+    doc.text(`TOTAL: ${dato.Total}`, 70, 190);
+    doc.text(`SE HA RECIBIDO: ${dato.pagoCliente}`, 40, 210);
+    doc.text(`SE HA DEVUELTO: ${dato.vuelvoCliente}`, 40, 230);
+    doc.text(`USTED HA AHORRADO: ${dato.Descuento}`, 35, 250);
+    doc.setFontSize(15);
+    doc.text(`¡¡GRACIAS POR SU COMPRA!!`, 70, 270);
+    doc.text('LOS ARTÍCULOS ELÉCTRICOS TIENEN UN MES DE GARANTÍA.', 40, 280);
+    doc.text('EL CAJERO DEBE COMPROBAR EL ESTADO DE LOS ARTÍCULOS ANTES DE SALIR DE LA TIENDA.', 0, 290);
+
+    // Descargar el PDF
+    doc.save('mi_pdf.pdf');
+  };
   // Hooks
   const [currentPage, setCurrentPage] = useState(1);
   const [usuario, setUsuario] = useState([]);
@@ -91,10 +138,6 @@ function HistorialFactura() {
     openModalDetalles();
   };
 
-  const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp.seconds * 1000);
-    return format(date, "dd/MM/yyyy"); // Formatea la fecha como "dd/MM/yyyy"
-  };
 
   return (
     <Container>
@@ -134,6 +177,12 @@ function HistorialFactura() {
                   color="warning"
                 >
                   <FontAwesomeIcon icon={faEye} size="lg" />
+                </Button>
+                <Button
+                  onClick={() => generarPDF(dato)}
+                  color="info"
+                >
+                  <FontAwesomeIcon icon={faPrint} size="lg" />
                 </Button>
               </td>
             </tr>
