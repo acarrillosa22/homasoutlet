@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Target-api.css';
+import CustomAlert from '../../components/alert/alert';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,11 +10,19 @@ function App() {
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [buttonTriggered, setButtonTriggered] = useState();
   const [selectedImages, setSelectedImages] = useState({});
+  const [showAlert, setShowAlert] = useState(false);
+  const [textoAlert, setTextoAlert] = useState("");
+  const [tipoAlert, setTipoAlert] = useState("");
 
   useEffect(() => {
+    setTextoAlert("Buscando...")
+    setTipoAlert("info")
     const numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
     const fetchData = async () => {
-      window.alert("Buscando...");
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       var texto = searchTerm.toString();
       for (var indice = 0; indice < numeros.length; indice++) {//Compureba si lo enviado en un codigo de barras
         if (texto.startsWith(numeros[indice])) {
@@ -24,7 +33,7 @@ function App() {
 
       try {
         const params = {
-          api_key: "EB22F9C4C66A483EB7309793C90E36C6 "
+          api_key: "EFB73A431D62433E9B346732A1CE6E1B "
         }
 
         // make the http GET request to RedCircle API
@@ -43,7 +52,7 @@ function App() {
         if (hayRequests) {
           const response = await axios.get('https://api.redcircleapi.com/request', {
             params: {
-              api_key: "EB22F9C4C66A483EB7309793C90E36C6 ",
+              api_key: "EFB73A431D62433E9B346732A1CE6E1B ",
               search_term: searchTerm,
               type: "search",
               include_out_of_stock: "true"
@@ -55,8 +64,13 @@ function App() {
             setResponseData(resultados.slice(0, 4)); // Mostrar hasta 4 resultados
             setSearchCompleted(true);
           } else {
+            setTextoAlert("No se encontraron resultados")
+            setTipoAlert("warning")
             setSearchCompleted(false);
-            window.alert("No se encontraron resultados...");
+            setShowAlert(true);
+            setTimeout(() => {
+              setShowAlert(false);
+            }, 4000);
           }
         }
         else{
@@ -65,7 +79,13 @@ function App() {
       } catch (error) {
         console.error('Error en la solicitud:', error)
         setSearchCompleted(false);
-        window.alert("No se encontraron resultados...");
+        setTextoAlert("No se encontraron resultados")
+        setTipoAlert("warning")
+        setSearchCompleted(false);
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 4000);
       }
     };
 
@@ -257,6 +277,9 @@ function App() {
             </tbody>
           </table>
         </div>
+      )}
+            {showAlert && (
+        <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
       )}
     </div>
   );
