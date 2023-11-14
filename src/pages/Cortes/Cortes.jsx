@@ -1,46 +1,31 @@
 //-------------------------------------------------Imports generales--------------------------------------------------------------------------------
 import React, { useEffect, useState } from "react";
-import { useModal } from "../../hooks/useModal";
 import "./Cortes.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 //-------------------------------------------------Imports Modals------------------------------------------------------------------------
-import ModalA from "../../components/modal-editar/modal-editar-departamentos";
-import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
-import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 import CustomAlert from '../../components/alert/alert';
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc, orderBy } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where, orderBy } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faCaretUp, faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import { faCartFlatbed } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { fromUnixTime } from "date-fns";
 import { format } from "date-fns";
-library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft,faCaretUp);
-const nombre = "Producto";
+library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faCaretUp);
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Corte() {
   const db = getFirestore(appPVH);
   //----------------------------------------------Hooks varios--------------------------------------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [producto, setProducto] = useState([]);
-  const [showAlert, setShowAlert] = useState(false);
-  const [textoAlert, setTextoAlert] = useState("");
-  const [tipoAlert, setTipoAlert] = useState("");
-  const [departamento, setDepartamento] = useState([]);
-  const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
-  const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
-  const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  let encontrado = '';
   useEffect(() => {
     obtenerDepartamentos(1);
   }, [selectedDate]);
@@ -60,7 +45,6 @@ function Corte() {
     else
       return false;
   });
-
 
   const handleSearchOptionChange = (event) => {
     setSearchOption(event.target.value);
@@ -95,11 +79,11 @@ function Corte() {
   };
   const obtenerDepartamentos = async (page) => {
     try {
-        
+
       const cajaRef = collection(db, "Corte");
 
       let queryRef = query(cajaRef, orderBy("Fecha", "desc"));
-      
+
 
       if (selectedDate) {
         const selectedTimestamp = fromUnixTime(selectedDate);
@@ -126,13 +110,6 @@ function Corte() {
     // Actualizar la lista de usuarios llamando a obtenerUsuarios nuevamente
     obtenerDepartamentos(1);
   };
-  
-
-  //-------------------------------------------------------------Crear------------------------------------------------------------------------
-  
-  //-------------------------------------------------------Eliminar---------------------------------------------------------------------
-  
-  //---------------------------------------------------------HTML-------------------------------------------------------------
   return (
     <Container>
       <h1>Cortes</h1>
@@ -208,8 +185,6 @@ function Corte() {
           <FontAwesomeIcon icon={faArrowRight} size="lg" />
         </Button>
       </div>
-
-      {showAlert && (<CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />)}
     </Container>
   );
 }
