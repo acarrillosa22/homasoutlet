@@ -37,6 +37,11 @@ function ModalCrear({
   const handleChange = async(e) => {
     const { name } = e.target;
     if (name === "Image" || name === "Foto" || name === "Imagen") {
+      const { value } = e.target;
+      setForm({
+        ...form,
+        [name]: value,
+      });
       const imageUrl = await uploadImageToStorage(e.target.files[0], "Imagenes"+nombreCrud);
       setImageFile(imageUrl);
     } else {

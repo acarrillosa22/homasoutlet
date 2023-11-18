@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getFirestore, collection, getDocs, updateDoc, query, where } from 'firebase/firestore';
 import appHOT from '../../firebase/firebaseHOT';
-import './Login.css';  
+import './login.css';  
 import HomasLogo from '../../img/HomasLogo.png';
 
 const RecuperarContraseña = ({ onClose }) => {

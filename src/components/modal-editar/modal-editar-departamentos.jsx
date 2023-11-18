@@ -8,6 +8,7 @@ import {
 } from "reactstrap";
 import React, { useEffect, useState } from "react";
 import { uploadImageToStorage } from "../../firebase/firebase";
+import CustomAlert from "../alert/alert";
 function ModalA({
   isOpenA,
   closeModal,
@@ -21,7 +22,9 @@ function ModalA({
 }) {
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
-
+  const [showAlert, setShowAlert] = useState(false);
+  const [textoAlert, setTextoAlert] = useState("");
+  const [tipoAlert, setTipoAlert] = useState("");
   useEffect(() => {
     // Reset the form whenever isOpenA changes (modal is opened/closed)
     if (isOpenA) {
@@ -38,6 +41,12 @@ function ModalA({
     if (name === "Image" || name === "Foto" || name === "Imagen") {
       const imageUrl = await uploadImageToStorage(e.target.files[0], "Imagenes" + nombreCrud);
       setImageFile(imageUrl);
+      setTextoAlert("Iamgen guardada");
+      setTipoAlert("success");
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
     } else {
       const { value } = e.target;
       setForm({
@@ -135,6 +144,7 @@ function ModalA({
               value={""}
               onChange={handleChange}
             />
+            {showAlert && (<CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />)}
           </FormGroup>
         );
       }

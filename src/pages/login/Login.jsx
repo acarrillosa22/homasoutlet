@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, getDocs, query } from 'firebase/firestore';
 import appHOT from '../../firebase/firebaseHOT';
 import HomasLogo from '../../img/HomasLogo.png';
-import './Login.css';
+import './login.css';
 import RecuperarContraseña from './RecuperarContra';
 
 const Usuarios = () => {

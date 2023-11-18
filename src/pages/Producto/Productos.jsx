@@ -152,7 +152,7 @@ function Producto() {
       const userSnapshot = await getDocs(userRef);
       const allProducts = userSnapshot.docs
         .map((product) => product.data())
-        .filter((product) => product.Estado !== "Eliminado");
+        .filter((product) => product.Estado !== 1);
       // Filtrar productos con estado "Eliminado"
       // Calcular el conjunto de productos para la página actual
       const slicedProducts = allProducts.slice(startIndex, startIndex + usersPerPage);
@@ -231,7 +231,7 @@ function Producto() {
         Precio: parseFloat(form.Precio),
         Marca: form.Marca,
         Cantidad: parseFloat(form.Cantidad),
-        Estado: "Disponible",
+        Estado: 0,
         NombreDepartamento: form.NombreDepartamento,
         PrecioReferencia: parseFloat(form.PrecioReferencia),
         Image: imageFile,
@@ -283,7 +283,7 @@ function Producto() {
       console.log(departamento)
 
       await updateDoc(department, {
-        Estado: "Eliminado"
+        Estado: 1
       });
       setShowAlert(true);
       setTimeout(() => {
@@ -337,7 +337,6 @@ function Producto() {
             <th>Nombre</th>
             <th>Marca</th>
             <th>Departamento</th>
-            <th>Estado</th>
             <th>Cantidad</th>
             <th>Precio</th>
             <th>Imagen</th>
@@ -351,7 +350,6 @@ function Producto() {
               <td>{dato.Nombre}</td>
               <td>{dato.Marca}</td>
               <td>{dato.NombreDepartamento}</td>
-              <td>{dato.Estado}</td>
               <td>{dato.Cantidad}</td>
               <td>{dato.Precio}</td>
               <td>

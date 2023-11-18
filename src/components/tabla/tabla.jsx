@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Table from "react-bootstrap/Table";
 import "./tabla.css";
-import { Button, Container } from "reactstrap";
+import { Button, Container, Modal } from "reactstrap";
 import appPVH from "../../firebase/firebase";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc, orderBy, limit, } from "firebase/firestore";
 function ResponsiveBreakpointsExample() {
@@ -10,6 +10,7 @@ function ResponsiveBreakpointsExample() {
   const [producto, setProducto] = useState([]);
   const [movimiento, setMovimiento] = useState([]);
   const [movimientoS, setMovimientoS] = useState([]);
+  const [caja, setCaja] = useState([]);
   const [movimientoE, setMovimientoE] = useState([]);
   const [sumaD, setSuma] = useState([]);
   const [efectivo, setEfectivo] = useState([]);
@@ -77,7 +78,7 @@ function ResponsiveBreakpointsExample() {
       console.error("Error al obtener Producto: ", error);
     }
   };
-  
+
   const obtenerMovimiento = async () => {
     try {
       const userRef = collection(db, "Movimiento");
@@ -108,6 +109,18 @@ function ResponsiveBreakpointsExample() {
       console.error("Error al obtener Producto: ", error);
     }
   };
+  useEffect(() => { obtenerCajas(); }, []);
+  const obtenerCajas = async () => {
+    try {
+      const userRef = collection(db, "Cajas");
+      const userSnapshot = await getDocs(userRef);
+      const allDepartmentos = userSnapshot.docs
+        .map((departament) => departament.data())
+        setCaja(allDepartmentos);
+    } catch (error) {
+      console.error("Error al obtener departamentos: ", error);
+    }
+  };
   const obtenerApartado = async () => {
     try {
       const userRef = collection(db, "Apartado");
@@ -125,20 +138,23 @@ function ResponsiveBreakpointsExample() {
   useEffect(() => { obtenerApartado() }, []);
   useEffect(() => { obtenerFactura() }, []);
   useEffect(() => { obtenerMovimiento() }, []);
-  useEffect(() => { obtenerProducto()}, []);
+  useEffect(() => { obtenerProducto() }, []);
   return (
     <div>
       <h4>Corte de fecha de hoy{ }</h4>
       <div id="pantalla">
         <div id="tabla">
-          <label>
-            Cantidad de dinero en apertura de caja:
-            <input
-              type="number"
-              value={entrada}
-              onChange={(e) => setEntrada(Number(e.target.value))}
-            />
-          </label>
+          <Modal>
+            <label>
+              Cantidad de dinero en apertura de caja:
+              <input
+                type="number"
+                min="1"
+                value={entrada}
+                onChange={(e) => setEntrada(Number(e.target.value))}
+              />
+            </label>
+          </Modal>
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
@@ -188,23 +204,23 @@ function ResponsiveBreakpointsExample() {
         </div>
         <div id="columna2">
           <Table striped bordered hover size="sm">
-          <h2>Productos más vendidos</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Cantidad Vendida</th>
-          </tr>
-        </thead>
-        <tbody>
-          {producto.map((producto, index) => (
-            <tr key={index}>
-              <td>{producto.Nombre}</td>
-              <td>{producto.CantidaVendidos}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            <h2>Productos más vendidos</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Cantidad Vendida</th>
+                </tr>
+              </thead>
+              <tbody>
+                {producto.map((producto, index) => (
+                  <tr key={index}>
+                    <td>{producto.Nombre}</td>
+                    <td>{producto.CantidaVendidos}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </Table>
           <Table striped bordered hover size="sm">
             <thead>
@@ -236,7 +252,7 @@ function ResponsiveBreakpointsExample() {
       </div>
       <div id="resumen">
         <h3>Ventas Totales: ₡ {total}</h3>
-        <h3>Ganancia del día: ₡{total - movimientoS - entrada}</h3>
+        <h3>Ganancia del día: ₡{total}</h3>
       </div>
     </div>
   );
