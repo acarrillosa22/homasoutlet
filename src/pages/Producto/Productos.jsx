@@ -327,7 +327,7 @@ function Producto() {
       <select
         value={orderOption}
         onChange={(e) => handleOrder(e)}
-      >
+      > 
         <option value="Precio">Precio</option>
         <option value="Cantidad">Cantidad</option>
       </select>

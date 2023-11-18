@@ -3,8 +3,7 @@ import Table from "react-bootstrap/Table";
 import "./tabla.css";
 import { Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
-import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
-
+import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc, orderBy, limit, } from "firebase/firestore";
 function ResponsiveBreakpointsExample() {
   const db = getFirestore(appPVH);
   const [departamento, setDepartamento] = useState([]);
@@ -62,18 +61,23 @@ function ResponsiveBreakpointsExample() {
       console.error("Error al obtener facturas: ", error);
     }
   };
-
   const obtenerProducto = async () => {
     try {
       const userRef = collection(db, "Producto");
-      const userSnapshot = await getDocs(userRef);
-      const all = userSnapshot.docs
-        .map((departament) => departament.data())
+
+      // Crear una consulta que ordena los productos por la cantidad vendida en orden descendente y limita a 3 resultados
+      const q = query(userRef, orderBy("CantidaVendidos", "desc"), limit(3));
+
+      const userSnapshot = await getDocs(q);
+
+      const all = userSnapshot.docs.map((producto) => producto.data());
+
       setProducto(all);
     } catch (error) {
       console.error("Error al obtener Producto: ", error);
     }
   };
+  
   const obtenerMovimiento = async () => {
     try {
       const userRef = collection(db, "Movimiento");
@@ -121,19 +125,20 @@ function ResponsiveBreakpointsExample() {
   useEffect(() => { obtenerApartado() }, []);
   useEffect(() => { obtenerFactura() }, []);
   useEffect(() => { obtenerMovimiento() }, []);
+  useEffect(() => { obtenerProducto()}, []);
   return (
     <div>
       <h4>Corte de fecha de hoy{ }</h4>
       <div id="pantalla">
         <div id="tabla">
-        <label>
-        Cantidad de dinero en apertura de caja:
-        <input
-          type="number"
-          value={entrada}
-          onChange={(e) => setEntrada(Number(e.target.value))}
-        />
-      </label>
+          <label>
+            Cantidad de dinero en apertura de caja:
+            <input
+              type="number"
+              value={entrada}
+              onChange={(e) => setEntrada(Number(e.target.value))}
+            />
+          </label>
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
@@ -183,13 +188,23 @@ function ResponsiveBreakpointsExample() {
         </div>
         <div id="columna2">
           <Table striped bordered hover size="sm">
-            <thead>
-              <tr>
-                <th colSpan={2}>Productos mas Vendidos</th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
+          <h2>Productos más vendidos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Cantidad Vendida</th>
+          </tr>
+        </thead>
+        <tbody>
+          {producto.map((producto, index) => (
+            <tr key={index}>
+              <td>{producto.Nombre}</td>
+              <td>{producto.CantidaVendidos}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
           </Table>
           <Table striped bordered hover size="sm">
             <thead>
@@ -221,7 +236,7 @@ function ResponsiveBreakpointsExample() {
       </div>
       <div id="resumen">
         <h3>Ventas Totales: ₡ {total}</h3>
-        <h3>Ganancia del día: ₡{total -movimientoS - entrada}</h3>
+        <h3>Ganancia del día: ₡{total - movimientoS - entrada}</h3>
       </div>
     </div>
   );
