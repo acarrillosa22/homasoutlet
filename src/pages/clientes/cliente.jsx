@@ -278,6 +278,14 @@ function Clientes() {
       console.log("Usuario creado y documentado en Firestore");
       onCreateUsuario();
     } catch (error) {
+            setTextoAlert("El correo ya ha sido usado")
+      setTipoAlert("danger")
+  
+  
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       console.error(
         "Error al crear usuario y documentar en Firestore: ",
         error
