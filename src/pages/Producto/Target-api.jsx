@@ -9,10 +9,11 @@ function App() {
   const [responseData, setResponseData] = useState(null);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [buttonTriggered, setButtonTriggered] = useState();
-  const [selectedImages, setSelectedImages] = useState({});
+  const [selectedRow, setSelectedRow] = useState(null); // Nuevo estado para la fila seleccionada
   const [showAlert, setShowAlert] = useState(false);
   const [textoAlert, setTextoAlert] = useState("");
   const [tipoAlert, setTipoAlert] = useState("");
+  const [selectedImages, setSelectedImages] = useState({});
 
   useEffect(() => {
     setTextoAlert("Buscando...")
@@ -33,15 +34,15 @@ function App() {
 
       try {
         const params = {
-          api_key: "EFB73A431D62433E9B346732A1CE6E1B "
+          api_key: "C5F82F479E554F4CB74B76553F529224"
         }
 
         // make the http GET request to RedCircle API
         axios.get('https://api.redcircleapi.com/account', { params })
           .then(response => {
-
             // print the JSON response from RedCircle API
             const requests = response.data.account_info.credits_remaining
+            console.log(requests);
             if (requests === 0) {
               setHayRequests(false);
             }
@@ -52,7 +53,7 @@ function App() {
         if (hayRequests) {
           const response = await axios.get('https://api.redcircleapi.com/request', {
             params: {
-              api_key: "EFB73A431D62433E9B346732A1CE6E1B ",
+              api_key: "C5F82F479E554F4CB74B76553F529224",
               search_term: searchTerm,
               type: "search",
               include_out_of_stock: "true"
@@ -73,7 +74,7 @@ function App() {
             }, 4000);
           }
         }
-        else{
+        else {
 
         }
       } catch (error) {
@@ -128,31 +129,27 @@ function App() {
     setButtonTriggered(true);
   };
 
-  const handleInputChange = (e, index, key) => {
-    // Copiar el estado actual de responseData para no mutarlo directamente
-    const updatedData = [...responseData];
-    // Actualizar el valor correspondiente
-    updatedData[index].product[key] = e.target.value;
-    // Actualizar el estado con los nuevos datos
-    setResponseData(updatedData);
+  const handleRowSelection = (index) => {
+    setSelectedRow((prevSelectedRow) => (prevSelectedRow === index ? null : index));
+  };
+
+  const handleInputChange = (e, key) => {
+    if (selectedRow !== null) {
+      // Copiar el estado actual de responseData para no mutarlo directamente
+      const updatedData = [...responseData];
+      // Actualizar el valor correspondiente
+      updatedData[selectedRow].product[key] = e.target.value;
+      // Actualizar el estado con los nuevos datos
+      setResponseData(updatedData);
+    }
   };
 
   const handleImageSelection = (e, rowIndex, imageIndex) => {
-    // Copia el estado actual de las imágenes seleccionadas
-    const updatedSelectedImages = { ...selectedImages };
+    // Restringir la selección de imágenes a solo una en toda la tabla
+    const updatedSelectedImages = {};
 
-    // Si la fila no existe en el estado, inicialízala con un arreglo vacío
-    if (!updatedSelectedImages[rowIndex]) {
-      updatedSelectedImages[rowIndex] = [];
-    }
-
-    // Si la imagen está seleccionada, agrégala; de lo contrario, retírala
     if (e.target.checked) {
-      updatedSelectedImages[rowIndex].push(imageIndex);
-    } else {
-      updatedSelectedImages[rowIndex] = updatedSelectedImages[rowIndex].filter(
-        (index) => index !== imageIndex
-      );
+      updatedSelectedImages[rowIndex] = [imageIndex];
     }
 
     // Actualiza el estado de las imágenes seleccionadas
@@ -160,19 +157,43 @@ function App() {
   };
 
   const handleSaveImages = () => {
-    // Accede a las imágenes seleccionadas por fila
-    Object.keys(selectedImages).forEach((rowIndex) => {
-      const selectedImageIndices = selectedImages[rowIndex];
-      // Accede a las imágenes correspondientes a los índices seleccionados
-      const selectedImagesForRow = selectedImageIndices.map(
-        (imageIndex) => responseData[rowIndex].product.images[imageIndex]
-      );
-      // Aquí puedes hacer algo con las imágenes seleccionadas, como guardarlas
-      console.log(
-        `Imágenes seleccionadas en la fila ${rowIndex}:`,
-        selectedImagesForRow
-      );
-    });
+    console.log(selectedRow)
+    if (selectedRow !== null) {
+      // Verifica si hay al menos una imagen seleccionada
+      if (selectedImages[selectedRow] && selectedImages[selectedRow].length > 0) {
+        // Accede a las imágenes seleccionadas por fila
+        const selectedImageIndices = selectedImages[selectedRow];
+        // Accede a las imágenes correspondientes a los índices seleccionados
+        const selectedImagesForRow = selectedImageIndices.map(
+          (imageIndex) => responseData[selectedRow].product.images[imageIndex]
+        );
+
+        // Crea un objeto con los datos de la fila y la única imagen seleccionada
+        const dataToSave = {
+          ...responseData[selectedRow].product,
+          images: [selectedImagesForRow[0]], // Tomar solo la primera imagen seleccionada
+          price: responseData[selectedRow].offers.primary.price,
+          precioVenta: responseData[selectedRow].product['PrecioVenta'],
+        };
+
+        // Aquí puedes hacer algo con los datos y la única imagen seleccionada
+        console.log('Datos de la fila y única imagen seleccionada:', dataToSave);
+        const nombreProducto = dataToSave.title;
+        const url = dataToSave.link;
+        const marca = dataToSave.brand;
+        const descripcion = dataToSave.feature_bullets;
+        const imagen = dataToSave.images;
+        const precioRefenrencia = dataToSave.price;
+        const NombreDepartamento = dataToSave.department_id;
+        const precioVenta = parseFloat(dataToSave.precioVenta);
+        //Insertar a la base de datos
+
+
+      } else {
+        // Si no hay imágenes seleccionadas, muestra un mensaje o toma la acción que desees
+        console.log('No se ha seleccionado ninguna imagen.');
+      }
+    }
   };
 
   return (
@@ -188,7 +209,7 @@ function App() {
           Buscar
         </button>
         <button onClick={handleSaveImages} className="save-button">
-          Guardar Imágenes Seleccionadas
+          Guardar Datos de fila
         </button>
       </div>
       {searchCompleted && responseData && (
@@ -196,7 +217,7 @@ function App() {
           <table className="result-table">
             <thead>
               <tr>
-                <th>Nombre del prdoucto</th>
+                <th>Nombre del producto</th>
                 <th>Descripción</th>
                 <th>Imágenes</th>
                 <th>Marca</th>
@@ -208,21 +229,25 @@ function App() {
             </thead>
             <tbody>
               {responseData.map((resultado, index) => (
-                <tr key={index}>
+                <tr
+                  key={index}
+                  className={index === selectedRow ? 'selected-row' : ''}
+                  onClick={() => handleRowSelection(index)}
+                >
                   <td>
                     <input
-                      class="resultado"
+                      className="resultado"
                       type="text"
                       value={resultado.product.title}
-                      onChange={(e) => handleInputChange(e, index, 'title')}
+                      onChange={(e) => handleInputChange(e, 'title')}
                     />
                   </td>
                   <td>
                     <input
-                      class="resultado"
+                      className="resultado"
                       type="text"
                       value={resultado.product.feature_bullets.join(', ')}
-                      onChange={(e) => handleInputChange(e, index, 'feature_bullets')}
+                      onChange={(e) => handleInputChange(e, 'feature_bullets')}
                     />
                   </td>
                   <td className="image-container">
@@ -234,7 +259,7 @@ function App() {
                           className="product-image"
                         />
                         <input
-                          type="checkbox"
+                          type="radio"
                           checked={
                             selectedImages[index] &&
                             selectedImages[index].includes(imgIndex)
@@ -252,7 +277,7 @@ function App() {
                     <input
                       type="text"
                       value={resultado.product.department_id}
-                      onChange={(e) => handleInputChange(e, index, 'department_id')}
+                      onChange={(e) => handleInputChange(e, 'department_id')}
                     />
                   </td>
                   <td>{resultado.offers.primary.price}$</td>
@@ -262,7 +287,7 @@ function App() {
                         className="precio-pensado"
                         type="text"
                         placeholder='Ingresa tu precio estimado'
-                        onChange={(e) => handleInputChange(e, index, 'Precio de venta')}
+                        onChange={(e) => handleInputChange(e, 'PrecioVenta')}
                       />
                       <span className="currency-symbol">₡</span>
                     </div>
@@ -278,7 +303,7 @@ function App() {
           </table>
         </div>
       )}
-            {showAlert && (
+      {showAlert && (
         <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
       )}
     </div>
