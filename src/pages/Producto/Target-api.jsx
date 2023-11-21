@@ -75,6 +75,13 @@ function App() {
           }
         }
         else {
+          setTextoAlert("Ya no quedan requests")
+            setTipoAlert("warning")
+            setSearchCompleted(false);
+            setShowAlert(true);
+            setTimeout(() => {
+              setShowAlert(false);
+            }, 4000);
 
         }
       } catch (error) {
