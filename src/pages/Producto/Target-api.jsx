@@ -198,17 +198,17 @@ function App() {
 
   return (
     <div className="app-container">
-      <div className="search-container">
+      <div className="search-containerApi">
         <input
           type="text"
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Ingresa código de barras o nombre del producto"
-          className="search-input"
+          className="search-inputApi"
         />
-        <button onClick={handleSearchClick} className="search-button">
+        <button onClick={handleSearchClick} className="search-buttonApi">
           Buscar
         </button>
-        <button onClick={handleSaveImages} className="save-button">
+        <button onClick={handleSaveImages} className="save-buttonApi">
           Guardar Datos de fila
         </button>
       </div>
