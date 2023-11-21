@@ -52,6 +52,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         }
         // Habilitar el botón "Procesar Factura" si se selecciona un método de pago
         else {
+            console.log(modalData.fechaApartado)
             if(modalData.estado === 'apartar' &&  modalData.abono !== undefined && modalData.fechaTemp !== modalData.fechaApartado){
                 setProcesarHabilitado(true);
             }
@@ -104,7 +105,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
 
     return (
         <div className={modalStyle}>
-            <div className="modal-content">
+            <div className="modal-content2">
                 <h2>Procesar Pago</h2>
                 <label>Estado:</label>
                 <select value={modalData.estado} onChange={handleEstadoChange}>
@@ -152,7 +153,7 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                     <Button color="primary" onClick={handleGuardar} disabled={!procesarHabilitado}>
                         Procesar Factura
                     </Button>
-                    <Button onClick={onClose} color="danger">
+                    <Button onClick={onClose} color="danger" className="clear-button">
                         Cancelar
                     </Button>
                 </div>

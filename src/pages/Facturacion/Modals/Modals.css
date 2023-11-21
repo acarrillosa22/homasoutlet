@@ -15,7 +15,7 @@
 
 
 /* Estilo para el contenido del modal */
-.modal-content {
+.modal-content2 {
     position: fixed;
     top: 50%; /* Centra verticalmente */
     left: 50%; /* Centra horizontalmente */
@@ -29,20 +29,20 @@
 }
 
 /* Estilo para el título del modal */
-.modal-content h2 {
+.modal-content2 h2 {
     font-size: 1.5rem;
     margin: 0;
 }
 
 /* Estilo para los campos de entrada y botones dentro del modal */
-.modal-content input {
+.modal-content2 input {
     width: 100%;
     padding: 5px;
     margin-bottom: 10px;
 }
 
 /* Estilo para los botones */
-.modal-content button {
+.modal-content2 button {
     color: #fff; /* Color del texto blanco */
     padding: 10px 20px;
     border: none;
@@ -50,6 +50,6 @@
 }
 
 /* Estilo para el botón "Cancelar" */
-.modal-content button:last-child {
+.modal-content2 button:last-child {
     margin-left: 10px;
 }

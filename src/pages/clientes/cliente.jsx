@@ -34,7 +34,11 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 function Clientes() {
   const nombre = "Cliente";
   const db = getFirestore(appHOT); // Inicializo la base de datos en la aplicacion web
+<<<<<<< HEAD
   const auth = getAuth();
+=======
+  const auth = getAuth(appHOT);
+>>>>>>> c88a5f4f8daa49a9b5edb301b9a4f19517251ca6
   //hooks
   const [showAlert, setShowAlert] = useState(false);
   const [textoAlert, setTextoAlert] = useState("");
@@ -279,6 +283,14 @@ function Clientes() {
       console.log("Usuario creado y documentado en Firestore");
       onCreateUsuario();
     } catch (error) {
+            setTextoAlert("El correo ya ha sido usado")
+      setTipoAlert("danger")
+  
+  
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4000);
       console.error(
         "Error al crear usuario y documentar en Firestore: ",
         error

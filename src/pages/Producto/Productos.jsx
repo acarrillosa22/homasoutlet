@@ -11,7 +11,6 @@ import CustomAlert from '../../components/alert/alert';
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
-import { uploadImageToStorage } from "../../firebase/firebase";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -31,6 +30,7 @@ function Producto() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [producto, setProducto] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [textoAlert, setTextoAlert] = useState("");
   const [tipoAlert, setTipoAlert] = useState("");
@@ -39,7 +39,6 @@ function Producto() {
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
   const [isOpenEliminar, openModalEliminar, closeModalEliminar] = useModal(false);
   const [dataState, setData] = useState([]);
-  const urlImagen='';
   let encontrado = '';
   useEffect(() => { obtenerProducto(1); }, []);
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
@@ -66,20 +65,29 @@ function Producto() {
     });
     try {
       const department = doc(db, "Producto", encontrado);
+      if(imageFile!==null){
       await updateDoc(department, {
         Nombre: form.Nombre,
         Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
         Cantidad: parseFloat(form.Cantidad),
+        Image: imageFile,
         Estado: form.Estado,
-        Image: form.Image,
         Descripcion: form.Descripcion
-      });
+      });}
+      else{await updateDoc(department, {
+        Nombre: form.Nombre,
+        Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
+        Cantidad: parseFloat(form.Cantidad),
+        Estado: form.Estado,
+        Descripcion: form.Descripcion
+      });}
       console.log("Document successfully updated!");
       onCreateProducto();
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
       }, 1500);
+      setImageFile(null);
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -145,7 +153,7 @@ function Producto() {
       const userSnapshot = await getDocs(userRef);
       const allProducts = userSnapshot.docs
         .map((product) => product.data())
-        .filter((product) => product.Estado !== "Eliminado");
+        .filter((product) => product.Estado !== 1);
       // Filtrar productos con estado "Eliminado"
       // Calcular el conjunto de productos para la página actual
       const slicedProducts = allProducts.slice(startIndex, startIndex + usersPerPage);
@@ -218,20 +226,19 @@ function Producto() {
 
   const crearProducto = async (form) => {
     try {
-      console.log(form.Image);
       await addDoc(collection(db, "Producto"), {
         Nombre: form.Nombre,
         CodigoBarras: parseFloat(form.CodigoBarras),
         Precio: parseFloat(form.Precio),
         Marca: form.Marca,
         Cantidad: parseFloat(form.Cantidad),
-        Estado: "Disponible",
+        Estado: 0,
         NombreDepartamento: form.NombreDepartamento,
         PrecioReferencia: parseFloat(form.PrecioReferencia),
-        Image: form.Image,
+        Image: imageFile,
         Descripcion: form.Descripcion,
         PrecioLiquidacion: 0,
-        CantidaVendidos:0
+        CantidaVendidos: 0
       });
       console.log("Producto creado y documentado en Firestore");
       onCreateProducto();
@@ -239,6 +246,7 @@ function Producto() {
       setTimeout(() => {
         setShowAlert(false);
       }, 1500);
+      setImageFile(null);
     } catch (error) {
       console.error("Error al crear producto y documentar en Firestore: ", error);
     }
@@ -276,7 +284,7 @@ function Producto() {
       console.log(departamento)
 
       await updateDoc(department, {
-        Estado: "Eliminado"
+        Estado: 1
       });
       setShowAlert(true);
       setTimeout(() => {
@@ -321,7 +329,7 @@ function Producto() {
       <select
         value={orderOption}
         onChange={(e) => handleOrder(e)}
-      >
+      > 
         <option value="Precio">Precio</option>
         <option value="Cantidad">Cantidad</option>
       </select>
@@ -331,7 +339,6 @@ function Producto() {
             <th>Nombre</th>
             <th>Marca</th>
             <th>Departamento</th>
-            <th>Estado</th>
             <th>Cantidad</th>
             <th>Precio</th>
             <th>Imagen</th>
@@ -345,7 +352,6 @@ function Producto() {
               <td>{dato.Nombre}</td>
               <td>{dato.Marca}</td>
               <td>{dato.NombreDepartamento}</td>
-              <td>{dato.Estado}</td>
               <td>{dato.Cantidad}</td>
               <td>{dato.Precio}</td>
               <td>
@@ -401,6 +407,7 @@ function Producto() {
         fieldOrder={fieldOrderEditar}
         nombreCrud={nombre}
         combobox2={departamento}
+        setImageFile={setImageFile}
       />
       <ModalCrear
         isOpenA={isOpenCrear}
@@ -412,7 +419,7 @@ function Producto() {
         fieldOrder={fieldOrderCrear}
         nombreCrud={nombre}
         combobox2={departamento}
-        image={urlImagen}
+        setImageFile={setImageFile}
       />
       <ModalEliminar
         isOpen={isOpenEliminar}
