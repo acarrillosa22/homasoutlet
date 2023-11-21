@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "./Modals.css";
-import { Button } from "reactstrap";
+import { Button,Modal } from "reactstrap";
 //fortawesome
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -86,13 +86,14 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
         marginLeft: '50%',
     };
 
-    if (!isOpen || !datos) {
+    if (!isOpen && !datos) {
         return null;
     }
 
     return (
+        <Modal isOpen={isOpen} toggle={onClose}>
         <div className={modalStyle}>
-            <div className="modal-content">
+            <div className="modal-content2">
                 <h2>Editar Datos</h2>
                 <label>Descuento:</label>
                 <input
@@ -110,13 +111,14 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
                     <Button color="primary" onClick={handleGuardar} disabled={botonActivo}>
                         Guardar
                     </Button>
-                    <Button onClick={onClose} color="danger">
+                    <Button onClick={onClose} color="danger" className="clear-button">
                         Cancelar
                     </Button>
                 </div>
                 {mensajeError && <p className="error-message">{mensajeError}</p>}
             </div>
         </div>
+        </Modal>
     );
 };
 

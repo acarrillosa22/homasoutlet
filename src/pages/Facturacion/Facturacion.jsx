@@ -4,7 +4,9 @@ import appPVH from '../../firebase/firebase';
 import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
 import ProcesarPago from './Modals/procesarPago';
-import { Button } from "reactstrap";
+import { Button, Table } from "reactstrap";
+import CustomAlert from "../../components/alert/alert";
+import localForage from 'localforage';
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -19,6 +21,9 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 function Factura() {
     const dbPVH = getFirestore(appPVH);
     const dbHOT = getFirestore(appHOT);
+    const [showAlert, setShowAlert] = useState(false);
+    const [textoAlert, setTextoAlert] = useState("");
+    const [tipoAlert, setTipoAlert] = useState("");
     const [departamento, setDepartamento] = useState([]);
     const [producto, setProducto] = useState([]);
     const [cliente, setCliente] = useState([]);
@@ -132,11 +137,11 @@ function Factura() {
     };
     const [productoAInsertar, setProductoAInsertar] = useState({
         codigoBarras: '',
-        descripcion: 'Producto C',
-        precioVenta: 5,
-        cantidad: 5,
+        descripcion: '',
+        precioVenta: 0,
+        cantidad: 0,
         importe: 0,
-        existencia: 15,
+        existencia: 0,
         descuento: 0,
     });
 
@@ -195,7 +200,7 @@ function Factura() {
             abono: updatedTabs[activeTab].content.abono,
             estado: updatedTabs[activeTab].content.estado,
             metodo: updatedTabs[activeTab].content.metodo,
-            total: updatedTabs[activeTab].content.total,
+            total: (updatedTabs[activeTab].content.total * (1 - updatedTabs[activeTab].content.descuentoGlobal / 100)),
         }
         setModalProceso(activeTabData);
         setModalIsOpenProceso(true);
@@ -212,53 +217,49 @@ function Factura() {
 
         // Copia el estado actual de las pestañas
         const updatedTabs = [...tabs];
-        var hay = false;
+
         // En caso de que se este añadiendo otro producto igual
         const activeTabData = updatedTabs[activeTab].content;
-        activeTabData.productos.forEach((producto) => {
-            if (producto.codigoBarras === productoAInsertar.codigoBarras) {
-                if (producto.Cantidad > producto.compra) {
-                    producto.cantidad++;
-                }
-                hay = true;
-            }
-        });
+        const existingProductIndex = activeTabData.productos.findIndex(
+            (producto) => producto.codigoBarras === parseInt(productoAInsertar.codigoBarras)
+        );
 
-        // Encuentra la pestaña activa y agrega el producto a la lista de productos
-        //Se encuentra un código de barras igual en la lista de productos
-        if (!hay) {
-            updatedTabs[activeTab].content.productos.push(productoAInsertar);
-        }
-        /*
-        producto.forEach((producto) => {
-                if (producto.codigoBarras === productoAInsertar.codigoBarras) {
-                    setProductoAInsertar({
-                        codigoBarras: producto.CodigoBarras,
-                        descripcion: producto.Descripcion,
-                        precioVenta: producto.Precio,
+        if (existingProductIndex !== -1) {
+            // Si el producto ya existe, actualiza la cantidad
+            if (activeTabData.productos[existingProductIndex].existencia > activeTabData.productos[existingProductIndex].cantidad) {
+                activeTabData.productos[existingProductIndex].cantidad++;
+            }
+        } else {
+            // Si el producto no existe, agrégalo a la lista de productos con cantidad 1
+            //productos
+            producto.forEach((productoBase) => {
+                if (productoBase.CodigoBarras === parseInt(productoAInsertar.codigoBarras)) {
+                    const newProducto = {
+                        codigoBarras: productoBase.CodigoBarras,
+                        descripcion: productoBase.Descripcion,
+                        precioVenta: productoBase.Precio,
                         cantidad: 1,
                         importe: 0,
-                        existencia: producto.Cantidad,
+                        existencia: productoBase.Cantidad,
                         descuento: 0,
-                    });
+                    };
+                    // Actualiza el estado de las pestañas directamente
+                    updatedTabs[activeTab].content.productos.push(newProducto);
                 }
             });
         }
-        */
+        // Realiza los cálculos inmediatamente después de insertar
+        activeTabData.productos.forEach((producto) => {
+            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
+            producto.importe = importe;
+        });
+
+        // Calcula el total sumando los importes de todos los productos
+        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
+        activeTabData.total = total;
 
         // Actualiza el estado de las pestañas
         setTabs(updatedTabs);
-
-        // Limpia el estado del producto a insertar
-        setProductoAInsertar({
-            codigoBarras: '',
-            descripcion: 'Producto C',
-            precioVenta: 5,
-            cantidad: 5,
-            importe: 0,
-            existencia: 15,
-            descuento: 0,
-        });
     };
 
     const editarNombre = (e) => {
@@ -266,28 +267,39 @@ function Factura() {
             //Se presiona enter
         }
         else {
-            e.preventDefault();
+            try {
+                e.preventDefault();
+                // Copia el estado actual de las pestañas
+                const updatedTabs = [...tabs];
+                if (nombreCliente === "") {
+                    updatedTabs[activeTab].title = "Factura " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
+                }
+                else {
+                    updatedTabs[activeTab].title = nombreCliente + " " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
+                }
+                updatedTabs[activeTab].nombreCliente = nombreCliente;
+                //Hacer algo si el cliente está moroso
+                setTabs(updatedTabs);
+
+                setNombreCliente("");
+            }
+            catch {
+                const updatedTabs = [...tabs];
+                updatedTabs[activeTab].title = e + " " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
+                updatedTabs[activeTab].nombreCliente = e;
+                //Hacer algo si el cliente está moroso
+                setTabs(updatedTabs);
+
+                setNombreCliente("");
+            }
         }
         setActualizaTab(true);
-
-
-        // Copia el estado actual de las pestañas
-        const updatedTabs = [...tabs];
-        if (nombreCliente === "") {
-            updatedTabs[activeTab].title = "Factura " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
-        }
-        else {
-            updatedTabs[activeTab].title = nombreCliente + " " + updatedTabs[activeTab].title[updatedTabs[activeTab].title.length - 1];
-        }
-        updatedTabs[activeTab].nombreCliente = nombreCliente;
-        //Hacer algo si el cliente está moroso
-        setTabs(updatedTabs);
-
-        setNombreCliente("");
     }
 
     //Actualiza cambios de modal producto
     const actualizarProducto = (nuevosDatos, index, listaProductos) => {
+        const updatedTabs = [...tabs];
+        const activeTabData = updatedTabs[activeTab].content;
         var productoE = {
             codigoBarras: '',
             descripcion: '',
@@ -305,19 +317,40 @@ function Factura() {
         }
         productoE.descuento = nuevosDatos.descuento;
         productoE.cantidad = nuevosDatos.cantidad;
+        activeTabData.productos.forEach((producto, productoIndex) => {
+            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
+            activeTabData.productos[productoIndex].importe = importe;
+        });
+        // Calcula el total sumando los importes de todos los productos
+        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
+        activeTabData.total = total;
+        setTextoAlert("Cambio de productos realizados");
+        setTipoAlert("success");
+        setShowAlert(true);
+        setTimeout(() => {
+            setShowAlert(false);
+        }, 4000);
         auxiliar(index);
+
     }
     // Actualiza cambios modal Pago y envia resultados a la base de datos
     const procesar = (nuevosDatos) => {
-        //Salida de los datos
+        setTextoAlert("factura guardada")
+        setTipoAlert("success")
+
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
         if (nuevosDatos.abono !== undefined) {
             activeTabData.abono = nuevosDatos.abono;
+
         }
 
         activeTabData.fecha = Date();
         activeTabData.metodo = nuevosDatos.metodo;
+        setShowAlert(true);
+        setTimeout(() => {
+            setShowAlert(false);
+        }, 4000);
         //Manejar salida de datos
     }
 
@@ -341,28 +374,40 @@ function Factura() {
         // Calcula el importe para cada producto en la pestaña activa
         const updatedTabs = [...tabs];
         const activeTabData = updatedTabs[activeTab].content;
+
+        activeTabData.productos.forEach((producto, productoIndex) => {
+            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
+            activeTabData.productos[productoIndex].importe = importe;
+        });
+
+        // Calcula el total sumando los importes de todos los productos
+        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
+        activeTabData.total = total;
         if (isNaN(descuentoGlobal)) {
             setDescuentoGlobal(0);
         }
-
-        else if (descuentoGlobal > 100) {
-            //modalAlert
-            //setMensajeError("El descuento excede el 100%.");
-        }
-
-        else if (descuentoGlobal < 0) {
-            //modalAlert
-            //setMensajeError("El descuento excede el 100%.");
-        }
-
-        else {
-            activeTabData.descuentoGlobal = descuentoGlobal;
-        }// eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs, activeTab, actualizaTab]);
+
+    useEffect(() => {
+        // Al cargar, intenta cargar las facturas desde el almacenamiento local
+        localForage.getItem('facturas').then((storedTabs) => {
+          if (storedTabs) {
+            setTabs(storedTabs);
+          }
+        });
+      }, []);
+
+      useEffect(() => {
+        // Actualiza el almacenamiento local cada vez que cambia el estado de las facturas
+        localForage.setItem('facturas', tabs);
+      }, [tabs]);
+
     const auxiliar = (index) => {
         setActiveTab(index)
         setActualizaTab(true);
     }
+
     const handleAplicarDescuentoGlobal = (e) => {
         if (e.key === 'Enter') {
             //Se presiona enter
@@ -370,32 +415,56 @@ function Factura() {
         else {
             e.preventDefault();
         }
+
         setActualizaTab(true);
 
         // Copia el estado actual de las pestañas
         const updatedTabs = [...tabs];
 
         // Obtén el descuento global del estado
-        const descuentoGlobalValue = parseFloat(descuentoGlobal);
+        var descuentoGlobalValue = parseFloat(descuentoGlobal);
 
         // Realiza las validaciones necesarias
         if (isNaN(descuentoGlobalValue)) {
             setDescuentoGlobal(0);
+            descuentoGlobalValue = descuentoGlobal;
+        }
+        if (descuentoGlobal > 100 || descuentoGlobal < 0) {
+            setTextoAlert("Valor de descuento invalido");
+            setTipoAlert("danger");
+            setShowAlert(true);
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 4000);
+        } else {
+            setTextoAlert("Se aplicó el descuento");
+            setTipoAlert("success");
+            setShowAlert(true);
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 4000);
         }
 
-        if (descuentoGlobal > 100) {
-            //modalAlert
-            //setMensajeError("El descuento excede el 100%.");
-        }
 
-        else {
-            setDescuentoGlobal(descuentoGlobalValue);
-            updatedTabs[activeTab].descuentoGlobal = descuentoGlobal;
-        }
+        // Aplica el descuento global a la pestaña activa
+        updatedTabs[activeTab].content.descuentoGlobal = descuentoGlobalValue;
+
+        // Calcula el importe para cada producto en la pestaña activa
+        const activeTabData = updatedTabs[activeTab].content;
+        activeTabData.productos.forEach((producto) => {
+            const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
+            producto.importe = importe;
+        });
+
+        // Calcula el total sumando los importes de todos los productos
+        const total = activeTabData.productos.reduce((acc, producto) => acc + producto.importe, 0);
+        activeTabData.total = total;
+
+        // Actualiza el estado de las pestañas
 
         setTabs(updatedTabs);
-        // Resto del código...
     };
+
     return (
         <div>
             <ul className="nav">
@@ -404,20 +473,20 @@ function Factura() {
                         key={index}
                         className={`nav-item ${activeTab === index ? 'active' : ''}`}
                     >
-                        <button
+                        <Button
                             className="nav-sublink"
                             onClick={() => auxiliar(index)}
                         >
                             {tab.title}
-                        </button>
+                        </Button>
                     </li>
                 ))}
-                <button
+                <Button
                     onClick={addTab}
                     className={`agregar ${addAnimation ? 'animate' : ''}`}
                 >
                     +
-                </button>
+                </Button>
             </ul>
             <div className="insert-product">
                 <h2>Insertar Producto</h2>
@@ -437,31 +506,50 @@ function Factura() {
                         Agregar
                     </Button>
                 </form>
-                <form onSubmit={editarNombre}>
-                    <input
-                        type="text"
-                        placeholder="Nombre del Cliente"
-                        value={nombreCliente}
-                        onChange={(e) =>
-                            setNombreCliente(e.target.value)
-                        }
-                    />
-                    <Button color="success" type="submit">
-                        Asignar Cliente
-                    </Button>
-                </form>
+                <div className='search-container'>
+                    <div className='search-inner'>
+                        <input
+                            type='text'
+                            value={nombreCliente}
+                            onChange={(e) => setNombreCliente(e.target.value)}>
+                        </input>
+                        <Button
+                            className="btn btn-success"
+                            type="submit"
+                            onClick={editarNombre}> Asignar cliente
+                        </Button>
+                    </div>
+                    <div className='dropdown'>
+                        {cliente.filter(clien => {
+                            const terminoBusco = nombreCliente.toLowerCase();
+                            const nombreCompleto = clien.nombre.toLowerCase();
+                            return terminoBusco && nombreCompleto.startsWith(terminoBusco);
+                        })
+                        .slice(0, 5)
+                        .map((clien) => (
+                            <div
+                                onClick={() => editarNombre(clien.nombre)}
+                                className='dropdown-row'
+                                key={clien.idUser}
+                                value={clien.nombre}
+                                style={{background: clien.morosidad ? 'red' : 'transparent' }}
+                            >{clien.nombre.toLowerCase()}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
             <div className="discount-options">
                 <form onSubmit={handleAplicarDescuentoGlobal}>
                     <input
                         type="number"
                         placeholder="Descuento global"
+                        value={descuentoGlobal}
                         onChange={(e) => setDescuentoGlobal(e.target.value)}
                     />
                     <Button
                         color="primary"
-                        type="button"
-                        onClick={handleAplicarDescuentoGlobal}
+                        type="submit"
                     >
                         Aplicar descuento global
                     </Button>
@@ -473,57 +561,59 @@ function Factura() {
                         key={index}
                         className={`tab-pane ${activeTab === index ? 'active' : ''}`}
                     >
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Código de Barras</th>
-                                    <th>Descripción del Producto</th>
-                                    <th>Precio Venta Unidad</th>
-                                    <th>Descuento producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Total</th>
-                                    <th>Existencia</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tab.content.productos.map((producto, productoIndex) =>
-                                    <tr key={productoIndex}>
-                                        <td>{producto.codigoBarras}</td>
-                                        <td>{producto.descripcion}</td>
-                                        <td>₡{producto.precioVenta}</td>
-                                        <td>{producto.descuento}%</td>
-                                        <td>{producto.cantidad}</td>
-                                        <td>₡{producto.importe}</td>
-                                        <td>{producto.existencia}</td>
-                                        <td className="editarProd">
-                                            {" "}
-                                            <Button
-                                                onClick={() => handleEditarArt(producto)}
-                                                color="primary"
-                                            >
-                                                <FontAwesomeIcon icon={faPenToSquare} size="lg" />
-                                            </Button>
-                                            <EditarArt
-                                                isOpen={modalIsOpenArt}
-                                                onClose={() => setModalIsOpenArt(false)}
-                                                datos={modalArt}
-                                                onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, tab.content.productos) }} />
-                                        </td>
-                                        <td className="eliminarProductoCont">
-                                            <Button
-                                                onClick={() => eliminarFila(index, productoIndex)}
-                                                color="danger"
-                                            >
-                                                <FontAwesomeIcon icon={faSquareXmark} size="lg" />
-                                            </Button>
-                                        </td>
+                        <div className='TablaF'>
+                            <Table>
+                                <thead>
+                                    <tr>
+                                        <th>Código de Barras</th>
+                                        <th>Descripción del Producto</th>
+                                        <th>Precio Venta Unidad</th>
+                                        <th>Descuento producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Total</th>
+                                        <th>Existencia</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {tab.content.productos.map((producto, productoIndex) =>
+                                        <tr key={productoIndex}>
+                                            <td>{producto.codigoBarras}</td>
+                                            <td>{producto.descripcion}</td>
+                                            <td>₡{producto.precioVenta}</td>
+                                            <td>{producto.descuento}%</td>
+                                            <td>{producto.cantidad}</td>
+                                            <td>₡{(producto.importe).toFixed(0)}</td>
+                                            <td>{producto.existencia}</td>
+                                            <td className="editarProd">
+                                                {" "}
+                                                <Button
+                                                    onClick={() => handleEditarArt(producto)}
+                                                    color="primary"
+                                                >
+                                                    <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                                                </Button>
+                                                <EditarArt
+                                                    isOpen={modalIsOpenArt}
+                                                    onClose={() => setModalIsOpenArt(false)}
+                                                    datos={modalArt}
+                                                    onGuardar={(nuevosDatos) => { actualizarProducto(nuevosDatos, index, tab.content.productos) }} />
+                                            </td>
+                                            <td className="eliminarProductoCont">
+                                                <Button
+                                                    onClick={() => eliminarFila(index, productoIndex)}
+                                                    color="danger"
+                                                >
+                                                    <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </div>
                         <div className="summary-Bar">
                             <div className="totalCont">
-                                Total: ₡{tab.content.total * (1 - tab.content.descuentoGlobal / 100)}
+                                Total: ₡{(tab.content.total * (1 - tab.content.descuentoGlobal / 100)).toFixed(0)}
                             </div>
                             <Button className="boton-pago" color="primary" type="submit" onClick={() => procesarPago()}>
                                 Procesar pago
@@ -551,6 +641,9 @@ function Factura() {
             >
                 Limpiar Factura
             </Button>
+            {showAlert && (
+                <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
+            )}
         </div>
     );
 }
