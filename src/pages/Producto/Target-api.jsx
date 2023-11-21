@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Target-api.css';
+import TopNavBar from '../../components/navbarC/navbar';
+import { Container } from 'reactstrap';
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -156,7 +158,8 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <Container>
+      <TopNavBar />
       <div className="search-container">
         <input
           type="text"
@@ -258,7 +261,7 @@ function App() {
           </table>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
 

@@ -22,13 +22,16 @@ import Apartado from './pages/Apartados/Apartado';
 import Login from './pages/login/Login';
 import Cortes from './pages/Cortes/Cortes';
 import HistorialFactura from './pages/historialFacturas/HistorialFactura';
+
+import { Switch } from 'react-router-dom';
+import HistorialSalida from './components/Movimientos/HistorialSalida';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
     <Router className='App'>
-      <TopNavBar />
+      
       <Routes>
-        <Route path='/Login' element={<Login />} />
+        <Route path='/' element={<Login />} />
         {/*
       <Route element={<ProtectedRoutes isAllowed={!!user}/>}> */ }
         <Route path='/Cierre' element={<ResponsiveBreakpointsExample dinero={numbers} />} />
@@ -41,13 +44,15 @@ function App() {
         {/*   <Route element={<ProtectedRoutes isAllowed={!!user && user.rol ==true}/>} redirecTo="/" > */}
         <Route path='/Departamentos' element={<Departamentos />} />
         <Route path='/Administradores' element={<h1>Administradores </h1>} />
-        <Route path='/Salidas' element={<Salidas />} />
+        <Route path='/HistorialSalida' element={<HistorialSalida />} />
         <Route path='/Facturacion' element={<Factura />} />
         <Route path='/pedidos' element={<Pedidos />} />
         <Route path='/obtenerFB' element={<ObtenerFB />} />
         <Route path='/Apartados' element={<Apartado />} />
         <Route path='/historial' element={<HistorialFactura />} />
         <Route path='/cortes' element={<Cortes />} />
+        
+    
 
         {/*     </Route> */}
 

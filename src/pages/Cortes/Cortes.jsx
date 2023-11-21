@@ -17,6 +17,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { fromUnixTime } from "date-fns";
 import { format } from "date-fns";
+import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faCaretUp);
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
 function Corte() {
@@ -112,6 +113,7 @@ function Corte() {
   };
   return (
     <Container>
+      <TopNavBar />
       <h1>Cortes</h1>
       <br />
       <br />

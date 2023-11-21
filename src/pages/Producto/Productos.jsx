@@ -21,6 +21,7 @@ import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faCartFlatbed } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faCaretUp);
 const nombre = "Producto";
 //------------------------------------------------Inicio de funcion----------------------------------------------------------------------------
@@ -89,9 +90,9 @@ function Producto() {
     const searchTerm = searchQuery;
     if (searchOption === "Nombre") {
       return departamento.Nombre.includes(searchTerm);
-    } if (searchOption === "Marca") {
+    } else if (searchOption === "Marca") {
       return departamento.Marca.includes(searchTerm);
-    } if (searchOption === "Departamento") {
+    } else if (searchOption === "Departamento") {
       return departamento.NombreDepartamento.includes(searchTerm);
     }
     else
@@ -293,6 +294,7 @@ function Producto() {
   //---------------------------------------------------------HTML-------------------------------------------------------------
   return (
     <Container>
+      <TopNavBar />
       <h1>Producto</h1>
       <br />
       <Button onClick={openModalCrear} color="success">

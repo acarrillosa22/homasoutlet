@@ -7,21 +7,21 @@ import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-depart
 import CustomAlert from "../../components/alert/alert";
 import ModalDetallesFactura from "../../components/datallesModal/modalDetallesFactura";
 import ListaAbonoModal from "../../components/datallesModal/listaAbonos";
-//Firebase
+import TopNavBar from "../../components/navbarC/navbar";
+// Firebase
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
 import {
-  getDoc, getFirestore,
+  getDoc,
+  getFirestore,
   collection,
   getDocs,
   doc,
   updateDoc,
   setDoc,
   deleteDoc,
-  query,
-  where
 } from "firebase/firestore";
-//fortawesome
+// Fontawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -29,23 +29,25 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faList } from "@fortawesome/free-solid-svg-icons";
+import { faPaste } from "@fortawesome/free-solid-svg-icons";
+import { faMoneyCheckDollar} from "@fortawesome/free-solid-svg-icons";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function Apartado() {
   const formatTimestamp = (timestamp) => {
-    if (!timestamp) return ""; // Maneja el caso en que el timestamp sea undefined
+    if (!timestamp) return "";
     const date = new Date(timestamp.seconds * 1000);
     return date.toDateString();
   };
   const nombre2 = "Abono";
   const db = getFirestore(appPVH);
-  //hooks
   const [showAlert, setShowAlert] = useState(false);
   const [textoAlert, setTextoAlert] = useState("");
   const [tipoAlert, setTipoAlert] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [cantidadAbonada, setCantidadAbonada] = useState(0);
+  const [cantidadAbonada, setCantidadAbonada] = useState();
   const [apartado, setApartado] = useState([]);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
     useModal(false);
@@ -63,15 +65,15 @@ function Apartado() {
   const [usuario, setUsuario] = useState({
     id: "",
     Estado: "",
-    fechaLimite: "", // Asegúrate de añadir otros campos necesarios aquí
+    fechaLimite: "",
   });
 
   useEffect(() => {
-    obtenerApartados(1); // Fetch the first page of users
+    obtenerApartados(1);
     const verificarMorosidad = async (codigo, fechaLimite) => {
       try {
-        const today = new Date(); // Obtener la fecha actual del sistema
-        const limite = new Date(fechaLimite); // Convertir la fecha límite a un objeto de fecha
+        const today = new Date();
+        const limite = new Date(fechaLimite);
         if (limite < today) {
           const apartadoRef = doc(db, "Apartado", codigo);
           await updateDoc(apartadoRef, { Estado: "Moroso" });
@@ -88,11 +90,11 @@ function Apartado() {
 
   //------------------------------------------------------Editar--------------------------------------------------------------------
   const fieldOrderEditar = {
-    1: "Estado", // Primer campo en aparecer
+    1: "Estado",
     2: "Fecha Limite",
   };
   const EtiquetasEditar = {
-    fechaLimite: "Fecha Límite"
+    fechaLimite: "Fecha Límite",
   };
 
   const toggleListaAbonoModal = () => {
@@ -109,7 +111,6 @@ function Apartado() {
     openModalActualizar();
   };
   const agregarNuevoAbono = async (cantidadAbonada) => {
-
     try {
       const abonoRef = doc(db, "Apartado", apartado.ID);
       const listaAbonos = await getDoc(abonoRef);
@@ -119,11 +120,15 @@ function Apartado() {
           console.log(apartado.Saldo);
           const saldoActual = apartado.Saldo - parseFloat(cantidadAbonada);
           console.log(saldoActual);
-          const listaAbonoData = listaAbonos.data().listaAbono || [];
-          const updatedListaAbono = [...listaAbonoData, { Fecha: new Date(), CantidadAbonada: parseFloat(cantidadAbonada) }];
+          const listaAbonoData =
+            listaAbonos.data().listaAbono || [];
+          const updatedListaAbono = [
+            ...listaAbonoData,
+            { Fecha: new Date(), CantidadAbonada: parseFloat(cantidadAbonada) },
+          ];
           await updateDoc(abonoRef, {
             listaAbono: updatedListaAbono,
-            Saldo: saldoActual
+            Saldo: saldoActual,
           });
           setShowAlert(true);
           setTimeout(() => {
@@ -132,7 +137,9 @@ function Apartado() {
           onCreateApartado();
           setCantidadAbonada(0);
         } else {
-          setTextoAlert("Abono superior a la cantidad que se deve o el abono es 0");
+          setTextoAlert(
+            "Abono superior a la cantidad que se debe o el abono es 0"
+          );
           setTipoAlert("warn");
           setShowAlert(true);
           setTimeout(() => {
@@ -174,22 +181,23 @@ function Apartado() {
     try {
       const { Estado, fechaLimite, codigo } = form;
       if (!Estado || !fechaLimite) {
-        console.error("Estado o fechaLimite no definidos correctamente en el formulario.");
+        console.error(
+          "Estado o fechaLimite no definidos correctamente en el formulario."
+        );
         return;
       }
       const apartadoRef = doc(db, "Apartado", codigo);
       await updateDoc(apartadoRef, {
         Estado: form.Estado,
-        fechaLimite: form.FechaLimite
+        fechaLimite: form.FechaLimite,
       });
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
       }, 1500);
       console.log("final de update");
-      // Asegúrate de tener la función onCreateApartado para actualizar la vista después de la edición
       onCreateApartado();
-      closeModalActualizar(); // Asegúrate de cerrar el modal después de la edición
+      closeModalActualizar();
     } catch (error) {
       console.error("Error updating document: ", error);
     }
@@ -202,18 +210,16 @@ function Apartado() {
   const filteredApartados = dataState.filter((apartado) => {
     const searchTerm = searchQuery.toLowerCase();
     if (searchOption === "Nombre") {
-      return apartado.NombreCliente.toLowerCase().startsWith(searchTerm);
+      return apartado.NombreCliente
+        .toLowerCase()
+        .startsWith(searchTerm);
     } else if (searchOption === "Estado") {
       return (
-        apartado.Estado && apartado.Estado.toLowerCase().startsWith(searchTerm)
-      );
-    } else if (searchOption === "Cedula") {
-      return (
-        apartado.Cedula &&
-        apartado.Cedula.toString().toLowerCase().startsWith(searchTerm)
+        apartado.Estado &&
+        apartado.Estado.toLowerCase().startsWith(searchTerm)
       );
     }
-    // Retorna verdadero para mantener los datos si no coincide con ninguna opción de búsqueda
+
     return true;
   });
 
@@ -223,17 +229,7 @@ function Apartado() {
   const handleSearchChange = (event) => {
     const { value } = event.target;
     setSearchQuery(value);
-    if (searchOption === "Cedula") {
-      obtenerApartados(1); // Reiniciar los resultados de búsqueda cuando el campo de 'Cédula' cambia
-      if (value.trim() !== "") {
-        const filteredApartados = dataState.filter((apartado) =>
-          apartado.Cedula === value.trim()
-        );
-        setData(filteredApartados);
-      }
-    }
   };
-
 
   function handleDateChange(date) {
     setSelectedDate(date);
@@ -241,14 +237,12 @@ function Apartado() {
   filteredApartados.map((dato) => <tr key={dato.id}></tr>);
 
   const handleNextPage = () => {
-    // Increment the page and fetch the next page of users
     obtenerApartados(currentPage + 1);
     setCurrentPage((prevPage) => prevPage + 1);
   };
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
-      // Decrement the page and fetch the previous page of users
       obtenerApartados(currentPage - 1);
       setCurrentPage((prevPage) => prevPage - 1);
     }
@@ -256,7 +250,7 @@ function Apartado() {
 
   const obtenerApartados = async (page) => {
     try {
-      const apartadosPerPage = 10; // Número de apartados para recuperar por página
+      const apartadosPerPage = 10;
       const startIndex = (page - 1) * apartadosPerPage;
       const apartadoRef = collection(db, "Apartado");
       const apartadoSnapshot = await getDocs(apartadoRef);
@@ -267,14 +261,13 @@ function Apartado() {
         startIndex,
         startIndex + apartadosPerPage
       );
-      setData(slicedApartados); // Actualiza el estado de los datos con los apartados recuperados
+      setData(slicedApartados);
     } catch (error) {
       console.error("Error al obtener apartados: ", error);
     }
   };
 
   const onCreateApartado = () => {
-    // Actualizar la lista de apartados llamando a obtenerApartados nuevamente
     obtenerApartados(1);
   };
 
@@ -290,7 +283,6 @@ function Apartado() {
 
   const eliminarApartado = async () => {
     try {
-      // Eliminar el apartado de Firebase y Firestore
       await deleteDoc(doc(db, "Apartado", usuario.ID));
       console.log("Apartado eliminado correctamente");
 
@@ -307,7 +299,6 @@ function Apartado() {
   //------------------------------------------------------------------------------------------------------------------------------------
 
   //-------------------------------------------------------Detalles--------------------------------------------------------------------------
-
   const abrirModalListaAbono = (codigo) => {
     console.log("Apartado", codigo);
     setUsuario(codigo);
@@ -322,10 +313,11 @@ function Apartado() {
   const abrirModalProductos = (codigo) => {
     setUsuario(codigo);
     openProductoModal();
-  };
-  //------------------------------------------------------------------------------------------------------------------------------------------
+  }
+  
   return (
     <Container>
+      <TopNavBar />
       <h1>Apartados</h1>
       <br />
       <input
@@ -340,7 +332,6 @@ function Apartado() {
         onChange={handleSearchOptionChange}
       >
         <option value="Nombre">Nombre</option>
-        <option value="Cedula">Cédula</option>
         <option value="Estado">Estado</option>
       </select>
       <Table>
@@ -356,70 +347,59 @@ function Apartado() {
           </tr>
         </thead>
         <tbody>
-          {filteredApartados
-            .filter((apartado) =>
-              searchOption === "Nombre"
-                ? apartado.NombreCliente
-                  .toLowerCase()
-                  .includes(searchQuery.toLowerCase())
-                : apartado.Estado &&
-                apartado.Estado.toLowerCase().includes(
-                  searchQuery.toLowerCase()
-                )
-            )
-            .map((dato) => (
-              <tr
-                key={dato.id}
-                className={dato.Estado === "Moroso" ? "table-danger" : ""}
-              >
-                <td>{dato.NombreCliente}</td>
-                <td>{dato.Cedula}</td>
-                <td>{dato.Estado}</td>
-                <td>{formatTimestamp(dato.FechaInicio)}</td>
-                <td>{formatTimestamp(dato.FechaLimite)}</td>
-                <td>{dato.Saldo}</td>
+          {filteredApartados.map((dato) => (
+            <tr
+              key={dato.id}
+              className={dato.Estado === "Moroso" ? "table-danger" : ""}
+            >
+              <td>{dato.NombreCliente}</td>
+              <td>{dato.Cedula}</td>
+              <td>{dato.Estado}</td>
+              <td>{formatTimestamp(dato.FechaInicio)}</td>
+              <td>{formatTimestamp(dato.FechaLimite)}</td>
+              <td>{dato.Saldo}</td>
 
-                <td>
-                  <Button
-                    onClick={() => abrirModalActualizar(dato)}
-                    color="primary"
-                  >
-                    <FontAwesomeIcon icon={faPenToSquare} size="lg" />
-                  </Button>
-                  <Button
-                    onClick={() => abrirModalEliminar(dato)}
-                    color="danger"
-                  >
-                    <FontAwesomeIcon icon={faSquareXmark} size="lg" />
-                  </Button>
-                  <Button
-                    onClick={() => abrirModalProductos(dato)}
-                    color="primary"
-                  >
-                    <FontAwesomeIcon icon={faArrowLeft} size="lg" />
-                  </Button>
-                  <Button
-                    onClick={() => abrirModalListaAbono(dato)}
-                    color="primary"
-                  >
-                    <FontAwesomeIcon icon={faPenToSquare} size="lg" />
-                  </Button>
-                  <input
-                    type="number"
-                    value={cantidadAbonada}
-                    onChange={(e) => setCantidadAbonada(e.target.value)}
-                    placeholder="CantidadAbonada"
-                  />
-                  <Button
-                    onClick={() => abrirModalAbono(dato)}
-                    color="primary"
-                  >
-                    Abono
-                  </Button>
-
-                </td>
-              </tr>
-            ))}
+              <td>
+                <Button
+                  onClick={() => abrirModalActualizar(dato)}
+                  color="primary"
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} size="lg" />
+                </Button>
+                <Button
+                  onClick={() => abrirModalEliminar(dato)}
+                  color="danger"
+                >
+                  <FontAwesomeIcon icon={faSquareXmark} size="lg" />
+                </Button>
+                <Button
+                  onClick={() => abrirModalProductos(dato)}
+                  color="info"
+                >
+                  <FontAwesomeIcon icon={faList} size="lg"/>
+                </Button>
+                <Button
+                  onClick={() => abrirModalListaAbono(dato)}
+                  color="dark"
+                >
+                  <FontAwesomeIcon icon={faPaste} size="lg" />
+                </Button>
+                <input
+                  type="number"
+                  value={cantidadAbonada}
+                  onChange={(e) => setCantidadAbonada(e.target.value)}
+                  placeholder="₡ Abonar"
+                  className="small-input" style={{ width: '100px' }} 
+                />
+                <Button
+                  onClick={() => abrirModalAbono(dato)}
+                  color="primary"
+                >
+                  <FontAwesomeIcon icon={faMoneyCheckDollar} size="lg" />
+                </Button>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </Table>
       <div className="pagination">

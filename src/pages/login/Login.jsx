@@ -5,6 +5,10 @@ import HomasLogo from '../../img/HomasLogo.png';
 import './Login.css';
 import RecuperarContraseña from './RecuperarContra';
 
+import { Link } from "react-router-dom";
+import Nav from "react-bootstrap/Nav";
+
+
 const Usuarios = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +19,13 @@ const Usuarios = () => {
   
   useEffect(() => {
   }, []);
+
+
+    const handleIniciarSesionClick = () => {
+    // Redirige a la página "cortes"
+    window.location.href = '/cortes';
+    };
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -47,9 +58,9 @@ const Usuarios = () => {
             setTipoAlert('error');
             setShowAlert(true);
         } else if (rolUsuario === 'Admin') {
-          //  <Redirect to="/ruta-a" />
+            handleIniciarSesionClick();
         } else if (rolUsuario === 'SuperAdmin') {
-          //<Redirect to="/ruta-b" />
+            handleIniciarSesionClick();
         }
       } else {
         // Validar campos vacíos

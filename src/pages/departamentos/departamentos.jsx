@@ -18,6 +18,7 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import TopNavBar from "../../components/navbarC/navbar.jsx";
 library.add(faPenToSquare, faSquareXmark,faArrowRight,faArrowLeft);
 const nombre = "Departamento";
 
@@ -38,6 +39,7 @@ function Departamentos() {
   useEffect(() => {
     obtenerDepartamentos(1); // Fetch the first page of departments
   }, []);
+  
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
   const fieldOrderEditar = {
     1: "Nombre", // Primer campo en aparecer
@@ -238,6 +240,7 @@ const uploadimage = () => {};
 //---------------------------------------------------------HTML-------------------------------------------------------------
 return (
   <Container>
+    <TopNavBar />
     <h1>Departamentos
     </h1>
     <br />
@@ -252,6 +255,7 @@ return (
       onChange={handleSearchChange}
       placeholder={`Buscar por ${searchOption}`}
     />
+    <label>Nota: Los 3 estados son: Activo, Inactivo y Elimindo</label>
   <Table>
   <thead>
         <tr>

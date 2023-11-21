@@ -47,7 +47,7 @@ function TopNavBar() {
               Target
             </Nav.Link>
 
-            <Nav.Link className="navo" as={Link} to="/Salidas">
+            <Nav.Link className="navo" as={Link} to="/HistorialSalida">
               Movimientos
             </Nav.Link>
             <Nav.Link className="navo" as={Link} to="/historial">
@@ -64,7 +64,7 @@ function TopNavBar() {
             </Nav.Link>
         
           </Nav>
-          <Nav.Link className="navo" as={Link} to="/config">
+          <Nav.Link className="navo" as={Link} to="/">
             <FontAwesomeIcon icon="fa-solid fa-right-to-bracket" id="iconoLogin" />
           </Nav.Link>
         </Navbar.Collapse>

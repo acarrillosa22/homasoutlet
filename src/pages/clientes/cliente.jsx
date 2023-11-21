@@ -9,7 +9,7 @@ import CustomAlert from "../../components/alert/alert";
 import ModalDetalles from "../../components/datallesModal/modalDetalles";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
-import appFirebase from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import appHOT from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
 import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
   collection,
@@ -28,11 +28,12 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function Clientes() {
   const nombre = "Cliente";
-  const db = getFirestore(appFirebase); // Inicializo la base de datos en la aplicacion web
+  const db = getFirestore(appHOT); // Inicializo la base de datos en la aplicacion web
   const auth = getAuth();
   //hooks
   const [showAlert, setShowAlert] = useState(false);
@@ -331,6 +332,7 @@ function Clientes() {
   //------------------------------------------------------------------------------------------------------------------------------------------
   return (
     <Container>
+      <TopNavBar />
       <h1>Clientes</h1>
       <br />
       <Button onClick={abrirModalCrear} color="success">

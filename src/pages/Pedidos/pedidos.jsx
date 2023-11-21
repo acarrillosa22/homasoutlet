@@ -5,8 +5,7 @@ import "./pedidos.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 //-------------------------------------------------Imports Modals------------------------------------------------------------------------
 import ModalA from "../../components/modal-editar/modal-editar-departamentos";
-import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
-import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
+import ModalEliminarPedido from "../../components/modal-eliminar/modal-eliminar-pedidos";
 import ModalDetallesPedido from "../../components/datallesModal/modalDetallesPedido";
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
@@ -21,6 +20,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { fromUnixTime } from "date-fns";
 import { format } from "date-fns";
+import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
 const nombre = "Pedido";
 
@@ -276,6 +276,7 @@ function Pedidos() {
   //---------------------------------------------------------HTML-------------------------------------------------------------
   return (
     <Container>
+      <TopNavBar />
       <h1>Pedidos
       </h1>
       <br />
@@ -358,7 +359,7 @@ function Pedidos() {
         fieldOrder={fieldOrderEditar}
         nombreCrud={nombre}
       />
-      <ModalEliminar
+      <ModalEliminarPedido
         isOpen={isOpenEliminar}
         closeModal={closeModalEliminar}
         nombre={pedidos.id}

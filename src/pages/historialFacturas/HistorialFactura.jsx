@@ -25,6 +25,7 @@ import { faArrowRight, faArrowLeft,faPrint } from "@fortawesome/free-solid-svg-i
 import { fromUnixTime } from "date-fns";
 import { format } from "date-fns";
 import { fromMillis } from "firebase/firestore";
+import TopNavBar from "../../components/navbarC/navbar.jsx";
 library.add(faArrowRight, faArrowLeft, faEye,faPrint);
 
 function HistorialFactura() {
@@ -141,6 +142,7 @@ function HistorialFactura() {
 
   return (
     <Container>
+      <TopNavBar />
       <h1>Historial de facturas</h1>
       <div className="date-picker">
         <input

@@ -1,54 +1,54 @@
 td{
-    margin-left: 10px
+  margin-left: 10px
 }
 
 .pagination{
-    display: flex;
-    justify-content: center;
-    margin-top: 20px
+  display: flex;
+  justify-content: center;
+  margin-top: 20px
 }
 
 input{
-    margin-left: 10px;
-    
+  margin-left: 10px;
+  
 }
 h1{
-  margin-top: 20px;
-  text-align: center;
+margin-top: 20px;
+text-align: center;
 }
 
 .select-styled {
-    margin: 10px;
-    display: inline-block;
-    padding: 0.2rem 0.5rem; /* Ajusta el padding según lo compacto que desees */
-    font-size: 15px; /* Tamaño de fuente */
-    border: 1px solid #ccc; /* Borde */
-    border-radius: 4px; /* Borde redondeado */
-    background-color: #fff; /* Fondo */
-  }
-  
-  /* Estilo al enfocar */
-  .select-styled:focus {
-    outline: none;
-    border-color: #5b9bd5; /* Color de borde al enfocar */
-  }
-  
-  /* Estilo de las opciones */
-  .select-styled select {
-    display: none; /* Oculta el select real */
-  }
-  
-  /* Estilo de las opciones al pasar el ratón */
-  .select-styled:hover {
-    cursor: pointer;
-  }
-  .fondo-rojo {
-    color: red !important;
-  }
-  tr{
-    background-color: red !important;
-  }
-  label{
-    margin-left: 10px;
-    font-size: 14;
-  }
+  margin: 10px;
+  display: inline-block;
+  padding: 0.2rem 0.5rem; /* Ajusta el padding según lo compacto que desees */
+  font-size: 15px; /* Tamaño de fuente */
+  border: 1px solid #ccc; /* Borde */
+  border-radius: 4px; /* Borde redondeado */
+  background-color: #fff; /* Fondo */
+}
+
+/* Estilo al enfocar */
+.select-styled:focus {
+  outline: none;
+  border-color: #5b9bd5; /* Color de borde al enfocar */
+}
+
+/* Estilo de las opciones */
+.select-styled select {
+  display: none; /* Oculta el select real */
+}
+
+/* Estilo de las opciones al pasar el ratón */
+.select-styled:hover {
+  cursor: pointer;
+}
+.fondo-rojo {
+  color: red !important;
+}
+tr{
+  background-color: red !important;
+}
+label{
+  margin-left: 10px;
+  font-size: 14;
+}

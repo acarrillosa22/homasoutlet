@@ -4,8 +4,9 @@ import appPVH from '../../firebase/firebase';
 import appHOT from '../../firebase/firebaseHOT';
 import EditarArt from './Modals/EditarArt';
 import ProcesarPago from './Modals/procesarPago';
-import { Button, Table } from "reactstrap";
+import { Button, Container, Table } from "reactstrap";
 import CustomAlert from "../../components/alert/alert";
+import localForage from 'localforage';
 //fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +16,7 @@ import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, addDoc } from "firebase/firestore";
+import TopNavBar from '../../components/navbarC/navbar';
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 //Aplicar descuento global, asignar cliente (conectar con la base de datos), inactivar factura, modo de pago y estado de factura (modal)
 function Factura() {
@@ -164,7 +166,7 @@ function Factura() {
     //Elimina la pestaña
     const removeTab = (index) => {
         const updatedTabs = tabs.filter((tab, tabIndex) => tabIndex !== index);
-        if (updatedTabs.length === 1) {
+        if (updatedTabs.length <= 1) {
             setButtonVisibility(false);
         }
         setTabs(updatedTabs);
@@ -247,22 +249,6 @@ function Factura() {
                 }
             });
         }
-        /*
-        setProductoAInsertar((prevProducto) => {
-                                const newProducto = {
-                                    ...prevProducto,
-                                    descripcion: productoBase.Descripcion,
-                                    precioVenta: productoBase.Precio,
-                                    cantidad: 1,
-                                    importe: 0,
-                                    existencia: productoBase.Cantidad,
-                                    descuento: 0,
-                                };
-                                console.log(newProducto);
-                                updatedTabs[activeTab].content.productos.push(newProducto);
-                                return newProducto;
-                        });
-        */
         // Realiza los cálculos inmediatamente después de insertar
         activeTabData.productos.forEach((producto) => {
             const importe = producto.precioVenta * producto.cantidad * (1 - producto.descuento / 100);
@@ -404,6 +390,26 @@ function Factura() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tabs, activeTab, actualizaTab]);
 
+    useEffect(() => {
+        // Al cargar, intenta cargar las facturas desde el almacenamiento local
+        localForage.getItem('facturas').then((storedTabs) => {
+          if (storedTabs) {
+            setTabs(storedTabs);
+            if (storedTabs.length <= 1) {
+                setButtonVisibility(false);
+            }
+            else{
+                setButtonVisibility(true);
+            }
+          }
+        });
+      }, []);
+
+      useEffect(() => {
+        // Actualiza el almacenamiento local cada vez que cambia el estado de las facturas
+        localForage.setItem('facturas', tabs);
+      }, [tabs]);
+
     const auxiliar = (index) => {
         setActiveTab(index)
         setActualizaTab(true);
@@ -467,7 +473,8 @@ function Factura() {
     };
 
     return (
-        <div>
+        <Container>
+            <TopNavBar />
             <ul className="nav">
                 {tabs.map((tab, index) => (
                     <li
@@ -645,7 +652,7 @@ function Factura() {
             {showAlert && (
                 <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
             )}
-        </div>
+        </Container>
     );
 }
 

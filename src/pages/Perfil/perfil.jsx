@@ -22,6 +22,7 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import { faSquareXmark } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
 
 function PerfilM() {
@@ -77,7 +78,8 @@ function PerfilM() {
     };
 
     return (
-        <div>
+        <Container>
+            <TopNavBar />
             <h1>Mi Perfil</h1>
             {usuario && (
                 <div>
@@ -98,7 +100,7 @@ function PerfilM() {
                 fieldOrder={fieldOrderEditar}
                 nombreCrud={nombre}
             />
-        </div>
+        </Container>
     );
 }
 export default PerfilM;

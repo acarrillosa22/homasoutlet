@@ -74,7 +74,8 @@ th {
 .insert-product {
   align-items: center;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  margin: auto;
 }
 
 .agregarProducto {
@@ -143,6 +144,7 @@ input {
   width: 280;
   display: flex;
   flex-direction: column;
+  margin: auto;
 }
 
 .dropdown{
