@@ -165,7 +165,7 @@ function Factura() {
     //Elimina la pestaña
     const removeTab = (index) => {
         const updatedTabs = tabs.filter((tab, tabIndex) => tabIndex !== index);
-        if (updatedTabs.length === 1) {
+        if (updatedTabs.length <= 1) {
             setButtonVisibility(false);
         }
         setTabs(updatedTabs);
@@ -394,6 +394,12 @@ function Factura() {
         localForage.getItem('facturas').then((storedTabs) => {
           if (storedTabs) {
             setTabs(storedTabs);
+            if (storedTabs.length <= 1) {
+                setButtonVisibility(false);
+            }
+            else{
+                setButtonVisibility(true);
+            }
           }
         });
       }, []);
