@@ -45,9 +45,7 @@ text-align: center;
 .fondo-rojo {
   color: red !important;
 }
-tr{
-  background-color: red !important;
-}
+
 label{
   margin-left: 10px;
   font-size: 14;

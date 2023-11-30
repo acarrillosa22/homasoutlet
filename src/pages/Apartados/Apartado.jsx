@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "bootstrap/dist/css/bootstrap.min.css";
-import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
-import ModalA from "../../components/modal-editar/modal-editar-departamentos";
-import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
+import ModalA from "../../components/modal-editar/modal";
+import ModalEliminar from "../../components/modal-eliminar/modalEliminar";
 import CustomAlert from "../../components/alert/alert";
 import ModalDetallesFactura from "../../components/datallesModal/modalDetallesFactura";
 import ListaAbonoModal from "../../components/datallesModal/listaAbonos";
@@ -31,7 +30,9 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { faList } from "@fortawesome/free-solid-svg-icons";
 import { faPaste } from "@fortawesome/free-solid-svg-icons";
-import { faMoneyCheckDollar} from "@fortawesome/free-solid-svg-icons";
+import { faMoneyCheckDollar } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faCircle } from "@fortawesome/free-regular-svg-icons";
+
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
 function Apartado() {
@@ -47,8 +48,10 @@ function Apartado() {
   const [tipoAlert, setTipoAlert] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [cantidadAbonada, setCantidadAbonada] = useState();
+  const [cantidadAbonada, setCantidadAbonada] = useState(0);
   const [apartado, setApartado] = useState([]);
+  const [abonosPorApartado, setAbonosPorApartado] = useState({});
+  const [documentoSeleccionado, setDocumentoSeleccionado] = useState(null);
   const [isOpenActualizar, openModalActualizar, closeModalActualizar] =
     useModal(false);
   const [isOpenCrear, openModalCrear, closeModalCrear] = useModal(false);
@@ -65,15 +68,15 @@ function Apartado() {
   const [usuario, setUsuario] = useState({
     id: "",
     Estado: "",
-    fechaLimite: "",
+    FechaLimite: "",
   });
 
   useEffect(() => {
     obtenerApartados(1);
-    const verificarMorosidad = async (codigo, fechaLimite) => {
+    const verificarMorosidad = async (codigo, FechaLimite) => {
       try {
         const today = new Date();
-        const limite = new Date(fechaLimite);
+        const limite = new Date(FechaLimite);
         if (limite < today) {
           const apartadoRef = doc(db, "Apartado", codigo);
           await updateDoc(apartadoRef, { Estado: "Moroso" });
@@ -83,8 +86,8 @@ function Apartado() {
       }
     };
 
-    if (usuario && usuario.fechaLimite) {
-      verificarMorosidad(usuario.id, usuario.fechaLimite);
+    if (usuario && usuario.FechaLimite) {
+      verificarMorosidad(usuario.id, usuario.FechaLimite);
     }
   }, [usuario]);
 
@@ -94,7 +97,7 @@ function Apartado() {
     2: "Fecha Limite",
   };
   const EtiquetasEditar = {
-    fechaLimite: "Fecha Límite",
+    FechaLimite: "Fecha Límite",
   };
 
   const toggleListaAbonoModal = () => {
@@ -110,35 +113,72 @@ function Apartado() {
     setUsuario(codigo);
     openModalActualizar();
   };
+  const seleccionarApartado = (nuevoApartado) => {
+    setApartado(nuevoApartado);
+    setDocumentoSeleccionado(nuevoApartado.ID);
+    setAbonosPorApartado((prevAbonos) => ({
+      ...prevAbonos,
+      [nuevoApartado.ID]: "",
+    }));
+  };
+
   const agregarNuevoAbono = async (cantidadAbonada) => {
     try {
       const abonoRef = doc(db, "Apartado", apartado.ID);
       const listaAbonos = await getDoc(abonoRef);
-      console.log(cantidadAbonada);
+
       if (listaAbonos.exists()) {
-        if (apartado.Saldo >= cantidadAbonada && cantidadAbonada >= 1) {
-          console.log(apartado.Saldo);
-          const saldoActual = apartado.Saldo - parseFloat(cantidadAbonada);
-          console.log(saldoActual);
-          const listaAbonoData =
-            listaAbonos.data().listaAbono || [];
+        const cantidadNumerica = parseFloat(cantidadAbonada);
+
+        if (
+          !isNaN(cantidadNumerica) &&
+          cantidadNumerica >= 1 &&
+          apartado.Saldo >= cantidadNumerica
+        ) {
+          // Log antes de la resta
+          console.log("Saldo antes de la resta:", apartado.Saldo);
+
+          // Redondea ambos el saldo actual y la cantidad del abono a dos decimales.
+          const saldoAntesDeResta = apartado.Saldo;
+          const saldoActual = parseFloat(
+            (apartado.Saldo - cantidadNumerica).toFixed(2)
+          );
+
+          // Log después de la resta
+          console.log("Cantidad abonada:", cantidadNumerica);
+          console.log("Saldo después de la resta:", saldoActual);
+
+          const listaAbonoData = listaAbonos.data().listaAbono || [];
           const updatedListaAbono = [
             ...listaAbonoData,
-            { Fecha: new Date(), CantidadAbonada: parseFloat(cantidadAbonada) },
+            { Fecha: new Date(), CantidadAbonada: cantidadNumerica },
           ];
+
           await updateDoc(abonoRef, {
             listaAbono: updatedListaAbono,
             Saldo: saldoActual,
           });
+
           setShowAlert(true);
           setTimeout(() => {
             setShowAlert(false);
+            // Reinicia la cantidad de abono específica para este apartado en el estado.
+            setAbonosPorApartado((prevAbonos) => ({
+              ...prevAbonos,
+              [apartado.ID]: "",
+            }));
           }, 1500);
+
+          // Actualiza el saldo actual en el estado después de cada abono
+          setApartado((prevApartado) => ({
+            ...prevApartado,
+            Saldo: saldoActual,
+          }));
+
           onCreateApartado();
-          setCantidadAbonada(0);
         } else {
           setTextoAlert(
-            "Abono superior a la cantidad que se debe o el abono es 0"
+            "Ingrese un número válido mayor o igual a 1 y menor o igual al saldo."
           );
           setTipoAlert("warn");
           setShowAlert(true);
@@ -151,6 +191,7 @@ function Apartado() {
       console.error("Error al agregar el nuevo abono: ", error);
     }
   };
+
   const validateField = (fieldName, value, form) => {
     const errors = {};
     let fieldErrors = { ...errors };
@@ -177,20 +218,34 @@ function Apartado() {
   };
 
   const editar = async (form) => {
-    form.fechaLimite = form.fechaLimite.toString();
+    console.log("FORM AQUÍ", form);
+
     try {
-      const { Estado, fechaLimite, codigo } = form;
-      if (!Estado || !fechaLimite) {
+      const { Estado, FechaLimite, ID } = form;
+
+      if (!Estado || !FechaLimite) {
         console.error(
           "Estado o fechaLimite no definidos correctamente en el formulario."
         );
         return;
       }
-      const apartadoRef = doc(db, "Apartado", codigo);
+      const fechaLimite = new Date(form.FechaLimite);
+      const fechaLimiteAjustada = new Date(
+        fechaLimite.getTime() + fechaLimite.getTimezoneOffset() * 60000
+      );
+      console.log("aaaaa", ID);
+
+      const apartadoRef = doc(db, "Apartado", ID);
+      console.log("Aqui lo puse X2", form.Estado);
+      console.log("Aqui lo puse X2", form.FechaLimite);
+
       await updateDoc(apartadoRef, {
         Estado: form.Estado,
-        fechaLimite: form.FechaLimite,
+        FechaLimite: fechaLimiteAjustada,
       });
+      console.log("Aqui lo puse", form.Estado);
+      console.log("Aqui lo puse", form.FechaLimite);
+
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
@@ -210,13 +265,10 @@ function Apartado() {
   const filteredApartados = dataState.filter((apartado) => {
     const searchTerm = searchQuery.toLowerCase();
     if (searchOption === "Nombre") {
-      return apartado.NombreCliente
-        .toLowerCase()
-        .startsWith(searchTerm);
+      return apartado.NombreCliente.toLowerCase().startsWith(searchTerm);
     } else if (searchOption === "Estado") {
       return (
-        apartado.Estado &&
-        apartado.Estado.toLowerCase().startsWith(searchTerm)
+        apartado.Estado && apartado.Estado.toLowerCase().startsWith(searchTerm)
       );
     }
 
@@ -304,17 +356,27 @@ function Apartado() {
     setUsuario(codigo);
     openListaAbonoModal();
   };
-  const abrirModalAbono = (cedula) => {
+
+  const abrirModalAbono = (apartado) => {
     setTextoAlert("Abono agregado con éxito");
     setTipoAlert("success");
-    setApartado(cedula);
-    agregarNuevoAbono(cantidadAbonada);
+    setApartado(apartado);
+
+    // Inicializa la cantidad de abono para este apartado en 0 si aún no existe en el estado.
+    if (!abonosPorApartado[apartado.ID]) {
+      setAbonosPorApartado({
+        ...abonosPorApartado,
+        [apartado.ID]: 0,
+      });
+    }
+    agregarNuevoAbono(abonosPorApartado[apartado.ID]);
   };
+
   const abrirModalProductos = (codigo) => {
     setUsuario(codigo);
     openProductoModal();
-  }
-  
+  };
+
   return (
     <Container>
       <TopNavBar />
@@ -337,7 +399,7 @@ function Apartado() {
       <Table>
         <thead>
           <tr>
-            <th>Nombre Cliente</th>
+            <th>Nombre del Cliente</th>
             <th>Cédula</th>
             <th>Estado</th>
             <th>Fecha</th>
@@ -350,7 +412,10 @@ function Apartado() {
           {filteredApartados.map((dato) => (
             <tr
               key={dato.id}
-              className={dato.Estado === "Moroso" ? "table-danger" : ""}
+              className={`
+      ${dato.Estado === "Moroso" ? "table-danger" : ""}
+      ${documentoSeleccionado === dato.ID ? "documento-seleccionado" : ""}
+    `}
             >
               <td>{dato.NombreCliente}</td>
               <td>{dato.Cedula}</td>
@@ -360,41 +425,50 @@ function Apartado() {
               <td>{dato.Saldo}</td>
 
               <td>
+                {/* Botón para mostrar el documento seleccionado */}
+                {documentoSeleccionado === dato.ID ? (
+                  <Button color="warning">
+                    <FontAwesomeIcon icon={faCheckCircle} /> 
+                  </Button>
+                ) : (
+                  // Botón para seleccionar el documento
+                  <Button
+                    onClick={() => seleccionarApartado(dato)}
+                    color="warning"
+                  >
+                    <FontAwesomeIcon icon={faCircle} /> 
+                  </Button>
+                )}
                 <Button
                   onClick={() => abrirModalActualizar(dato)}
                   color="primary"
                 >
                   <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                 </Button>
-                <Button
-                  onClick={() => abrirModalEliminar(dato)}
-                  color="danger"
-                >
+                <Button onClick={() => abrirModalEliminar(dato)} color="danger">
                   <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
-                <Button
-                  onClick={() => abrirModalProductos(dato)}
-                  color="info"
-                >
-                  <FontAwesomeIcon icon={faList} size="lg"/>
+                <Button onClick={() => abrirModalProductos(dato)} color="info">
+                  <FontAwesomeIcon icon={faList} size="lg" />
                 </Button>
-                <Button
-                  onClick={() => abrirModalListaAbono(dato)}
-                  color="dark"
-                >
+                <Button onClick={() => abrirModalListaAbono(dato)} color="dark">
                   <FontAwesomeIcon icon={faPaste} size="lg" />
                 </Button>
                 <input
-                  type="number"
-                  value={cantidadAbonada}
-                  onChange={(e) => setCantidadAbonada(e.target.value)}
-                  placeholder="₡ Abonar"
-                  className="small-input" style={{ width: '100px' }} 
+                  type="text"
+                  value={abonosPorApartado[dato.ID] || ""}
+                  onChange={(e) =>
+                    setAbonosPorApartado({
+                      ...abonosPorApartado,
+                      [dato.ID]: e.target.value,
+                    })
+                  }
+                  placeholder={`₡ Abonar`}
+                  className="small-input"
+                  style={{ width: "100px" }}
                 />
-                <Button
-                  onClick={() => abrirModalAbono(dato)}
-                  color="primary"
-                >
+
+                <Button onClick={() => abrirModalAbono(dato)} color="primary">
                   <FontAwesomeIcon icon={faMoneyCheckDollar} size="lg" />
                 </Button>
               </td>

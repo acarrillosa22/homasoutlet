@@ -3,7 +3,6 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button,Table } from "reacts
 import "./modalDetalles.css";
 
 function ModalDetallesFactura({ isOpenA, closeModal, elemento,mostrar }) {
-  console.log(elemento.Producto);
   const cerrarModal = () => {
     closeModal();
   };
@@ -24,6 +23,7 @@ function ModalDetallesFactura({ isOpenA, closeModal, elemento,mostrar }) {
             <th>Cantidad</th>
             <th>Descuento</th>
             <th>Precio</th>
+            <th>Importe</th>
           </tr>
         </thead>
         <tbody>
@@ -31,8 +31,9 @@ function ModalDetallesFactura({ isOpenA, closeModal, elemento,mostrar }) {
             <tr key={dato.Nombre}>
               <td>{dato.Nombre}</td>
               <td>{dato.Cantidad}</td>
-              <td>{dato.Descuento}</td>
+              <td>{dato.descuento}</td>
               <td>{dato.Precio}</td>
+              <td>{dato.importe}</td>
             </tr>
           ))}
         </tbody>

@@ -3,13 +3,13 @@ import { useModal } from "../../hooks/useModal";
 import "./clientes.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
-import ModalA from "../../components/modal-editar/modal-editar-departamentos";
+import ModalEditarCliente from "../../components/modal-editar/modal-editar-cliente";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 import CustomAlert from "../../components/alert/alert";
 import ModalDetalles from "../../components/datallesModal/modalDetalles";
 //Firebase
 import { Table, Button, Container } from "reactstrap";
-import appHOT from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
+import appHOT from "../../firebase/firebaseHOT";
 import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
   collection,
@@ -34,11 +34,7 @@ library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 function Clientes() {
   const nombre = "Cliente";
   const db = getFirestore(appHOT); // Inicializo la base de datos en la aplicacion web
-<<<<<<< HEAD
   const auth = getAuth();
-=======
-  const auth = getAuth(appHOT);
->>>>>>> c88a5f4f8daa49a9b5edb301b9a4f19517251ca6
   //hooks
   const [showAlert, setShowAlert] = useState(false);
   const [textoAlert, setTextoAlert] = useState("");
@@ -103,6 +99,7 @@ function Clientes() {
     return fieldErrors;
   };
   const editar = async (form) => {
+    console.log("form completo",form)
     const cedula = usuario.idUser;
     console.log(cedula);
     console.log(usuario.correoElectronico);
@@ -196,6 +193,7 @@ function Clientes() {
     5: "correoElectronico",
     6: "limiteDeCredito",
   };
+
   const etiquetasCrear = {
     correoElectronico: "Correo Electrónico",
     cedula: "Cédula",
@@ -250,7 +248,8 @@ function Clientes() {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         form.correoElectronico,
-        form.contrasena
+        form.contrasena,
+        form.rol
       );
       // Obtener el ID de usuario del usuario creado
       const idUser = userCredential.user.uid;
@@ -283,7 +282,7 @@ function Clientes() {
       console.log("Usuario creado y documentado en Firestore");
       onCreateUsuario();
     } catch (error) {
-            setTextoAlert("El correo ya ha sido usado")
+      setTextoAlert("El correo ya ha sido usado")
       setTipoAlert("danger")
   
   
@@ -378,8 +377,8 @@ function Clientes() {
           <tr>
             <th>Cedula</th>
             <th>Nombre</th>
-            <th>Telefono</th>
-            <th>Coreo Electronico</th>
+            <th>Teléfono</th>
+            <th>Correo Electrónico</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -409,18 +408,21 @@ function Clientes() {
                   <Button
                     onClick={() => abrirModalActualizar(dato)}
                     color="primary"
+                    className="bbb"
                   >
                     <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                   </Button>
                   <Button
                     onClick={() => abrirModalEliminar(dato)}
                     color="danger"
+                    className="bbb"
                   >
                     <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                   </Button>
                   <Button
                     onClick={() => abrirModalDetalles(dato)}
                     color="warning"
+                    className="bbb"
                   >
                     <FontAwesomeIcon icon={faEye} size="lg" />
                   </Button>
@@ -434,6 +436,7 @@ function Clientes() {
           onClick={handlePrevPage}
           disabled={currentPage === 1}
           color="primary"
+          
         >
           <FontAwesomeIcon icon={faArrowLeft} size="lg" />
         </Button>
@@ -447,7 +450,7 @@ function Clientes() {
         </Button>
       </div>
 
-      <ModalA
+      <ModalEditarCliente
         isOpenA={isOpenActualizar}
         closeModal={closeModalActualizar}
         elemento={usuario}

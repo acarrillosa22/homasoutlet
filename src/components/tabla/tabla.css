@@ -9,20 +9,17 @@
     margin-left: 70px;
     
 }
-h4{
+#enc{
     text-align: center;
     background-color: aquamarine;
 }
-h3{
-    margin-left: 40;
-    
-}
+
 #pantalla{
     display: flex;
     flex-direction: row;
 }
 #columna2{
-    margin-top: 50px;
+    margin-top: 10vh;
     width: 40%;
     display: flex;
     flex-direction: column;
@@ -39,7 +36,26 @@ th{
     flex-direction: row;
     justify-content: center;
     bottom: 0;
-    position: absolute;
+    position: relative;
     width: 100%;
-    padding-bottom: 60px;
+    padding-bottom: 120px;
+    margin-left: 5%;
 }
+
+#resumen h3{
+    margin-left: 5%;
+}
+.separador{
+    margin-left: 2%;
+    margin-top: 2%;
+}
+
+.bottones{
+    text-align: center;
+}
+
+.bottones Button{
+    margin-left: 2%;
+}
+
+

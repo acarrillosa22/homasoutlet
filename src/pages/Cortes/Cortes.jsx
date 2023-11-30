@@ -175,6 +175,7 @@ function Corte() {
           onClick={handlePrevPage}
           disabled={currentPage === 1}
           color="primary"
+          className="bbb"
         >
           <FontAwesomeIcon icon={faArrowLeft} size="lg" />
         </Button>
@@ -183,6 +184,7 @@ function Corte() {
           onClick={handleNextPage}
           disabled={dataState.length < 10}
           color="primary"
+          className="bbb"
         >
           <FontAwesomeIcon icon={faArrowRight} size="lg" />
         </Button>

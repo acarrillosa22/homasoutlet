@@ -24,5 +24,33 @@ const uploadImageToStorage = async (file, folderName) => {
   const downloadURL = await getDownloadURL(storageRef);
   return downloadURL;
 };
-export { uploadImageToStorage };
+const uploadImageToStorageURL = async (imageUrl, folderName) => {
+  try {
+    // Obtener la imagen desde la URL
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error('Failed to fetch image from URL');
+    }
+
+    const imageBlob = await response.blob();
+
+    // Generar un nombre único para el archivo en el almacenamiento
+    const fileName = `${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+    // Subir la imagen al almacenamiento
+    const storageRef = ref(storage, `${folderName}/${fileName}`);
+    await uploadBytes(storageRef, imageBlob);
+
+    // Obtener la URL de descarga de la imagen cargada
+    const downloadURL = await getDownloadURL(storageRef);
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Error al subir imagen desde URL:', error);
+    // Manejar el error según sea necesario
+    return null;
+  }
+};
+
+export { uploadImageToStorage,uploadImageToStorageURL };
 export default appPVH;

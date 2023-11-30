@@ -19,7 +19,8 @@ function ModalCrear({
   Combobox,
   nombreCrud,
   combobox2,
-  setImageFile
+  setImageFile,
+  Etiquetas
 }) {
   const [errors, setErrors] = useState({});
   
@@ -65,11 +66,13 @@ function ModalCrear({
   };
   const generateFormGroups = () => {
     return Object.entries(fieldOrder).map(([order, key]) => {
+      const label =
+        Etiquetas[key] || key.charAt(0).toUpperCase() + key.slice(1);
       if (key === "rol") {
         // Si es el atributo "rol", generar un combobox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <select
               className="form-control"
               name={key}
@@ -89,7 +92,7 @@ function ModalCrear({
       } else if (key === "correoElectronico" || key === "Correo") {
         return (
           <FormGroup key={key} className={errors ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <input
               required
               className="form-control"
@@ -101,11 +104,28 @@ function ModalCrear({
             {errors && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
+      } else if (key === "EstadoD") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{label}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un Estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );  
       }
       else if (key === "NombreDepartamento") {
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <select
               className="form-control"
               name={key}
@@ -139,7 +159,7 @@ function ModalCrear({
         // Generar un input para los otros atributos
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <input
               required
               className="form-control"

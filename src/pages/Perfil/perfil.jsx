@@ -4,18 +4,16 @@ import "./estilo.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ModalA from "../../components/modal-editar/modal-editar-departamentos";
 //Firebase
-import { Button, Container } from "reactstrap";
+import {Container } from "reactstrap";
 import appHOT from "../../firebase/firebaseHOT"; // Llama a donde tengo la configuracion de la aplicacion que usa la base
-import { getFirestore } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
-import { getAuth } from "firebase/auth";
+import { getFirestore, query, where } from "firebase/firestore"; // Llamo lo que necesito usar para la los metodos de traer docs etc
 import {
     collection,
     getDocs,
     doc,
     updateDoc,
-    setDoc,
-    deleteDoc,
 } from "firebase/firestore";
+import CustomAlert from '../../components/alert/alert';
 //fortawesome
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
@@ -26,56 +24,89 @@ import TopNavBar from "../../components/navbarC/navbar";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft);
 
 function PerfilM() {
-    const nombre = "Cliente";
+    const nombre = "Perfil";
     const db = getFirestore(appHOT);
     const [usuario, setUsuario] = useState({});
     const [isOpenActualizar, openModalActualizar, closeModalActualizar] = useModal(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [textoAlert, setTextoAlert] = useState("");
+    const [tipoAlert, setTipoAlert] = useState("");
     const abrirModalActualizar = (cedula) => {
         setUsuario(cedula);
         openModalActualizar();
     };
+    const validateFieldCrear = (fieldName, value) => {
+        const errors = {};
+        let fieldErrors = { ...errors };
+
+        switch (fieldName) {
+            case "Telefono":
+                fieldErrors.telefono =
+                    value.length !== 8 || isNaN(Number(value))
+                        ? "El teléfono debe tener 8 números y ser solo números"
+                        : "";
+                break;
+                fieldErrors.CodigoBarras =
+                    isNaN(Number(value)) || value.length < 6
+                        ? "El código de barras debe ser un número con al menos 6 dígitos"
+                        : "";
+                break;
+            default:
+                break;
+        }
+
+        return fieldErrors;
+    };
     const fieldOrderEditar = {
         1: "nombre", // Primer campo en aparecer
         2: "telefono",
-        3: "correoElectronico",
-        4: "contraseña",
-      };
+    };
+
+    const Etiquetas = {
+        nombre: "Nombre",
+        telefono: "Teléfono"
+    };
+
     useEffect(() => {
         // Intenta obtener la información del perfil desde el almacenamiento local
-        const perfilGuardado = localStorage.getItem("perfil");
-
+        const perfilGuardado = localStorage.getItem("usuarioC");
         if (perfilGuardado) {
             const perfil = JSON.parse(perfilGuardado);
             setUsuario(perfil);
-        } else {
-            // Puedes manejar la ausencia de un perfil guardado aquí, por ejemplo, redirigiendo al usuario.
         }
     }, []);
 
     const editar = async (form) => {
-        const cedula = usuario.cedula;
-
+        let cedula = usuario.cedula;
+        const q = query(collection(db, "Usuarios"), where("cedula", "==", usuario.cedula));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            cedula = doc.id;
+        });
         try {
             const user = doc(db, "Usuarios", cedula);
             await updateDoc(user, {
                 nombre: form.nombre,
                 telefono: form.telefono,
-                correoElectronico: form.correoElectronico,
-                contraseña: form.contraseña,
             });
-
             // Actualiza la información del perfil con los nuevos datos
             const perfilActualizado = { ...usuario, ...form };
             setUsuario(perfilActualizado);
-
-            // Guarda la información actualizada en el almacenamiento local
-            localStorage.setItem("perfil", JSON.stringify(perfilActualizado));
-
-            window.alert("Se actualizó con éxito");
+            const usuarioCJSON = JSON.stringify(perfilActualizado);
+            // Guardar la cadena JSON en localStorage
+            localStorage.setItem('usuarioC', usuarioCJSON);
+            setTextoAlert("Perfil modificado con éxito");
+            setTipoAlert("success");
+            setShowAlert(true);
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 1500);
         } catch (error) {
             console.error("Error updating document: ", error);
         }
     };
+
+    
 
     return (
         <Container>
@@ -84,11 +115,9 @@ function PerfilM() {
             {usuario && (
                 <div>
                     <p>Nombre: {usuario.nombre}</p>
-                    <p>Cedula: {usuario.cedula}</p>
-                    <p>Telefono: {usuario.telefono}</p>
+                    <p>Cédula: {usuario.cedula}</p>
+                    <p>Teléfono: {usuario.telefono}</p>
                     <p>Correo: {usuario.correoElectronico}</p>
-                    <p>Contraseña: {usuario.contraseña}</p>
-                    <p>Dirección: {usuario.direccionExacta}</p>
                     <button onClick={() => abrirModalActualizar(usuario)}>Editar Perfil</button>
                 </div>
             )}
@@ -96,10 +125,13 @@ function PerfilM() {
                 isOpenA={isOpenActualizar}
                 closeModal={closeModalActualizar}
                 elemento={usuario}
+                validateField={validateFieldCrear}
                 FuntionEdit={editar}
                 fieldOrder={fieldOrderEditar}
                 nombreCrud={nombre}
+                Etiquetas={Etiquetas}
             />
+            {showAlert && (<CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />)}
         </Container>
     );
 }

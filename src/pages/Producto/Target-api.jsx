@@ -1,13 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Target-api.css';
 import CustomAlert from '../../components/alert/alert';
-
+import { uploadImageToStorageURL } from "../../firebase/firebase";
+import appPVH from '../../firebase/firebase';
+import { addDoc, collection, getFirestore, getDocs } from 'firebase/firestore';
+import TopNavBar from '../../components/navbarC/navbar';
+import { Container } from 'reactstrap';
+import * as XLSX from 'xlsx';
+import JSZip from 'jszip';
 function TargetApi() {
+  const db = getFirestore(appPVH);
   const [searchTerm, setSearchTerm] = useState('');
   const [hayRequests, setHayRequests] = useState(true);
   const [responseData, setResponseData] = useState(null);
+  const [responseDataP, setResponseDataP] = useState(null);
   const [searchCompleted, setSearchCompleted] = useState(false);
   const [buttonTriggered, setButtonTriggered] = useState();
   const [selectedRow, setSelectedRow] = useState(null); // Nuevo estado para la fila seleccionada
@@ -15,8 +22,41 @@ function TargetApi() {
   const [textoAlert, setTextoAlert] = useState("");
   const [tipoAlert, setTipoAlert] = useState("");
   const [selectedImages, setSelectedImages] = useState({});
-
+  const [codigoBarra, setCodigoBarra] = useState(0);
+  const [departamento, setDepartamento] = useState([]);
+  const [producto, setProducto] = useState([]);
+  let co = 1000000;
+  const obtenerDepartamentos = async () => {
+    try {
+      const userRef = collection(db, "Departamento");
+      const userSnapshot = await getDocs(userRef);
+      const allDepartmentos = userSnapshot.docs
+        .map((departament) => departament.data())
+      setDepartamento(allDepartmentos);
+    } catch (error) {
+      console.error("Error al obtener departamentos: ", error);
+    }
+  };
+  const obtenerProducto = async () => {
+    try {
+      const userRef = collection(db, "Producto");
+      const userSnapshot = await getDocs(userRef);
+      const allDepartmentos = userSnapshot.docs
+        .map((departament) => departament.data())
+        .filter((user) => user.Estado !== 1);
+      setProducto(allDepartmentos);
+    } catch (error) {
+      console.error("Error al obtener departamentos: ", error);
+    }
+  };
+  function esNumero(texto) {
+    // La expresión regular ^\d+$ verifica que la cadena contenga solo dígitos (números)
+    return /^\d+$/.test(texto);
+  }
+  let vandera = false;
   useEffect(() => {
+    obtenerDepartamentos();
+    obtenerProducto();
     setTextoAlert("Buscando...")
     setTipoAlert("info")
     const numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
@@ -26,16 +66,21 @@ function TargetApi() {
         setShowAlert(false);
       }, 4000);
       var texto = searchTerm.toString();
+      vandera = esNumero(texto);
       for (var indice = 0; indice < numeros.length; indice++) {//Compureba si lo enviado en un codigo de barras
-        if (texto.startsWith(numeros[indice])) {
+        if (texto.startsWith(numeros[indice]) && vandera) {
+          setCodigoBarra(parseFloat(texto))
           getAPIdata();
           break;
         }
       }
-
+      if (!vandera) {
+        co += producto.length;
+        setCodigoBarra(co)
+      }
       try {
         const params = {
-          api_key: "C5F82F479E554F4CB74B76553F529224"
+          api_key: "7B6A3B8D610146BDB3DE5220A977E62D"
         }
 
         // make the http GET request to RedCircle API
@@ -43,7 +88,6 @@ function TargetApi() {
           .then(response => {
             // print the JSON response from RedCircle API
             const requests = response.data.account_info.credits_remaining
-            console.log(requests);
             if (requests === 0) {
               setHayRequests(false);
             }
@@ -54,14 +98,13 @@ function TargetApi() {
         if (hayRequests) {
           const response = await axios.get('https://api.redcircleapi.com/request', {
             params: {
-              api_key: "C5F82F479E554F4CB74B76553F529224",
+              api_key: "7B6A3B8D610146BDB3DE5220A977E62D",
               search_term: searchTerm,
               type: "search",
               include_out_of_stock: "true"
             }
           });
           const resultados = response.data.search_results;
-
           if (resultados.length > 0) {
             setResponseData(resultados.slice(0, 4)); // Mostrar hasta 4 resultados
             setSearchCompleted(true);
@@ -77,13 +120,12 @@ function TargetApi() {
         }
         else {
           setTextoAlert("Ya no quedan requests")
-            setTipoAlert("warning")
-            setSearchCompleted(false);
-            setShowAlert(true);
-            setTimeout(() => {
-              setShowAlert(false);
-            }, 4000);
-
+          setTipoAlert("warning")
+          setSearchCompleted(false);
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 4000);
         }
       } catch (error) {
         console.error('Error en la solicitud:', error)
@@ -111,7 +153,6 @@ function TargetApi() {
           throw err
         });
     }
-
     function handleKeyPress(e) {
       if (e.key === 'Enter') {
         fetchData();
@@ -151,21 +192,124 @@ function TargetApi() {
       setResponseData(updatedData);
     }
   };
-
+  const handleInputChangePrecio = (e) => {
+    setResponseDataP(e.target.value);
+  };
   const handleImageSelection = (e, rowIndex, imageIndex) => {
     // Restringir la selección de imágenes a solo una en toda la tabla
     const updatedSelectedImages = {};
-
     if (e.target.checked) {
       updatedSelectedImages[rowIndex] = [imageIndex];
     }
-
     // Actualiza el estado de las imágenes seleccionadas
     setSelectedImages(updatedSelectedImages);
   };
 
+  async function handleExportToExcel() {
+    try {
+      if (selectedRow !== null) {
+        const dataToSave = {
+          CodigoDeBarras: codigoBarra,
+          Nombre: responseData[selectedRow].product.title,
+          Descripcion: responseData[selectedRow].product.feature_bullets.join(', '),
+          LinkImagenes: responseData[selectedRow].product.main_image,
+          Marca: responseData[selectedRow].product.brand,
+          Departamento: responseData[selectedRow].product.department_id,
+          PrecioRefenrencia: responseData[selectedRow].offers.primary.price,
+          PrecioVenta: responseDataP,
+          URL: responseData[selectedRow].product.link
+        };
+        // Crear un archivo Excel
+        const worksheet = XLSX.utils.json_to_sheet([dataToSave]);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Producto');
+
+        // Guardar el archivo Excel
+        XLSX.writeFile(workbook, `${codigoBarra}.xlsx`);
+
+        // Crear un archivo zip
+        const zip = new JSZip();
+        const images = dataToSave.LinkImagenes;
+
+        // Agregar el archivo xlsx al zip
+        zip.file(`${codigoBarra}.xlsx`);
+
+        // Descargar imágenes en la carpeta del zip
+        for (let index = 0; index < images.length; index++) {
+          const imageUrl = images[index];
+          const imageExtension = 'png';
+          const imageName = `imagen_${index + 1}.${imageExtension}`;
+          const response = await fetch(imageUrl);
+
+          if (!response.ok) {
+            throw new Error(`Failed to fetch image ${index + 1}`);
+          }
+
+          const imageBlob = await response.blob();
+
+          // Agregar la imagen al zip
+          zip.file(`${codigoBarra}_imagenes/${imageName}`, imageBlob);
+        }
+
+        // Crear el archivo zip
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+        // Crear una URL para el zip y crear un enlace para descargar
+        const zipURL = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = zipURL;
+        link.download = `${codigoBarra}_imagenes.zip`;
+
+        // Agregar el enlace al documento y simular el clic
+        document.body.appendChild(link);
+        link.click();
+
+        // Limpiar después de la descarga
+        document.body.removeChild(link);
+        URL.revokeObjectURL(zipURL);
+        setCodigoBarra(0);
+      }
+    } catch (error) {
+      console.error('Error al exportar a Excel:', error);
+      // Manejar el error según sea necesario
+    }
+  }
+
+  const guardar = async (dataToSave) => {
+    const nombreProducto = dataToSave.title;
+    const marca = dataToSave.brand;
+    const descripcion = dataToSave.feature_bullets;
+    const imagen = dataToSave.main_image;
+    const precioRefenrencia = dataToSave.price;
+    const departa = dataToSave.departamentoE;
+    const imageUrl = await uploadImageToStorageURL(imagen, "ImagenesProducto");
+    try {
+      await addDoc(collection(db, "Producto"), {
+        Nombre: nombreProducto,
+        CodigoBarras: codigoBarra,
+        Precio: parseFloat(responseDataP),
+        Marca: marca,
+        Cantidad: 1,
+        Estado: 0,
+        NombreDepartamento: departa,
+        PrecioReferencia: parseFloat(precioRefenrencia),
+        Image: imageUrl,
+        Descripcion: descripcion[0],
+        PrecioLiquidacion: 0,
+        CantidaVendidos: 0
+      });
+      setTextoAlert("Producto agregado y documentado en Firestore");
+      setTipoAlert("success");
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1500);
+      setCodigoBarra(0);
+    } catch (error) {
+      console.error("Error al crear producto y documentar en Firestore: ", error);
+    }
+  }
   const handleSaveImages = () => {
-    console.log(selectedRow)
     if (selectedRow !== null) {
       // Verifica si hay al menos una imagen seleccionada
       if (selectedImages[selectedRow] && selectedImages[selectedRow].length > 0) {
@@ -181,31 +325,35 @@ function TargetApi() {
           ...responseData[selectedRow].product,
           images: [selectedImagesForRow[0]], // Tomar solo la primera imagen seleccionada
           price: responseData[selectedRow].offers.primary.price,
-          precioVenta: responseData[selectedRow].product['PrecioVenta'],
+          departamentoE: responseData[selectedRow].selectedDepartment,
+          PrecioVenta: responseData[selectedRow].product['PrecioVenta'],
         };
-
-        // Aquí puedes hacer algo con los datos y la única imagen seleccionada
-        console.log('Datos de la fila y única imagen seleccionada:', dataToSave);
-        const nombreProducto = dataToSave.title;
-        const url = dataToSave.link;
-        const marca = dataToSave.brand;
-        const descripcion = dataToSave.feature_bullets;
-        const imagen = dataToSave.images;
-        const precioRefenrencia = dataToSave.price;
-        const NombreDepartamento = dataToSave.department_id;
-        const precioVenta = parseFloat(dataToSave.precioVenta);
-        //Insertar a la base de datos
-
-
+        guardar(dataToSave);
       } else {
         // Si no hay imágenes seleccionadas, muestra un mensaje o toma la acción que desees
-        console.log('No se ha seleccionado ninguna imagen.');
+        setTextoAlert("No se ha seleccionado ninguna imagen.");
+        setTipoAlert("warning");
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 1500);
+        setCodigoBarra(0);
       }
+    } else {
+      // Si no hay imágenes seleccionadas, muestra un mensaje o toma la acción que desees
+      setTextoAlert("No se ha seleccionado ninguna imagen.");
+        setTipoAlert("warning");
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 1500);
+        setCodigoBarra(0);
     }
   };
 
   return (
-    <div className="app-container">
+    <Container>
+      <TopNavBar />
       <div className="search-containerApi">
         <input
           type="text"
@@ -218,6 +366,9 @@ function TargetApi() {
         </button>
         <button onClick={handleSaveImages} className="save-buttonApi">
           Guardar Datos de fila
+        </button>
+        <button onClick={handleExportToExcel} className="save-buttonApi">
+          Exportar a datos excel
         </button>
       </div>
       {searchCompleted && responseData && (
@@ -254,7 +405,7 @@ function TargetApi() {
                     <input
                       className="resultado"
                       type="text"
-                      value={resultado.product.feature_bullets.join(', ')}
+                      value={resultado.product.feature_bullets.join(', ') || ''}
                       onChange={(e) => handleInputChange(e, 'feature_bullets')}
                     />
                   </td>
@@ -277,25 +428,36 @@ function TargetApi() {
                       </div>
                     ))}
                   </td>
-
                   <td>
                     {resultado.product.brand}
                   </td>
                   <td>
-                    <input
-                      type="text"
-                      value={resultado.product.department_id}
-                      onChange={(e) => handleInputChange(e, 'department_id')}
-                    />
+                    <select
+                      className="form-control"
+                      value={resultado.selectedDepartment}
+                      onChange={(e) => {
+                        const updatedData = [...responseData];
+                        updatedData[index].selectedDepartment = e.target.value;
+                        setResponseData(updatedData);
+                      }}
+                    >
+                      <option value="">Selecciona un Departamento</option>
+                      {departamento.map((encargado) => (
+                        <option key={encargado.id} value={encargado.Nombre}>
+                          {encargado.Nombre}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td>{resultado.offers.primary.price}$</td>
                   <td>
                     <div className='Precio'>
                       <input
                         className="precio-pensado"
-                        type="text"
+                        type="number"
                         placeholder='Ingresa tu precio estimado'
-                        onChange={(e) => handleInputChange(e, 'PrecioVenta')}
+                        value={responseDataP}
+                        onChange={(e) => handleInputChangePrecio(e)}
                       />
                       <span className="currency-symbol">₡</span>
                     </div>
@@ -314,9 +476,10 @@ function TargetApi() {
       {showAlert && (
         <CustomAlert isOpen={true} texto={textoAlert} tipo={tipoAlert} />
       )}
-    </div>
+    </Container>
   );
 }
 
 export default TargetApi;
+
 

@@ -8,6 +8,7 @@ import ModalA from "../../components/modal-editar/modal-editar-departamentos";
 import ModalCrear from "../../components/modal-crear/modal-crear-departamentos";
 import ModalEliminar from "../../components/modal-eliminar/modal-eliminar-departamento";
 import CustomAlert from '../../components/alert/alert';
+import localForage from 'localforage';
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
 import { Table, Button, Container } from "reactstrap";
 import appPVH from "../../firebase/firebase";
@@ -45,9 +46,22 @@ function Producto() {
   const fieldOrderEditar = {
     1: "Nombre",
     2: "Precio",
-    3: "Descripcion",
-    4: "Image",
+    3: "PrecioReferencia",
+    4: "Descripcion",
     5: "Cantidad",
+    6: "NombreDepartamento",
+    7: "Image",
+  };
+
+  const Etiquetas = {
+    Nombre: "Nombre",
+    Marca: "Marca",
+    CodigoBarras: "Código de Barras",
+    Descripcion: "Descripción",
+    NombreDepartamento: "Nombre del Departamento",
+    Precio: "Precio",
+    PrecioReferencia: "Costo",
+    Cantidad: "Cantidad"
   };
   const abrirModalActualizar = (cedula) => {
     setTextoAlert("Producto modificado con éxito");
@@ -65,23 +79,29 @@ function Producto() {
     });
     try {
       const department = doc(db, "Producto", encontrado);
-      if(imageFile!==null){
-      await updateDoc(department, {
-        Nombre: form.Nombre,
-        Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
-        Cantidad: parseFloat(form.Cantidad),
-        Image: imageFile,
-        Estado: form.Estado,
-        Descripcion: form.Descripcion
-      });}
-      else{await updateDoc(department, {
-        Nombre: form.Nombre,
-        Precio: parseFloat(form.Precio), // Si no se puede convertir, asigna 0
-        Cantidad: parseFloat(form.Cantidad),
-        Estado: form.Estado,
-        Descripcion: form.Descripcion
-      });}
-      console.log("Document successfully updated!");
+      if (imageFile !== null) {
+        await updateDoc(department, {
+          Nombre: form.Nombre,
+          Precio: parseFloat(form.Precio),
+          PrecioReferencia: parseFloat(form.PrecioReferencia),
+          Cantidad: parseFloat(form.Cantidad),
+          NombreDepartamento: form.NombreDepartamento,
+          Image: imageFile,
+          Estado: form.Estado,
+          Descripcion: form.Descripcion
+        });
+      }
+      else {
+        await updateDoc(department, {
+          Nombre: form.Nombre,
+          Precio: parseFloat(form.Precio), 
+          PrecioReferencia: parseFloat(form.PrecioReferencia),
+          Cantidad: parseFloat(form.Cantidad),
+          NombreDepartamento: form.NombreDepartamento,
+          Estado: form.Estado,
+          Descripcion: form.Descripcion
+        });
+      }
       onCreateProducto();
       setShowAlert(true);
       setTimeout(() => {
@@ -188,6 +208,19 @@ function Producto() {
     8: "Cantidad",
     9: "Image",
   };
+
+  const EtiquetasCrear = {
+    Nombre: "Nombre",
+    Marca: "Marca",
+    CodigoBarras: "Código de Barras",
+    Descripcion: "Descripción",
+    NombreDepartamento: "Nombre del Departamento",
+    Precio: "Precio",
+    PrecioReferencia: "Costo",
+    Cantidad: "Cantidad",
+    Image: "Imagen"
+  };
+
   const validateFieldCrear = (fieldName, value) => {
     const errors = {};
     let fieldErrors = { ...errors };
@@ -240,7 +273,6 @@ function Producto() {
         PrecioLiquidacion: 0,
         CantidaVendidos: 0
       });
-      console.log("Producto creado y documentado en Firestore");
       onCreateProducto();
       setShowAlert(true);
       setTimeout(() => {
@@ -276,13 +308,10 @@ function Producto() {
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
       encontrado = doc.id;
     });
     try {
       const department = doc(db, "Producto", encontrado);
-      console.log(departamento)
-
       await updateDoc(department, {
         Estado: 1
       });
@@ -290,14 +319,51 @@ function Producto() {
       setTimeout(() => {
         setShowAlert(false);
       }, 1500);
-      console.log("Estado del producto cambiado correctamente");
       onCreateProducto();
     } catch (error) {
       console.error("Error al cambiar el estado del producto: ", error);
     }
   };
-  const agregarProductoAFactura = (pro) => {
-    return pro;
+  const agregarProducto = (tabs, e, t) => {
+    const updatedTabs = [...tabs];
+    // En caso de que se este añadiendo otro producto igual
+    const activeTabData = updatedTabs[t].content;
+    const existingProductIndex = activeTabData.productos.findIndex(
+      (producto) => producto.codigoBarras === parseInt(e.codigoBarras)
+    );
+
+    if (existingProductIndex !== -1) {
+      // Si el producto ya existe, actualiza la cantidad
+      if (activeTabData.productos[existingProductIndex].existencia > activeTabData.productos[existingProductIndex].Cantidad) {
+        updatedTabs[t].content.productos[existingProductIndex].Cantidad++;
+      }
+    } else {
+      const newProducto = {
+        codigoBarras: e.CodigoBarras,
+        descripcion: e.Descripcion,
+        Precio: e.Precio,
+        departamento: e.NombreDepartamento,
+        Cantidad: 1,
+        importe: 0,
+        costo: e.PrecioReferencia,
+        vT: e.CantidaVendidos,
+        existencia: e.Cantidad,
+        descuento: 0,
+        Nombre: e.Nombre
+      };
+      // Actualiza el estado de las pestañas directamente
+      updatedTabs[t].content.productos.push(newProducto);
+    }
+    localForage.setItem('facturas', updatedTabs);
+  };
+  const agregarProductoAFactura = async (pro) => {
+    const tablas = await localForage.getItem('facturas');
+    const ta = localStorage.getItem('ta');
+    if (tablas.length === 1) {
+      agregarProducto(tablas, pro, 0)
+    } else {
+      agregarProducto(tablas, pro, parseFloat(ta))
+    }
   };
   //---------------------------------------------------------HTML-------------------------------------------------------------
   return (
@@ -329,7 +395,7 @@ function Producto() {
       <select
         value={orderOption}
         onChange={(e) => handleOrder(e)}
-      > 
+      >
         <option value="Precio">Precio</option>
         <option value="Cantidad">Cantidad</option>
       </select>
@@ -341,9 +407,10 @@ function Producto() {
             <th>Departamento</th>
             <th>Cantidad</th>
             <th>Precio</th>
+            <th>Costo</th>
             <th>Imagen</th>
             <th>Descripción</th>
-            <th>Codigo</th>
+            <th>Código</th>
           </tr>
         </thead>
         <tbody>
@@ -354,6 +421,7 @@ function Producto() {
               <td>{dato.NombreDepartamento}</td>
               <td>{dato.Cantidad}</td>
               <td>{dato.Precio}</td>
+              <td>{dato.PrecioReferencia}</td>
               <td>
                 <img src={dato.Image} alt={dato.Nombre} style={{ width: '30px', height: '30px' }} />
               </td>
@@ -408,6 +476,7 @@ function Producto() {
         nombreCrud={nombre}
         combobox2={departamento}
         setImageFile={setImageFile}
+        Etiquetas={Etiquetas}
       />
       <ModalCrear
         isOpenA={isOpenCrear}
@@ -420,6 +489,7 @@ function Producto() {
         nombreCrud={nombre}
         combobox2={departamento}
         setImageFile={setImageFile}
+        Etiquetas={EtiquetasCrear}
       />
       <ModalEliminar
         isOpen={isOpenEliminar}

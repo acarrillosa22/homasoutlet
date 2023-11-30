@@ -10,17 +10,19 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 library.add(faPenToSquare, faSquareXmark, faArrowRight, faArrowLeft, faEye);
 
-function EditarArt({ isOpen, onClose, datos, onGuardar }) {
+function EditarArt({ isOpen, onClose, datos, onGuardar}) {
+    const [descuentoAplicable, setDescuentoAplicable] = useState(false);
     const [modalData, setModalData] = useState([
         //Molde para evitar que se caiga
         {
             codigoBarras: '',
             descripcion: '',
             precioVenta: 0,
-            cantidad: 0,
+            Cantidad: 0,
             importe: 0,
             existencia: 0,
             descuento: 0,
+            global: 0,
         },
     ]);
     const handleGuardar = () => {
@@ -34,6 +36,15 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
     useEffect(() => {
         if (isOpen && datos) {
             setModalData(datos);
+            if(datos.global === undefined){
+                setDescuentoAplicable(false);
+            }
+            else if(datos.global === 0){
+                setDescuentoAplicable(false);
+            }
+            else{
+                setDescuentoAplicable(true);
+            }
         }
     }, [isOpen, datos]);
 
@@ -44,8 +55,8 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
             [index]: parseFloat(e.target.value)
         };
 
-        if (isNaN(newModalData.cantidad)) {
-            newModalData.cantidad = 0;
+        if (isNaN(newModalData.Cantidad)) {
+            newModalData.Cantidad = 0;
         }
 
         if (isNaN(newModalData.descuento)) {
@@ -54,7 +65,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
 
         // Validar que no se este vendiendo más de lo que hay, se aplique un descuento inválido o se aplique valores negativos
         const validador = newModalData.existencia;
-        if (validador < newModalData.cantidad || newModalData.descuento > 100 || newModalData[index] < 0) {
+        if (validador < newModalData.Cantidad || newModalData.descuento > 100 || newModalData[index] < 0) {
             if (newModalData.descuento > 100) {
                 setMensajeError("El descuento excede el 100%.");
             }
@@ -65,7 +76,7 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
         } else {
             setbotonActivo(false);
             setMensajeError('');
-            if (newModalData.cantidad === 0) {
+            if (newModalData.Cantidad === 0) {
                 setbotonActivo(true);
                 setMensajeError("No se puede vender 0 prouctos");
             }
@@ -100,12 +111,13 @@ function EditarArt({ isOpen, onClose, datos, onGuardar }) {
                     type="number"
                     value={modalData.descuento}
                     onChange={(e) => handleInputChange(e, "descuento")}
+                    disabled={descuentoAplicable}
                 />
                 <label>Cantidad:</label>
                 <input
                     type="number"
-                    value={modalData.cantidad}
-                    onChange={(e) => handleInputChange(e, "cantidad")}
+                    value={modalData.Cantidad}
+                    onChange={(e) => handleInputChange(e, "Cantidad")}
                 />
                 <div>
                     <Button color="primary" onClick={handleGuardar} disabled={botonActivo}>

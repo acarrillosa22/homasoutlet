@@ -15,13 +15,23 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         estado: 'pagar', // Valor predeterminado
         metodoPago: '',
         total: 0,
-        fechaApartado: Date(),
-        fechaTemp : Date(),
+        efectivo: 0,
     });
 
     const [procesarHabilitado, setProcesarHabilitado] = useState(false);
 
     const handleGuardar = () => {
+        const fecha = new Date();
+        if(modalData.estado === "apartar"){
+             // Manejo de fecha apartado-----------
+            let actual = fecha.getMonth();
+            let fechaApartado = actual + 1;
+            fecha.setFullYear(fechaApartado);
+            setModalData({
+                ...modalData,
+                fechaApartado: fecha,
+            });   
+        }
         onGuardar(modalData);
         onClose();
     };
@@ -31,12 +41,11 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         setModalData({
             ...modalData,
             estado: nuevoEstado,
-            metodoPago: '', // Restablecer el método de pago al cambiar el estado
         });
         if (nuevoEstado === 'pendiente') {
             setProcesarHabilitado(true);
         }
-        else{
+        else {
             setProcesarHabilitado(false);
         }
     };
@@ -52,26 +61,30 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
         }
         // Habilitar el botón "Procesar Factura" si se selecciona un método de pago
         else {
-            console.log(modalData.fechaApartado)
-            if(modalData.estado === 'apartar' &&  modalData.abono !== undefined && modalData.fechaTemp !== modalData.fechaApartado){
+            if (modalData.estado === 'apartar' && modalData.abono !== undefined && modalData.abono !== '') {
                 setProcesarHabilitado(true);
             }
-            if(modalData.estado === 'pagar'){
+            else if (modalData.estado === "pagar" && (nuevoMetodoPago === "Tarjeta" || nuevoMetodoPago === "Sinpe")) {
                 setProcesarHabilitado(true);
+            }
+            else{
+                setProcesarHabilitado(false);
             }
         }
 
     };
 
-    const handleFechaApartadoChange = (e) => {
-        const fechaApartado = e.target.value;
+    const handleDineroChange = (e) => {
+        const dinero = e.target.value;
         setModalData({
             ...modalData,
-            fechaApartado: fechaApartado
+            efectivo: dinero
         });
-        console.log(modalData.abono !== 0)
-        if(modalData.abono !== undefined){
+        if (dinero >= datos.total) {
             setProcesarHabilitado(true);
+        }
+        else {
+            setProcesarHabilitado(false);
         }
     };
 
@@ -81,8 +94,11 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
             ...modalData,
             abono: abono
         });
-        if(modalData.fechaTemp !== modalData.fechaApartado){
+        if (abono > 0 && modalData.metodoPago !== '') {
             setProcesarHabilitado(true);
+        }
+        else{
+            setProcesarHabilitado(false);
         }
     };
 
@@ -118,10 +134,21 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                         <label>Método de Pago:</label>
                         <select value={modalData.metodoPago} onChange={handleMetodoPagoChange}>
                             <option value="">Seleccionar Método de Pago</option>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="sinpe">Sinpe</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Sinpe">Sinpe</option>
                         </select>
+                        {modalData.metodoPago === 'Efectivo' && (
+                            <>
+                                <label>Efectivo:</label>
+                                <input
+                                    type="number"
+                                    placeholder="Ingrese el monto de pago"
+                                    value={modalData.efectivo}
+                                    onChange={handleDineroChange}
+                                />
+                            </>
+                        )}
                     </>
                 )}
                 {modalData.estado === 'apartar' && (
@@ -129,22 +156,15 @@ function ProcesarPago({ isOpen, onClose, datos, onGuardar }) {
                         <label>Método de Abono:</label>
                         <select value={modalData.metodoPago} onChange={handleMetodoPagoChange}>
                             <option value="">Seleccionar Método de Abono</option>
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta</option>
-                            <option value="sinpe">Sinpe</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Sinpe">Sinpe</option>
                         </select>
                         <label>Abono:</label>
                         <input
                             type="number"
                             value={modalData.abono}
                             onChange={handleAbonoChange}
-                        />
-                        <label>Fecha limite de apartado:</label>
-                        <input
-                            type="date"
-                            placeholder="Fecha de duración del apartado"
-                            value={modalData.fechaApartado}
-                            onChange={handleFechaApartadoChange}
                         />
                     </>
                 )}

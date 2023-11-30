@@ -7,7 +7,7 @@ import "./App.css";
 import TopNavBar from "./components/navbarC/navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ResponsiveBreakpointsExample from "./components/tabla/tabla";
-import Salidas from './components/Movimientos/Salidas';
+
 import PerfilM from './pages/Perfil/perfil';
 import Api from './pages/Producto/Target-api';
 import Producto from './pages/Producto/Productos';
@@ -25,13 +25,16 @@ import HistorialFactura from './pages/historialFacturas/HistorialFactura';
 
 import { Switch } from 'react-router-dom';
 import HistorialSalida from './components/Movimientos/HistorialSalida';
+import Usuarios from './pages/login/Login';
+import CortesInfo from './components/tabla/tabla';
+import CorteInicio from './components/tabla/InicioCorte';
 const numbers = [3454, 3455, 34545];
 function App() {
   return (
     <Router className='App'>
       
       <Routes>
-        <Route path='/' element={<Login />} />
+       <Route path='/' element={<Usuarios />} />
         {/*
       <Route element={<ProtectedRoutes isAllowed={!!user}/>}> */ }
         <Route path='/Cierre' element={<ResponsiveBreakpointsExample dinero={numbers} />} />
@@ -51,7 +54,8 @@ function App() {
         <Route path='/Apartados' element={<Apartado />} />
         <Route path='/historial' element={<HistorialFactura />} />
         <Route path='/cortes' element={<Cortes />} />
-        
+        <Route path='/IC' element={<CorteInicio />} />
+        <Route path='/Cierre' element={<CortesInfo />} />
     
 
         {/*     </Route> */}

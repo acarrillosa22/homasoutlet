@@ -1,17 +1,18 @@
-body{
-  padding: 0px;
-  border: 0px;
-  margin: 0px;
-  
+.image-container{
+  width: 10em;
+  text-align: center;
+  margin: 0 auto;
 }
-/* Estilos para el contenedor principal */
-
+img{
+  max-width: 100%; 
+ 
+}
 .logo{
   width: 10em;
   text-align: center;
 }
-.container-Principal {
-  margin: auto;
+.container-login {
+  margin: 2% 33%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,12 +39,67 @@ body{
 }
 
 /* Estilos para los campos de entrada */
-input {
+.input-log {
   padding: 5px;
   margin-top: 5px;
   border-radius: 8px; /* Agrega esquinas redondeadas */
-  width: 20em;
+  width: 75%; /* Usa un ancho relativo para adaptarse al contenedor */
+}
 
+/* Estilos para los contenedores de campos */
+#container-correo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+  width: 30em; /* Establece un ancho para los contenedores */
+}
+.container-contraseña {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.password-input {
+  position: relative;
+  width: 75%;
+}
+
+.password-input input {
+  padding: 5px;
+  margin-top: 5px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.visible {
+  position: absolute;
+  right: 5px; /* Puedes ajustar la posición a tu gusto */
+  top: 50%; /* Centra verticalmente el botón en relación con el input */
+  transform: translateY(-50%);
+}
+
+.visible button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+
+/* Estilos para los campos de entrada con placeholders */
+.input-log::placeholder {
+  text-align: center; /* Alinea el texto del placeholder al centro */
+}
+
+.container-correo input::placeholder,
+.container-contraseña input::placeholder {
+  width: 100%; /* Asegura que ambos placeholders tengan el mismo ancho */
+}
+
+#botones {
+  text-align: center;
+  padding: 10px;
 }
 
 /* Estilos para los botones */
@@ -52,6 +108,7 @@ input {
 #btnRecuperar,
 #btnVolver {
   margin-top: 10px;
+  margin-right: 10px;
   width: 13em;
   padding: 10px 10px;
   background-color: rgb(177, 175, 175);
@@ -69,4 +126,3 @@ input {
 h1 {
   text-align: center;
 }
-

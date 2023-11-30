@@ -31,6 +31,7 @@ function HistorialSalida() {
   }, [selectedDate]);
   const [searchOption, setSearchOption] = useState("Tipo");
   const filteredUsers = dataState.filter((pedidos) => {
+    console.log(pedidos);
     const searchTerm = searchQuery;
     if (searchOption === "Tipo") {
       return pedidos.Tipo.includes(searchTerm);

@@ -32,11 +32,11 @@ function TopNavBar() {
               Productos
             </Nav.Link>
             <Nav.Link className="navo" as={Link} to="/config">
-              Configuración
+              Perfil
             </Nav.Link>
 
             <Nav.Link className="navo" as={Link} to="/Facturacion">
-              Facturacion
+              Facturación
             </Nav.Link>
 
             <Nav.Link className="navo" as={Link} to="/departamentos">
@@ -51,7 +51,7 @@ function TopNavBar() {
               Movimientos
             </Nav.Link>
             <Nav.Link className="navo" as={Link} to="/historial">
-              Hstorial Facturas
+              Historial Facturas
             </Nav.Link>
             <Nav.Link className="navo" as={Link} to="/pedidos">
               Pedidos

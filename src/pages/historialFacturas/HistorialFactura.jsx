@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import "./HistorialFactura.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "react-datepicker/dist/react-datepicker.css";
+//import "react-datepicker/dist/react-datepicker.css";
 
 import ModalDetallesFactura from "../../components/datallesModal/modalDetallesFactura.jsx";
 // Firebase
@@ -29,54 +29,54 @@ import TopNavBar from "../../components/navbarC/navbar.jsx";
 library.add(faArrowRight, faArrowLeft, faEye,faPrint);
 
 function HistorialFactura() {
+  const db = getFirestore(appPVH);
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp.seconds * 1000);
     return format(date, "dd/MM/yyyy"); // Formatea la fecha como "dd/MM/yyyy"
   };
-
-  const nombre = "Detalles de factura";
-  const db = getFirestore(appPVH);
   const generarPDF = (dato) => {
     const doc = new jsPDF();
     var numArticulos = 0;
+  
     // Configuración de fuente y tamaño para el encabezado
-    //doc.setFontSize(25);
-   // doc.text(`${dato.Cajero.Nombre}`, 75, 20);
-    doc.setFontSize(15);
-    doc.text(`${dato.Encabezado.Dueño.Nombre}`, 100, 30);
-    doc.text(`${dato.Encabezado.Dueño.Cedula}`, 65, 30);
-    doc.text('FACEBOOK: HOMAS OUTLET', 75, 40);
-    doc.text(`CORREO:${dato.Encabezado.CorreoSede}`, 60, 60);
-    doc.text(`TELÉFONO: ${dato.Encabezado.Telefono}`, 85, 50);
-    doc.text(`${formatTimestamp(dato.Fecha)}`, 85, 70);
-    doc.setFontSize(20);
-
+    doc.setFontSize(10);
+    doc.text(`${dato.Encabezado.Dueño.Nombre}`, 95, 10);
+    doc.text(`${dato.Encabezado.Dueño.Cedula}`, 70, 10);
+    doc.text('FACEBOOK: HOMAS OUTLET', 75, 20);
+    doc.text(`CORREO:${dato.Encabezado.CorreoSede}`, 67, 30);
+    doc.text(`TELÉFONO: ${dato.Encabezado.Telefono}`, 78, 40);
+    doc.text(`${formatTimestamp(dato.Fecha)}`, 90, 50);
+    doc.text(`Cajero: ${dato.Cajero}`, 10, 60);
+    doc.setFontSize(12);
+    
     // Contenido de la factura
-    doc.text(`CAJERO: ${dato.Cajero.Nombre}`, 10, 90);
-    doc.text(`CANTIDAD`, 10, 120);
-    doc.text(`DESCRIPCIÓN `, 70, 120);
-    doc.text(`IMPORTE `, 140, 120);
-    doc.text(`=====================================================`, 1, 130);
+    doc.text(`CANTIDAD`, 10, 70);
+    doc.text(`DESCRIPCIÓN `, 70, 70);
+    doc.text(`IMPORTE `, 145, 70);
+    doc.text(`========================================================================================================`, 1, 80);
+  
+    let yOffset = 90; // Posición vertical inicial para los productos
+  
     for (let index = 0; index < dato.Productos.length; index++) {
-      doc.text(`${dato.Productos[index].Cantidad}`, 10, 140);
-      doc.text(`${dato.Productos[index].Nombre}`, 50, 140);
-      doc.text(`${dato.Productos[index].Precio}`, 150, 140);
-      numArticulos =numArticulos+ dato.Productos[index].Cantidad;
+      doc.text(`${dato.Productos[index].Cantidad}`, 15, yOffset);
+      doc.text(`${dato.Productos[index].Nombre}`, 60, yOffset);
+      doc.text(`${dato.Productos[index].importe}`, 150, yOffset);
+      numArticulos += dato.Productos[index].Cantidad;
+      yOffset += 10; // Ajuste vertical para el siguiente producto
     }
-    doc.text(`=====================================================`, 1, 150);
-    doc.text(`NO.ARTICULOS: ${numArticulos || ''}`, 70, 170);
-    doc.setFontSize(25);
-    doc.text(`TOTAL: ${dato.Total}`, 70, 190);
-    doc.text(`SE HA RECIBIDO: ${dato.pagoCliente}`, 40, 210);
-    doc.text(`SE HA DEVUELTO: ${dato.vuelvoCliente}`, 40, 230);
-    doc.text(`USTED HA AHORRADO: ${dato.Descuento}`, 35, 250);
-    doc.setFontSize(15);
-    doc.text(`¡¡GRACIAS POR SU COMPRA!!`, 70, 270);
-    doc.text('LOS ARTÍCULOS ELÉCTRICOS TIENEN UN MES DE GARANTÍA.', 40, 280);
-    doc.text('EL CAJERO DEBE COMPROBAR EL ESTADO DE LOS ARTÍCULOS ANTES DE SALIR DE LA TIENDA.', 0, 290);
-
+    doc.text(`========================================================================================================`, 1, yOffset);
+    doc.text(`No.Artículos: ${numArticulos || ''}`, 40, yOffset + 10);
+    doc.setFontSize(10);
+    doc.text(`TOTAL: ${dato.Total}`, 125, yOffset + 10);
+    doc.text(`SE HA RECIBIDO: ${dato.pagoCliente}`, 5, yOffset + 20);
+    doc.text(`SE HA DEVUELTO: ${dato.vuelvoCliente}`, 90, yOffset + 20);
+    doc.text(`USTED HA AHORRADO: ${dato.Descuento}`, 145, yOffset + 20);
+    doc.text(`¡¡GRACIAS POR SU COMPRA!!`, 80, yOffset + 40);
+    doc.text('LOS ARTÍCULOS ELÉCTRICOS TIENEN UN MES DE GARANTÍA.', 60, yOffset + 50);
+    doc.text('EL CAJERO DEBE COMPROBAR EL ESTADO DE LOS ARTÍCULOS ANTES DE SALIR DE LA TIENDA.', 25, yOffset + 60);
+  
     // Descargar el PDF
-    doc.save('mi_pdf.pdf');
+    doc.save('Homas_Factura.pdf');
   };
   // Hooks
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,7 +106,6 @@ function HistorialFactura() {
   const handleDateChange = (e) => {
     const selectedTimestamp = (e.target.valueAsNumber / 1000); // Divide por 1000 para convertir de milisegundos a segundos
     setSelectedDate(selectedTimestamp);
-    console.log("Facturas:", selectedTimestamp);
   };
 
   const obtenerUsuarios = async (page) => {
@@ -126,7 +125,6 @@ function HistorialFactura() {
       const cajasPerPage = 10;
       const startIndex = (page - 1) * cajasPerPage;
       const slicedCajas = allCajas.slice(startIndex, startIndex + cajasPerPage);
-      console.log("Facturas filtradas:", slicedCajas);
       setData(slicedCajas);
     } catch (error) {
       console.error("Error al obtener Facturas: ", error);
@@ -134,7 +132,6 @@ function HistorialFactura() {
   };
 
   const abrirModalDetalles = (cedula) => {
-    console.log(cedula);
     setUsuario(cedula);
     openModalDetalles();
   };
@@ -162,27 +159,29 @@ function HistorialFactura() {
             <th>Cajero</th>
             <th>Fecha</th>
             <th>Monto</th>
+            <th>Cliente</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {dataState.map((dato) => (
             <tr key={dato.Fecha.seconds}>
-              <td>{dato.Cajero.Nombre}</td>
+              <td>{dato.Cajero}</td>
               <td>{formatTimestamp(dato.Fecha)}</td>
-
               <td>{dato.Total}</td>
-
+              <td>{dato.Cliente}</td>
               <td>
                 <Button
                   onClick={() => abrirModalDetalles(dato)}
                   color="warning"
+                  className="bbb"
                 >
                   <FontAwesomeIcon icon={faEye} size="lg" />
                 </Button>
                 <Button
                   onClick={() => generarPDF(dato)}
                   color="info"
+                  className="bbb"
                 >
                   <FontAwesomeIcon icon={faPrint} size="lg" />
                 </Button>

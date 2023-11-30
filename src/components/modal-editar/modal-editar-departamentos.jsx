@@ -18,7 +18,8 @@ function ModalA({
   fieldOrder,
   nombreCrud,
   combobox2,
-  setImageFile
+  setImageFile,
+  Etiquetas,
 }) {
   const [form, setForm] = useState({});
   const [errors, setErrors] = useState({});
@@ -70,11 +71,13 @@ function ModalA({
 
   const generateFormGroups = () => {
     return Object.entries(fieldOrder).map(([order, key]) => {
+      const label =
+        Etiquetas[key] || key.charAt(0).toUpperCase() + key.slice(1);
       if (key === "rol") {
         // Si es el atributo "rol", generar un combobox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <select
               className="form-control"
               name={key}
@@ -91,7 +94,7 @@ function ModalA({
       } else if (key === "Estado") {
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <select
               className="form-control"
               name={key}
@@ -105,11 +108,45 @@ function ModalA({
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
+      } else if (key === "EstadoP") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{label}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un Estado</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="Concretado">Concretado</option>
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );  
+       } else if (key === "EstadoD") {
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{label}:</label>
+            <select
+              className="form-control"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un Estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );  
       } else if (key === "Morosidad" || key === "morosidad") {
         // Si es el atributo "morosidad", generar un checkbox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <input
               type="checkbox"
               name={key}
@@ -122,7 +159,7 @@ function ModalA({
       } else if (key === "correoElectronico" || key === "Correo") {
         return (
           <FormGroup key={key} className={errors ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <input
               required
               className="form-control"
@@ -148,11 +185,11 @@ function ModalA({
           </FormGroup>
         );
       }
-      else if (key === "Departamento") {
+      else if (key === "NombreDepartamento") {
         // Si es el atributo "rol", generar un combobox
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <select
               className="form-control"
               name={key}
@@ -161,11 +198,29 @@ function ModalA({
             >
               <option value="">Selecciona un Departamento</option>
               {combobox2.map((encargado) => (
-                <option key={encargado.id} value={encargado.nombre}>
-                  {encargado.nombre}
+                <option key={encargado.Nombre} value={encargado.Nombre}>
+                  {encargado.Nombre}
                 </option>
               ))}
             </select>
+            {errors[key] && <div className="error">{errors[key]}</div>}
+          </FormGroup>
+        );
+      
+      }
+      else if (key === "Fecha Limite") {
+        // Generar un input para los otros atributos
+        return (
+          <FormGroup key={key} className={errors[key] ? "error" : ""}>
+            <label>{label}:</label>
+            <input
+              required
+              className="form-control"
+              type="date"
+              name={key}
+              value={form[key] || ""}
+              onChange={handleChange}
+            />
             {errors[key] && <div className="error">{errors[key]}</div>}
           </FormGroup>
         );
@@ -173,7 +228,7 @@ function ModalA({
         // Generar un input para los otros atributos
         return (
           <FormGroup key={key} className={errors[key] ? "error" : ""}>
-            <label>{key.charAt(0).toUpperCase() + key.slice(1)}:</label>
+            <label>{label}:</label>
             <input
               required
               className="form-control"

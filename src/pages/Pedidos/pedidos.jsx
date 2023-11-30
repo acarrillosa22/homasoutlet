@@ -8,7 +8,7 @@ import ModalA from "../../components/modal-editar/modal-editar-departamentos";
 import ModalEliminarPedido from "../../components/modal-eliminar/modal-eliminar-pedidos";
 import ModalDetallesPedido from "../../components/datallesModal/modalDetallesPedido";
 //-------------------------------------------------Imports Firebase----------------------------------------------------------------------
-import { Table, Button, Container } from "reactstrap";
+import { Table, Button, Container, Label } from "reactstrap";
 import appHOT from "../../firebase/firebaseHOT";
 import { getFirestore, collection, getDocs, query, where, doc, updateDoc, setDoc, deleteDoc, addDoc, orderBy } from "firebase/firestore";
 //-------------------------------------------------Imports Fontawesome---------------------------------------------------------------------
@@ -46,9 +46,14 @@ function Pedidos() {
   //----------------------------------------------Editar------------------------------------------------------------------------------------------------
   const fieldOrderEditar = {
     1: "codigoDescuento", // Primer campo en aparecer
-    2: "Estado",
-    6: "idUsuario",
+    2: "estado",
   };
+
+  const Etiquetas = {
+    codigoDescuento: "Código de Descuento",
+    estado: "Estado",
+  };
+
   const abrirModalActualizar = (id) => {
     setDepartamento(id);
     openModalActualizar();
@@ -94,7 +99,7 @@ function Pedidos() {
 
       await updateDoc(department, {
         codigoDescuento: form.codigoDescuento,
-        Estado: form.Estado,
+        estado: form.estado,
         idUsuario: form.idUsuario,
       });
       console.log("Document successfully updated!");
@@ -151,11 +156,11 @@ function Pedidos() {
 
       const cajaRef = collection(db, "Pedido");
 
-      let queryRef = query(cajaRef, orderBy("Fecha", "desc"));
+      let queryRef = query(cajaRef, orderBy("fecha", "desc"));
 
       if (selectedDate) {
         const selectedTimestamp = fromUnixTime(selectedDate);
-        queryRef = query(queryRef, where("Fecha", ">=", selectedTimestamp));
+        queryRef = query(queryRef, where("fecha", ">=", selectedTimestamp));
 
       }
       const querySnapshot = await getDocs(queryRef);
@@ -294,36 +299,37 @@ function Pedidos() {
         />
         <Button onClick={() => setSelectedDate(null)}>Limpiar Fecha</Button>
       </div>
+      <Label>El estado es un numero que representan: 1 = Pendiente, 2 = Concretado</Label>
       <Table>
         <thead>
           <tr>
             <th>Fecha</th>
-            <th>CodigoDescuento</th>
+            <th>Código de Descuento</th>
             <th>Estado</th>
             <th>Productos</th>
-            <th>Numero de Cliente</th>
           </tr>
         </thead>
         <tbody>
           {filteredUsers.map((dato) => (
             <tr key={dato.id}>
-              <td>{formatTimestamp(dato.Fecha)}</td>
+              <td>{formatTimestamp(dato.fecha)}</td>
               <td>{dato.codigoDescuento}</td>
-              <td>{dato.Estado}</td>
+              <td>{dato.estado}</td>
               <td><Button
               onClick={() => abrirModalDetalles(dato)}
               color="primary">Detalles de Producto</Button></td>
-              <td>{dato.idUsuario}</td>
               <td>
                 <Button
                   onClick={() => abrirModalActualizar(dato)}
                   color="primary"
+                  className="bbb"
                 >
                   <FontAwesomeIcon icon={faPenToSquare} size="lg" />
                 </Button>
                 <Button
                   onClick={() => abrirModalEliminar(dato)}
                   color="danger"
+                  className="bbb"
                 >
                   <FontAwesomeIcon icon={faSquareXmark} size="lg" />
                 </Button>
@@ -345,6 +351,7 @@ function Pedidos() {
           onClick={handleNextPage}
           disabled={dataState.length < 10}
           color="primary"
+
         >
           <FontAwesomeIcon icon={faArrowRight} size="lg" />
         </Button>
@@ -358,6 +365,7 @@ function Pedidos() {
         FuntionEdit={editar}
         fieldOrder={fieldOrderEditar}
         nombreCrud={nombre}
+        Etiquetas={Etiquetas}
       />
       <ModalEliminarPedido
         isOpen={isOpenEliminar}
@@ -371,7 +379,6 @@ function Pedidos() {
           isOpenA={isOpenDetalles}
           closeModal={closeModalDetalles}
           elemento={pedidos}
-          nombreCrud={nombre}
         />
       )}
     </Container>

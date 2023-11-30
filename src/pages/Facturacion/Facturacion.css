@@ -169,3 +169,11 @@ input {
 .search-inner{
   display: flex;
 }
+
+.insertar{
+  width: 36%;
+}
+
+.insertarDesc{
+  width: 25%;
+}

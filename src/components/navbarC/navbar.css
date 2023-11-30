@@ -1,5 +1,6 @@
 #navo{
     margin-left: 10px;
+    width: fit-content;
 }
 #iconoLogin{
     margin-left: 10px;
@@ -39,4 +40,7 @@ Navbar{
     
 }
 
+#home{
+    margin-right: 5%;
+}
 

@@ -44,7 +44,16 @@ function Departamentos() {
     1: "Nombre", // Primer campo en aparecer
     2: "EstadoD",
     3: "Descripcion",
+    4: "Imagen"
   };
+
+  const Etiquetas = {
+    Nombre: "Nombre",
+    EstadoD: "Estado",
+    Descripcion: "Descripción",
+    Imagen: "Imagen"
+  };
+
   const abrirModalActualizar = (nombre) => {
     setDepartamento(nombre);
     openModalActualizar();
@@ -82,6 +91,7 @@ function Departamentos() {
         Nombre: form.Nombre,
         Estado: form.EstadoD,  
         Descripcion: form.Descripcion,  
+        Imagen: imageFile
       });
       console.log("Document successfully updated!");
       onCreateDepartamentos();
@@ -153,10 +163,18 @@ function Departamentos() {
 //-------------------------------------------------------------Crear------------------------------------------------------------------------
 const fieldOrderCrear = {
   1: "Nombre", // Primer campo en aparecer
-  2: "Estado",
+  2: "EstadoD",
   3: "Descripcion",
   4: "Imagen"
 };
+
+const EtiquetasCrear = {
+  Nombre: "Nombre",
+  EstadoD: "Estado",
+  Descripcion: "Descripción",
+  Imagen: "Imagen"
+};
+
 const validateFieldCrear = (fieldName, value) => {
   const errors = {}
   let fieldErrors = { ...errors };
@@ -185,7 +203,7 @@ const crearDepartamento = async (form) => {
       Estado: form.Estado,
       Imagen: imageFile,
       Descripcion: form.Descripcion,
-      Ventas:["",0,""]
+      Ventas:[]
     });
 
     console.log("Departamento creado y documentado en Firestore");
@@ -198,7 +216,8 @@ const crearDepartamento = async (form) => {
 const initialFormState = {
   Nombre: "",
   Estado: "",
-  Descripcion: ""
+  Descripcion: "",
+  Imagen: ""
 };
 
 //-------------------------------------------------------Eliminar---------------------------------------------------------------------
@@ -246,14 +265,13 @@ return (
       onChange={handleSearchChange}
       placeholder={`Buscar por ${searchOption}`}
     />
-    <label>Nota: Los 3 estados son: Activo, Inactivo y Elimindo</label>
   <Table>
   <thead>
         <tr>
           <th>Nombre</th>
           <th>Estado</th>
           <th>Imagen</th>
-          <th>Descripcion</th>
+          <th>Descripción</th>
         </tr>
       </thead>
     <tbody>
@@ -269,12 +287,14 @@ return (
             <Button
               onClick={() => abrirModalActualizar(dato)}
               color="primary"
+              className="bbb"
             >
               <FontAwesomeIcon icon={faPenToSquare} size="lg" />
             </Button>
             <Button
               onClick={() => abrirModalEliminar(dato)}
               color="danger"
+              className="bbb"
             >
               <FontAwesomeIcon icon={faSquareXmark} size="lg" />
             </Button>
@@ -308,7 +328,9 @@ return (
       validateField ={validateField}
       FuntionEdit={editar}
       fieldOrder={fieldOrderEditar}
+      setImageFile={setImageFile}
       nombreCrud={nombre}
+      Etiquetas={Etiquetas}
     />
     <ModalCrear
       isOpenA={isOpenCrear}
@@ -320,6 +342,7 @@ return (
       fieldOrder={fieldOrderCrear}
       nombreCrud={nombre}
       setImageFile={setImageFile}
+      Etiquetas={EtiquetasCrear}
     />
     <ModalEliminar
       isOpen={isOpenEliminar}

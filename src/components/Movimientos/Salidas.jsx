@@ -5,8 +5,6 @@ import db from "../../firebase/firebase";
 import "./Salidas.css";
 import HistorialSalida from "./HistorialSalida";
 import HomasLogo from "../../img/HomasLogo.png";
-import TopNavBar from "../navbarC/navbar";
-import { Container } from "reactstrap";
 
 const Salidas = () => {
   const [monto, setMonto] = useState("");
@@ -94,8 +92,7 @@ const Salidas = () => {
   };
 
   return (
-    <Container>
-      <TopNavBar/>
+    <div className="container-movimientos">
       <h1>Movimientos de Dinero</h1>
       <div className="image-container">
         <img src={HomasLogo} alt="Logo" />
@@ -165,7 +162,7 @@ const Salidas = () => {
         </button>
         <p>{notification}</p>
       </Modal>
-    </Container>
+    </div>
   );
 };
 
