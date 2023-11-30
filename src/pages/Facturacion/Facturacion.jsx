@@ -444,7 +444,7 @@ function Factura() {
             const importe = producto.Precio * producto.Cantidad * (1 - producto.descuento / 100);
             activeTabData.productos[productoIndex].importe = importe;
             if (!descuentoA) {
-                if (producto.descuento !== 0) {
+                if (producto.descuento !== 0 || producto.descuento !== "") {
                     activeTabData.botonGlobal = true;
                     descuentoA = true;
                 }
